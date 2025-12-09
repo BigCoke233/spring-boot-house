@@ -11,7 +11,7 @@
  Target Server Version : 80037 (8.0.37)
  File Encoding         : 65001
 
- Date: 09/12/2025 20:12:25
+ Date: 09/12/2025 21:00:36
 */
 
 SET NAMES utf8mb4;
@@ -28,6 +28,7 @@ CREATE TABLE `house`  (
   `h_describe` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL COMMENT '房源详情',
   `h_address` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '房源地址',
   `h_detail_address` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '房源门牌号',
+  `h_price` double NULL DEFAULT NULL COMMENT '房源推荐价格',
   `h_longitude` double NULL DEFAULT 0 COMMENT '房源经度',
   `h_latitude` double NULL DEFAULT 0 COMMENT '房源纬度',
   `h_square` double UNSIGNED NULL DEFAULT 0 COMMENT '建筑面积（单位：平方米）',
