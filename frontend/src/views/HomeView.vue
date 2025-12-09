@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <main>
-    <p>Home</p>
-  </main>
+  <div>
+    <p class="text-2xl">Home</p>
+  </div>
 </template>

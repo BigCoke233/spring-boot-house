@@ -1,8 +1,8 @@
 import { defineConfig } from 'unocss'
-import { presetMini } from 'unocss'
+import { presetUno } from 'unocss'
 
 export default defineConfig({
   presets: [
-    presetMini(),
+    presetUno(),
   ],
 })
