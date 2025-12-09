@@ -5,12 +5,14 @@
 ```text
 JavaEE-final/
 ├─ backend/                      # 后端服务（Spring Boot）
-│  ├─ pom.xml                    # Maven 项目配置
-│  ├─ mvnw / mvnw.cmd            # Maven Wrapper
-│  ├─ .mvn/wrapper/              # Maven Wrapper 配置
+│  ├─ pom.xml                    # Maven 项目配置=
 │  └─ src/
 │     ├─ main/
 │     │  ├─ java/com/zgqf/house/
+│     │  │  ├─ mapper/
+│     │  │  ├─ service/
+│     │  │  ├─ controller/
+│     │  │  ├─ entity/
 │     │  │  ├─ HouseApplication.java      # 应用入口
 │     │  │  └─ ServletInitializer.java    # Servlet 初始化（WAR 部署等）
 │     │  └─ resources/
