@@ -1,44 +1,58 @@
-# frontend
+# 前端说明
 
-This template should help get you started developing with Vue 3 in Vite.
+## 架构
 
-## Recommended IDE Setup
+- 使用 Vue 作为 Web 框架，Vite 作为构建工具
+- ESLint 为代码自动审查工具，Prettifier 为代码美化工具
+- 使用 pnpm 作为包管理器
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 开发环境
 
-## Recommended Browser Setup
+1. 需[安装 Node.js](https://nodejs.org/en/download)
+    - Windows:
+    ```shell
+    # Download and install Chocolatey:
+    powershell -c "irm https://community.chocolatey.org/install.ps1|iex"
+    # Download and install Node.js:
+    choco install nodejs --version="24.11.1"
+    # Verify the Node.js version:
+    node -v 
+    # Verify npm version:
+    npm -v 
+    ```
+    - macOS:
+    ```shell
+    # Download and install nvm:
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    # in lieu of restarting the shell
+    \. "$HOME/.nvm/nvm.sh"
+    # Download and install Node.js:
+    nvm install 24
+    # Verify the Node.js version:
+    node -v 
+    # Verify npm version:
+    npm -v 
+    ```
+2. 需[安装 pnpm](https://pnpm.io/installation#using-npm)
+    ```shell
+    npm install -g pnpm@latest-10
+    ```
+    
+## 开发
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-pnpm dev
-```
-
-### Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+1. 安装前端依赖项
+    ```sh
+    pnpm install
+    ```
+2. 开发，运行命令后会在本地启动一个 HTTP 服务器，能够实时看到前端代码修改后的结果
+    ```sh
+    pnpm dev
+    ```
+3. 编译构建
+    ```sh
+    pnpm build
+    ```
+4. 格式化代码并排查问题
+    ```sh
+    pnpm lint
+    ```
