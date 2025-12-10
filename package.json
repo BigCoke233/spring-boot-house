@@ -1,5 +1,5 @@
 {
 	"dependencies": {
-		"vue-icons-plus": "^0.1.8"
+		"lucide-vue-next": "^0.556.0"
 	}
 }

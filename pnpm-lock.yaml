@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      vue-icons-plus:
-        specifier: ^0.1.8
-        version: 0.1.8(vue@3.5.25)
+      lucide-vue-next:
+        specifier: ^0.556.0
+        version: 0.556.0(vue@3.5.25)
 
 packages:
 
@@ -73,6 +73,11 @@ packages:
   estree-walker@2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
 
+  lucide-vue-next@0.556.0:
+    resolution: {integrity: sha512-JvdCM2smkWrMDhkfD/FpZiWekkbWD6MZLstIFx/FOVZgULrnMr5hegCB9LlTdgllEFnQYQs8hhHC1WYcAV9HTA==}
+    peerDependencies:
+      vue: '>=3.0.1'
+
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
@@ -91,11 +96,6 @@ packages:
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
-
-  vue-icons-plus@0.1.8:
-    resolution: {integrity: sha512-Xc4hDsD/oP9waSUf44nSaFBhUPo+QkpKclx0S7//5BRACpXymctbit02epek0VRW6nb81pR486XmxPP/ofm2yQ==}
-    peerDependencies:
-      vue: '>=2.7.0'
 
   vue@3.5.25:
     resolution: {integrity: sha512-YLVdgv2K13WJ6n+kD5owehKtEXwdwXuj2TTyJMsO7pSeKw2bfRNZGjhB7YzrpbMYj5b5QsUebHpOqR3R3ziy/g==}
@@ -182,6 +182,10 @@ snapshots:
 
   estree-walker@2.0.2: {}
 
+  lucide-vue-next@0.556.0(vue@3.5.25):
+    dependencies:
+      vue: 3.5.25
+
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -197,10 +201,6 @@ snapshots:
       source-map-js: 1.2.1
 
   source-map-js@1.2.1: {}
-
-  vue-icons-plus@0.1.8(vue@3.5.25):
-    dependencies:
-      vue: 3.5.25
 
   vue@3.5.25:
     dependencies:
