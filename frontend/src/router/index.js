@@ -5,6 +5,7 @@ import AccountView from '../views/AccountView.vue'
 import ContrastView from '../views/ContrastView.vue'
 import AccountProfileView from '../views/AccountProfileView.vue'
 import HouseListView from '@/views/HouseListView.vue'
+import HouseDetailView from '@/views/HouseDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,11 @@ const router = createRouter({
       name: 'houses',
       component: HouseListView,
     },
+    {
+      path: '/house/:id',
+      name: 'house-detail',
+      component: HouseDetailView,
+    }
   ],
 })
 
