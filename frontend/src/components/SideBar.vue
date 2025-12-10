@@ -5,7 +5,7 @@ import SideBarList from './SideBarList.vue'
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
   width: { type: Number, default: 240 },
-  collapsedWidth: { type: Number, default: 64 },
+  collapsedWidth: { type: Number, default: 0 },
 })
 
 const emit = defineEmits(['update:modelValue', 'toggle'])
