@@ -22,7 +22,6 @@
 
 ## 开发
 
->>>>>>> master
 1. 安装前端依赖项
     ```sh
     pnpm install
