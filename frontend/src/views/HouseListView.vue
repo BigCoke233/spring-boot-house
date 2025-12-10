@@ -1,8 +1,13 @@
 <script setup>
-import PageContainer from '@/layouts/PageContainer.vue';
+import HouseListAll from '@/components/HouseListAll.vue';
+import HouseListBySeller from '@/components/HouseListBySeller.vue';
+
 
 </script>
 
 <template>
-  <PageContainer></PageContainer>
+  <div class="my-25">
+    <HouseListAll />
+    <HouseListBySeller />
+  </div>
 </template>
