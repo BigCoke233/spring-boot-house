@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-  <footer class="footer-pattern w-full h-[20rem] mt-[20rem] absolute bottom-0">
+  <footer class="footer-pattern w-full h-[20rem]">
     <div class="relative z-1 mx-auto max-w-7xl px-6 py-10 text-neutral-700">
       <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
         <div>
