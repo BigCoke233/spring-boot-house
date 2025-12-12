@@ -12,8 +12,8 @@ const categories = [
 
 <template>
   <PageContainer>
-    <header class="flex justify-between items-center">
-      <h2 class="text-3xl">所有房源</h2>
+    <header class="flex justify-between items-center my-6">
+      <h2 class="text-3xl font-serif font-extrabold">所有房源</h2>
       <div class="flex gap-2">
         <button class="text-lg py-1 px-3 b-none rd-lg cursor-pointer"
           :class="category.active

@@ -4,7 +4,7 @@ import { VMap, VMapOsmTileLayer, VMapZoomControl } from 'vue-map-ui';
 
 <template>
   <div class="rd-lg overflow-hidden shadow">
-    <VMap :center="[40.737, -17.923]" :zoom="13" style="height: 500px;">
+    <VMap :center="[48.8566, 2.3522]" :zoom="18" style="height: 500px;">
       <VMapOsmTileLayer />
       <VMapZoomControl />
     </VMap>
