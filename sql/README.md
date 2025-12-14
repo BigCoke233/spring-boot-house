@@ -81,9 +81,9 @@
 - ​**主键**​: `h_id`（降序索引）
 - ​**无符号约束**​: `h_square`（确保不为负数）
 
-## 合同基础表-contrast
+## 合同基础表-contract
 
-表名：contrast
+表名：contract
 
 表描述：记录合同详细信息和状态
 
@@ -130,7 +130,7 @@
 
 |字段|含义|类型|长度|是否为空|缺省值|
 | -------------------| --------------------| --------| ------| ----------| --------|
-|i_contrast_id|合同id（PK）（FK）|int|-|NOT NULL|无|
+|i_contract_id|合同id（PK）（FK）|int|-|NOT NULL|无|
 |i_down_payment|首付|double|-|NOT NULL|无|
 |i_total_periods|总期数|int|-|NULL|NULL|
 |i_paid_per_period|每期还款额|double|-|NULL|NULL|
@@ -138,8 +138,8 @@
 
 ### 约束和索引
 
-- ​**主键**​: `i_contrast_id`
-- ​**外键**​: `i_contrast_id`​ → `contrast.c_id`（RESTRICT级联）
+- ​**主键**​: `i_contract_id`
+- ​**外键**​: `i_contract_id`​ → `contract.c_id`（RESTRICT级联）
 - ​**检查约束**​: `i_paid_count`​ ≤ `i_total_periods`
 
 ## **房源标签基础表-tag**
@@ -242,7 +242,7 @@
 
 |字段|含义|类型|长度|是否为空|缺省值|
 | --------------------| -----------------------------| ---------------| ------| ----------| --------|
-|vi_contrast_id|合同ID|int|-|NOT NULL|无|
+|vi_contract_id|合同ID|int|-|NOT NULL|无|
 |vi_down_payment|首付款|double|-|NOT NULL|无|
 |vi_total_periods|总期数|int|-|NULL|NULL|
 |vi_paid_per_period|每期还款额|double|-|NULL|NULL|

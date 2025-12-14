@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW view_installment AS
 SELECT 
-    i.i_contrast_id AS `vi_contrast_id`,
+    i.i_contract_id AS `vi_contract_id`,
     i.i_down_payment AS vi_down_payment,
     i.i_total_periods AS vi_total_periods,
     i.i_paid_per_period AS vi_paid_per_period,
@@ -17,5 +17,5 @@ SELECT
         ELSE 0
     END AS `vi_payment_status`
 FROM installment i
-INNER JOIN contrast c ON i.i_contrast_id = c.c_id
+INNER JOIN contract c ON i.i_contract_id = c.c_id
 INNER JOIN house h ON c.c_house_id = h.h_id;

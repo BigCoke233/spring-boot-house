@@ -55,7 +55,7 @@ SELECT
     c.c_delivery_ending AS vc_delivery_ending,
     c.c_delivery_actually AS vc_delivery_actually
     
-FROM contrast c
+FROM contract c
 LEFT JOIN house h ON c.c_house_id = h.h_id
-LEFT JOIN installment i ON c.c_id = i.i_contrast_id
+LEFT JOIN installment i ON c.c_id = i.i_contract_id
 WHERE h.h_seller_id IS NOT NULL;

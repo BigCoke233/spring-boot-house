@@ -20,7 +20,7 @@ SELECT
         -- 已售（合同已完成）：有已完成合同
         WHEN EXISTS (
             SELECT 1 
-            FROM contrast c 
+            FROM contract c
             JOIN house h2 ON c.c_house_id = h2.h_id
             WHERE h2.h_id = h.h_id
             AND (
@@ -32,7 +32,7 @@ SELECT
                  AND EXISTS (
                      SELECT 1 
                      FROM installment i 
-                     WHERE i.i_contrast_id = c.c_id 
+                     WHERE i.i_contract_id = c.c_id
                      AND i.i_paid_count >= i.i_total_periods
                  )
                  AND c.c_delivered = 1)
@@ -42,7 +42,7 @@ SELECT
         -- 合同中（合同未完成）：有未完成合同
         WHEN EXISTS (
             SELECT 1 
-            FROM contrast c 
+            FROM contract c
             JOIN house h2 ON c.c_house_id = h2.h_id
             WHERE h2.h_id = h.h_id
             AND (
@@ -57,7 +57,7 @@ SELECT
                      AND EXISTS (
                          SELECT 1 
                          FROM installment i 
-                         WHERE i.i_contrast_id = c.c_id 
+                         WHERE i.i_contract_id = c.c_id
                          AND (i.i_paid_count < i.i_total_periods OR c.c_delivered = 0)
                      ))
                 )

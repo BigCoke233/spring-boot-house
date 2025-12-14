@@ -2,7 +2,7 @@ package com.zgqf.house.entity;
 
 import java.util.Date;
 
-public class Contrast {
+public class Contract {
     private Integer c_id;
     private Integer c_buyer_id;
     private Integer c_house_id;

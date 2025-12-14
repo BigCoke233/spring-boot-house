@@ -18,10 +18,10 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for contrast
+-- Table structure for contract
 -- ----------------------------
-DROP TABLE IF EXISTS `contrast`;
-CREATE TABLE `contrast`  (
+DROP TABLE IF EXISTS `contract`;
+CREATE TABLE `contract`  (
   `c_id` int NOT NULL AUTO_INCREMENT,
   `c_buyer_id` int NOT NULL COMMENT '买方id',
   `c_house_id` int NOT NULL COMMENT '房源id',
@@ -39,8 +39,8 @@ CREATE TABLE `contrast`  (
   INDEX `c_buyer_id`(`c_buyer_id` ASC) USING BTREE,
   INDEX `c_house_id`(`c_house_id` ASC) USING BTREE,
   INDEX `c_total_price`(`c_total_price` ASC) USING BTREE,
-  CONSTRAINT `contrast_ibfk_1` FOREIGN KEY (`c_buyer_id`) REFERENCES `buyer` (`b_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `contrast_ibfk_2` FOREIGN KEY (`c_house_id`) REFERENCES `house` (`h_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `contract_ibfk_1` FOREIGN KEY (`c_buyer_id`) REFERENCES `buyer` (`b_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `contract_ibfk_2` FOREIGN KEY (`c_house_id`) REFERENCES `house` (`h_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `check_pay_way` CHECK (`c_pay_way` in (_utf8mb3'full',_utf8mb3'installment')),
   CONSTRAINT `check_argee` CHECK ((`c_buyer_agree` in (-(1),0,1)) and (`c_seller_agree` in (-(1),0,1)))
 ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '合同基础表' ROW_FORMAT = Dynamic;
