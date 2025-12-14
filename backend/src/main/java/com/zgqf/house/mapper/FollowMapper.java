@@ -1,7 +1,10 @@
 package com.zgqf.house.mapper;
 
 import com.zgqf.house.entity.Follow;
+import com.zgqf.house.entity.House;
 import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface FollowMapper {
@@ -33,4 +36,12 @@ public interface FollowMapper {
         @Result(property = "f_house_id", column = "f_house_id")
     })
     Follow getFollow(@Param("buyerId") Integer buyerId, @Param("houseId") Integer houseId);
+    
+    /**
+     * 获取买家收藏的所有房源ID
+     * @param buyerId 买家ID
+     * @return 收藏的房源ID列表
+     */
+    @Select("SELECT f_house_id FROM follow WHERE f_buyer_id = #{buyerId}")
+    List<Integer> getFollowHouseIds(@Param("buyerId") Integer buyerId);
 }

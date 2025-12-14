@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/buyer")
 public class FollowController {
@@ -49,6 +51,21 @@ public class FollowController {
             return ResponseEntity.ok("取消收藏成功");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("取消收藏失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 获取买家收藏的房源ID列表
+     * @param buyerId 买家ID
+     * @return 房源ID列表
+     */
+    @GetMapping("/follows")
+    public ResponseEntity<List<Integer>> getFollowHouses(@RequestHeader("buyerId") Integer buyerId) {
+        try {
+            List<Integer> houseIds = followService.getFollowHouseIds(buyerId);
+            return ResponseEntity.ok(houseIds);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

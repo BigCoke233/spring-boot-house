@@ -1,5 +1,10 @@
 package com.zgqf.house.service;
 
+import com.zgqf.house.entity.House;
+import com.zgqf.house.entity.Follow;
+
+import java.util.List;
+
 public interface FollowService {
     /**
      * 收藏房源
@@ -22,4 +27,11 @@ public interface FollowService {
      * @return 是否已收藏
      */
     boolean isFollowing(Integer buyerId, Integer houseId);
+    
+    /**
+     * 获取买家收藏的所有房源ID
+     * @param buyerId 买家ID
+     * @return 房源ID列表
+     */
+    List<Integer> getFollowHouseIds(Integer buyerId);
 }

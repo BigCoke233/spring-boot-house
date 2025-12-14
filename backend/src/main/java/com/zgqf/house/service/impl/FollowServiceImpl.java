@@ -6,6 +6,8 @@ import com.zgqf.house.service.FollowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FollowServiceImpl implements FollowService {
 
@@ -33,5 +35,10 @@ public class FollowServiceImpl implements FollowService {
     public boolean isFollowing(Integer buyerId, Integer houseId) {
         Follow follow = followMapper.getFollow(buyerId, houseId);
         return follow != null;
+    }
+    
+    @Override
+    public List<Integer> getFollowHouseIds(Integer buyerId) {
+        return followMapper.getFollowHouseIds(buyerId);
     }
 }
