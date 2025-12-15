@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, defineProps, defineEmits, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import SideBar from '@/components/SideBar.vue'
 
 const props = defineProps({
