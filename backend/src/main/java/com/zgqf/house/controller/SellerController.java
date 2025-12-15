@@ -1,7 +1,5 @@
 package com.zgqf.house.controller;
 
-import com.zgqf.house.entity.House;
-import com.zgqf.house.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
