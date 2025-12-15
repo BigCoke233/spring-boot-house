@@ -1,5 +1,6 @@
 package com.zgqf.house.controller;
 
+import com.zgqf.house.entity.House;
 import com.zgqf.house.service.FollowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -55,15 +56,15 @@ public class FollowController {
     }
     
     /**
-     * 获取买家收藏的房源ID列表
+     * 获取买家收藏的房源详细信息列表
      * @param buyerId 买家ID
-     * @return 房源ID列表
+     * @return 房源详细信息列表
      */
     @GetMapping("/follows")
-    public ResponseEntity<List<Integer>> getFollowHouses(@RequestHeader("buyerId") Integer buyerId) {
+    public ResponseEntity<List<House>> getFollowHouses(@RequestHeader("buyerId") Integer buyerId) {
         try {
-            List<Integer> houseIds = followService.getFollowHouseIds(buyerId);
-            return ResponseEntity.ok(houseIds);
+            List<House> houses = followService.getFollowHouses(buyerId);
+            return ResponseEntity.ok(houses);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

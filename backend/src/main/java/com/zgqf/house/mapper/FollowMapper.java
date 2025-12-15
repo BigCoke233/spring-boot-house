@@ -38,10 +38,23 @@ public interface FollowMapper {
     Follow getFollow(@Param("buyerId") Integer buyerId, @Param("houseId") Integer houseId);
     
     /**
-     * 获取买家收藏的所有房源ID
+     * 获取买家收藏的所有房源详细信息
      * @param buyerId 买家ID
-     * @return 收藏的房源ID列表
+     * @return 收藏的房源详细信息列表
      */
-    @Select("SELECT f_house_id FROM follow WHERE f_buyer_id = #{buyerId}")
-    List<Integer> getFollowHouseIds(@Param("buyerId") Integer buyerId);
+    @Select("SELECT h.* FROM house h INNER JOIN follow f ON h.h_id = f.f_house_id WHERE f.f_buyer_id = #{buyerId}")
+    @Results({
+        @Result(property = "h_id", column = "h_id"),
+        @Result(property = "h_seller_id", column = "h_seller_id"),
+        @Result(property = "h_name", column = "h_name"),
+        @Result(property = "h_describe", column = "h_describe"),
+        @Result(property = "h_address", column = "h_address"),
+        @Result(property = "h_detail_address", column = "h_detail_address"),
+        @Result(property = "h_price", column = "h_price"),
+        @Result(property = "h_longitude", column = "h_longitude"),
+        @Result(property = "h_latitude", column = "h_latitude"),
+        @Result(property = "h_square", column = "h_square"),
+        @Result(property = "h_checked", column = "h_checked")
+    })
+    List<House> getFollowHouses(@Param("buyerId") Integer buyerId);
 }

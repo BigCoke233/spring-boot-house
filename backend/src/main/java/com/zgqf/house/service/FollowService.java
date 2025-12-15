@@ -29,9 +29,9 @@ public interface FollowService {
     boolean isFollowing(Integer buyerId, Integer houseId);
     
     /**
-     * 获取买家收藏的所有房源ID
+     * 获取买家收藏的所有房源详细信息
      * @param buyerId 买家ID
-     * @return 房源ID列表
+     * @return 房源详细信息列表
      */
-    List<Integer> getFollowHouseIds(Integer buyerId);
+    List<House> getFollowHouses(Integer buyerId);
 }

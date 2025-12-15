@@ -1,6 +1,7 @@
 package com.zgqf.house.service.impl;
 
 import com.zgqf.house.entity.Follow;
+import com.zgqf.house.entity.House;
 import com.zgqf.house.mapper.FollowMapper;
 import com.zgqf.house.service.FollowService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class FollowServiceImpl implements FollowService {
     }
     
     @Override
-    public List<Integer> getFollowHouseIds(Integer buyerId) {
-        return followMapper.getFollowHouseIds(buyerId);
+    public List<House> getFollowHouses(Integer buyerId) {
+        return followMapper.getFollowHouses(buyerId);
     }
 }
