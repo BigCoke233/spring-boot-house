@@ -16,38 +16,42 @@ public class FollowController {
     private FollowService followService;
 
     /**
-     * 切换房源收藏状态（用于房源列表）
-     * 如果已收藏则取消收藏，如果未收藏则添加收藏
+     * 添加房源到收藏夹
      * @param buyerId 买家ID
      * @param houseId 房源ID
      * @return 操作结果
      */
-    @PostMapping("/follow/{houseId}")
-    public ResponseEntity<String> toggleFollow(@RequestHeader("buyerId") Integer buyerId, 
-                                              @PathVariable Integer houseId) {
+    @PostMapping("/follows/{houseId}")
+    public ResponseEntity<String> followHouse(@RequestHeader("buyerId") Integer buyerId, 
+                                             @PathVariable Integer houseId) {
         try {
+            // 检查是否已经收藏
             if (followService.isFollowing(buyerId, houseId)) {
-                followService.unfollowHouse(buyerId, houseId);
-                return ResponseEntity.ok("已取消收藏");
-            } else {
-                followService.followHouse(buyerId, houseId);
-                return ResponseEntity.ok("收藏成功");
+                return ResponseEntity.ok("房源已在收藏夹中");
             }
+            
+            followService.followHouse(buyerId, houseId);
+            return ResponseEntity.ok("收藏成功");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("操作失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body("收藏失败: " + e.getMessage());
         }
     }
 
     /**
-     * 买家取消收藏房源（用于收藏列表）
+     * 从收藏夹中移除房源
      * @param buyerId 买家ID
      * @param houseId 房源ID
      * @return 操作结果
      */
-    @DeleteMapping("/follow/{houseId}")
+    @DeleteMapping("/follows/{houseId}")
     public ResponseEntity<String> unfollowHouse(@RequestHeader("buyerId") Integer buyerId,
-                                                @PathVariable Integer houseId) {
+                                               @PathVariable Integer houseId) {
         try {
+            // 检查是否已经收藏
+            if (!followService.isFollowing(buyerId, houseId)) {
+                return ResponseEntity.ok("房源不在收藏夹中");
+            }
+            
             followService.unfollowHouse(buyerId, houseId);
             return ResponseEntity.ok("取消收藏成功");
         } catch (Exception e) {
