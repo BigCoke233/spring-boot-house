@@ -1,9 +1,10 @@
 <script setup>
-import { House } from 'lucide-vue-next'
+import { House, ReceiptText } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 
 const nav = [
-  { name: "房源", icon: House, link: '/houses' }
+  { name: "房源", icon: House, link: '/houses' },
+  { name: "合同", icon: ReceiptText, link: '/contract' }
 ]
 </script>
 

@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import HomeView from '../views/HomeView.vue'
 import AccountView from '../views/AccountView.vue'
-import ContrastView from '../views/ContrastView.vue'
+import ContractView from '../views/ContractView.vue'
 import AccountProfileView from '../views/AccountProfileView.vue'
 import HouseListView from '@/views/HouseListView.vue'
 import HouseDetailView from '@/views/HouseDetailView.vue'
@@ -26,9 +26,9 @@ const router = createRouter({
       component: AccountProfileView,
     },
     {
-      path: '/contrast',
-      name: 'contrast',
-      component: ContrastView,
+      path: '/contract',
+      name: 'contract',
+      component: ContractView,
     },
     {
       path: '/houses',
