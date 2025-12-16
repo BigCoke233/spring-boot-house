@@ -7,9 +7,11 @@ const props = defineProps({
   block: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   type: { type: String, default: 'button' },
+  to: { type: [String, Object], default: null },
+  onClick: { type: Function, default: null },
 })
 
-const base = 'rd cursor-pointer b-none outline-none transition select-none'
+const base = 'rd cursor-pointer b-none outline-none transition select-none text-center'
 
 const variantClass = computed(() => {
   switch (props.variant) {
@@ -38,10 +40,25 @@ const sizeClass = computed(() => {
 const disabledClass = computed(() => (props.disabled ? 'opacity-50 cursor-not-allowed' : ''))
 
 const classes = computed(() => [base, variantClass.value, sizeClass.value, disabledClass.value, props.block ? 'w-full' : ''].join(' '))
+
+const emit = defineEmits(['click'])
+
+function handleClick(e) {
+  if (props.disabled) return
+  if (typeof props.onClick === 'function') props.onClick(e)
+  emit('click', e)
+}
 </script>
 
 <template>
-  <button :type="props.type" :disabled="props.disabled" :class="classes">
+  <component
+    :is="props.to ? 'router-link' : 'button'"
+    :to="props.to || undefined"
+    :type="props.to ? undefined : props.type"
+    :disabled="props.disabled"
+    :class="classes"
+    @click="handleClick"
+  >
     <slot />
-  </button>
+  </component>
 </template>

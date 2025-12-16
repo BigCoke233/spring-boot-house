@@ -7,6 +7,7 @@ import AccountProfileView from '../views/AccountProfileView.vue'
 import HouseListView from '@/views/HouseListView.vue'
 import HouseDetailView from '@/views/HouseDetailView.vue'
 import FavoritesView from '@/views/FavoritesView.vue'
+import ContractDetailView from '@/views/ContractDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +31,11 @@ const router = createRouter({
       path: '/contract',
       name: 'contract',
       component: ContractView,
+    },
+    {
+      path: '/contract/:id',
+      name: 'contract-detail',
+      component: ContractDetailView,
     },
     {
       path: '/favorites',
