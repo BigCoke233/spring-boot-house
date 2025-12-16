@@ -66,6 +66,6 @@ SELECT
         
         -- 在售（无对应合同或合同未达成）：没有合同或合同未达成协议
         ELSE 1
-    END AS house_status
+    END AS vh_house_status
 
 FROM house h;
