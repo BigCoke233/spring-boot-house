@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zgqf.house.repository.InstallmentRepository">
+<mapper namespace="com.zgqf.house.mapper.InstallmentMapper">
     <!-- 插入新分期 -->
     <insert id="insertInstallment" parameterType="Installment">
         insert into installment (i_contrast_id,i_down_payment,i_total_periods,i_paid_count,i_paid_per_period)

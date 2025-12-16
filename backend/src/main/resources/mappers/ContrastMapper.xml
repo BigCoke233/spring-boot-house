@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zgqf.house.repository.ContrastRepository">
+<mapper namespace="com.zgqf.house.mapper.ContrastMapper">
 	<!-- 查看卖家的合同列表 -->
 	<select id="getContrastsBySeller" resultType="Contrast">
 		select c.* from contrast c, house h where h.h_seller_id=#{s_id}  and h.h_id = c.c_house_id

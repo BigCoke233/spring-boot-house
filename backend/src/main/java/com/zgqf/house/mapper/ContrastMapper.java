@@ -1,4 +1,4 @@
-package com.zgqf.house.repository;
+package com.zgqf.house.mapper;
 
 import com.zgqf.house.entity.Buyer;
 import com.zgqf.house.entity.Contrast;
@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 @Mapper
-public interface ContrastRepository {
+public interface ContrastMapper {
     //查看卖家的合同列表
     public List<Contrast> getContrastsBySeller(Integer s_id);
     //查看买家的合同列表

@@ -1,8 +1,9 @@
 package com.zgqf.house.service;
 
 import com.zgqf.house.entity.*;
-import com.zgqf.house.repository.ContrastRepository;
-import com.zgqf.house.repository.InstallmentRepository;
+import com.zgqf.house.mapper.ContrastMapper;
+import com.zgqf.house.mapper.InstallmentMapper;
+import com.zgqf.house.mapper.HouseMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,11 @@ import java.util.List;
 @Service
 public class ContrastServiceImpl implements ContrastService{
     @Autowired
-    private ContrastRepository contrastRepository;
+    private ContrastMapper contrastMapper;
     @Autowired
-    private InstallmentRepository installmentRepository;
+    private InstallmentMapper installmentMapper;
     @Autowired
-    private HouseRepository houseRepository;
+    private HouseMapper houseMapper;
 
     /*
      *  查看自己的合同列表
@@ -30,10 +31,10 @@ public class ContrastServiceImpl implements ContrastService{
     public List<Contrast> getContrastsByUser(HttpSession session) {
         if (session.getAttribute("Buyer") != null){
             Buyer buyer = (Buyer) session.getAttribute("Buyer");
-            return contrastRepository.getContrastsByBuyer(buyer.getB_id());
+            return contrastMapper.getContrastsByBuyer(buyer.getB_id());
         }else if (session.getAttribute("Seller") != null){
             Seller seller = (Seller) session.getAttribute("Seller");
-            return contrastRepository.getContrastsBySeller(seller.getS_id());
+            return contrastMapper.getContrastsBySeller(seller.getS_id());
         }
         return null;
     }
@@ -47,7 +48,7 @@ public class ContrastServiceImpl implements ContrastService{
      */
     @Override
     public Contrast getContrastsById(Integer id) {
-        return contrastRepository.getContrastsById(id);
+        return contrastMapper.getContrastsById(id);
     }
 
     /*
@@ -59,7 +60,7 @@ public class ContrastServiceImpl implements ContrastService{
      */
     @Override
     public Seller getSellerByContrast(Integer id) {
-        return contrastRepository.getSellerByContrast(id);
+        return contrastMapper.getSellerByContrast(id);
     }
 
     /*
@@ -71,7 +72,7 @@ public class ContrastServiceImpl implements ContrastService{
      */
     @Override
     public Buyer getBuyerByContrast(Integer id) {
-        return contrastRepository.getBuyerByContrast(id);
+        return contrastMapper.getBuyerByContrast(id);
     }
 
     /*
@@ -88,7 +89,7 @@ public class ContrastServiceImpl implements ContrastService{
      */
     @Override
     public String creatContrast(Contrast contrast, HttpSession session) {
-        if (!contrastRepository.houseUsable(contrast.getC_house_id()).isEmpty()){
+        if (!contrastMapper.houseUsable(contrast.getC_house_id()).isEmpty()){
             return "no";
         }
 
@@ -99,17 +100,17 @@ public class ContrastServiceImpl implements ContrastService{
         nowContrast.setC_house_id(contrast.getC_house_id());
         //这里缺少房源数据的接口
         //需要有一个根据房源id查找房源的接口
-        House house = houseRepository.getHouseById(contrast.getC_house_id());
+        House house = houseMapper.getHouseById(contrast.getC_house_id());
         nowContrast.setC_total_price(house.getH_price() * house.getH_square());
         if (contrast.getC_pay_way().equals("full")){
             nowContrast.setC_pay_way("full");
-            contrastRepository.insertContrast(nowContrast);
+            contrastMapper.insertContrast(nowContrast);
             return "ok";
         }else if (contrast.getC_pay_way().equals("installment")){
             nowContrast.setC_pay_way("installment");
-            contrastRepository.insertContrast(nowContrast);
+            contrastMapper.insertContrast(nowContrast);
 
-            Contrast c = contrastRepository.getLastInsertContrast(nowContrast);
+            Contrast c = contrastMapper.getLastInsertContrast(nowContrast);
 
             Installment installment = new Installment();
             installment.setI_contrast_id(c.getC_id());
@@ -118,7 +119,7 @@ public class ContrastServiceImpl implements ContrastService{
             installment.setI_paid_count(0);
             installment.setI_paid_per_period((c.getC_total_price() - installment.getI_down_payment()) / installment.getI_total_periods());
 
-            installmentRepository.insertInstallment(installment);
+            installmentMapper.insertInstallment(installment);
             return "ok";
         }
 
@@ -136,7 +137,7 @@ public class ContrastServiceImpl implements ContrastService{
      */
     @Override
     public String signContrast(Integer id, Integer sign, HttpSession session) {
-        Contrast contrast = contrastRepository.getContrastsById(id);
+        Contrast contrast = contrastMapper.getContrastsById(id);
         if (contrast.getC_seller_agree().equals(-1) || contrast.getC_buyer_agree().equals(-1)){
             return "no";
         }
@@ -145,7 +146,7 @@ public class ContrastServiceImpl implements ContrastService{
         Seller seller = null;
 
         if (session.getAttribute("Buyer") != null){
-            Buyer buyerInContrast = contrastRepository.getBuyerByContrast(id);
+            Buyer buyerInContrast = contrastMapper.getBuyerByContrast(id);
             buyer = (Buyer) session.getAttribute("Buyer");
             if (buyerInContrast.getB_id().equals(buyer.getB_id())){
                 return "no";
@@ -154,7 +155,7 @@ public class ContrastServiceImpl implements ContrastService{
             contrast.setC_buyer_id(buyer.getB_id());
             contrast.setC_buyer_agree(sign);
         }else if (session.getAttribute("Seller") != null){
-            Seller sellerInContrast = contrastRepository.getSellerByContrast(id);
+            Seller sellerInContrast = contrastMapper.getSellerByContrast(id);
             seller = (Seller) session.getAttribute("Seller");
             if(sellerInContrast.getS_id().equals(seller.getS_id())){
                 return "no";
@@ -162,14 +163,14 @@ public class ContrastServiceImpl implements ContrastService{
 
             contrast.setC_seller_agree(sign);
         }
-        contrastRepository.signContrast(contrast);
+        contrastMapper.signContrast(contrast);
 
         if (contrast.getC_buyer_agree().equals(1) && contrast.getC_seller_agree().equals(1)){
             Date date = new Date();
             long day = 14;
             date.setTime(date.getTime() + day * 24 * 60 * 60 * 1000);
             contrast.setC_paytime_ending(date);
-            contrastRepository.addPayTimeEnding(contrast);
+            contrastMapper.addPayTimeEnding(contrast);
         }
 
         return "ok";
