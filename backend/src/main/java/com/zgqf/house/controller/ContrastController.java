@@ -67,14 +67,18 @@ public class ContrastController {
     /*
      *  买家创建新合同
      *  函数名：creatContrast
-     * @param Integer id 房源的h_id,
+     *  @param Contrast contrast 包含"c_house_id"房源id,
+     *                              "c_pay_way"支付方式,
+     *                              "c_down_payment"首付金额（若为全款则为0或为空）
+     *                              "c_total_periods"总期数（若为全款则为0或为空）
+     *                              ,的json字符串,
      *  @param HttpSession session 浏览器中包含"Buyer"属性的session
      *
      *  @return String 返回回执("ok","no")
      */
-    @GetMapping("/creat/{id}")
-    public String creatContrast(@PathVariable("id") Integer id,HttpSession session){
-        return contrastService.creatContrast(id,session);
+    @PostMapping("/")
+    public String creatContrast(@RequestBody Contrast contrast,HttpSession session){
+        return contrastService.creatContrast(contrast,session);
     }
 
     /*

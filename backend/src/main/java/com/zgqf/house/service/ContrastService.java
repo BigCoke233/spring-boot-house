@@ -12,6 +12,6 @@ public interface ContrastService {
     public Contrast getContrastsById(Integer id);
     public Seller getSellerByContrast(Integer id);
     public Buyer getBuyerByContrast(Integer id);
-    public String creatContrast(Integer id, HttpSession session);
+    public String creatContrast(Contrast contrast, HttpSession session);
     public String signContrast(Integer id,Integer sign,HttpSession session);
 }
