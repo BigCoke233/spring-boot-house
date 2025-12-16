@@ -9,18 +9,16 @@ const props = defineProps({
   type: { type: String, default: 'button' },
 })
 
-const base = 'inline-flex items-center justify-center rd cursor-pointer b-none outline-none transition select-none'
+const base = 'rd cursor-pointer b-none outline-none transition select-none'
 
 const variantClass = computed(() => {
   switch (props.variant) {
     case 'secondary':
       return 'bg-neutral-300/50 hover:bg-neutral-400/50 text-neutral-900'
-    case 'outline':
-      return 'bg-white b-1 b-solid b-neutral-300 hover:bg-neutral-100 text-neutral-900'
     case 'danger':
       return 'bg-red-5 text-white hover:bg-red-6'
     default:
-      return 'bg-black text-white hover:opacity-90 shadow'
+      return 'b-1 b-neutral-300 b-solid'
   }
 })
 
@@ -30,6 +28,8 @@ const sizeClass = computed(() => {
       return 'px-3 py-1 text-sm'
     case 'lg':
       return 'px-6 py-2 text-lg'
+    case 'full':
+      return 'px-4 py-2 text-base w-full'
     default:
       return 'px-4 py-2 text-base'
   }
@@ -45,4 +45,3 @@ const classes = computed(() => [base, variantClass.value, sizeClass.value, disab
     <slot />
   </button>
 </template>
-

@@ -191,9 +191,9 @@ const paidInProgress = computed(() => {
             <!-- 操作按钮 -->
              <section class="flex flex-col items-start gap-2 px-6 pb-6">
                 <h4 class="font-bold text-sm">操作</h4>
-                <AppButton variant="outline">查看详情</AppButton>
-                <AppButton v-if="!downPaid" variant="outline" size="md">支付首付</AppButton>
-                <AppButton v-if="paidInProgress" variant="outline" size="md">支付下一期</AppButton>
+                <AppButton size="full">查看详情</AppButton>
+                <AppButton v-if="!downPaid" size="full">支付首付</AppButton>
+                <AppButton v-if="paidInProgress" size="full">支付下一期</AppButton>
              </section>
         </section>
 
