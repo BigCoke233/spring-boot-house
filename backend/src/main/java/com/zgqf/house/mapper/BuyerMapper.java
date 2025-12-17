@@ -1,6 +1,7 @@
 package com.zgqf.house.mapper;
 
 import com.zgqf.house.entity.Buyer;
+import com.zgqf.house.entity.Contract;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,4 +19,17 @@ public interface BuyerMapper {
      * @param buyer 买家信息对象
      */
     void updateBuyer(Buyer buyer);
+    
+    /**
+     * 根据合同ID获取合同信息
+     * @param contractId 合同ID
+     * @return 合同信息
+     */
+    Contract getContractById(@Param("contractId") Integer contractId);
+    
+    /**
+     * 更新合同信息
+     * @param contract 合同对象
+     */
+    void updateContract(Contract contract);
 }

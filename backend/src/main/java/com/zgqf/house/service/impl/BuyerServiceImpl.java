@@ -1,10 +1,14 @@
 package com.zgqf.house.service.impl;
 
 import com.zgqf.house.entity.Buyer;
+import com.zgqf.house.entity.Contract;
 import com.zgqf.house.mapper.BuyerMapper;
 import com.zgqf.house.service.BuyerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.Date;
+import java.util.Calendar;
 
 @Service
 public class BuyerServiceImpl implements BuyerService {
@@ -23,5 +27,45 @@ public class BuyerServiceImpl implements BuyerService {
         buyerInfo.setB_id(buyerId);
         buyerMapper.updateBuyer(buyerInfo);
         return true;
+    }
+    
+    @Override
+    @Transactional
+    public String processPayment(Integer buyerId, Integer contractId) {
+        // 1. 获取合同信息
+        Contract contract = buyerMapper.getContractById(contractId);
+        
+        // 2. 验证合同是否存在以及是否属于当前买家
+        if (contract == null) {
+            throw new RuntimeException("合同不存在");
+        }
+        
+        if (!contract.getC_buyer_id().equals(buyerId)) {
+            throw new RuntimeException("合同不属于当前买家");
+        }
+        
+        // 3. 判断双方是否都已同意
+        if (contract.getC_buyer_agree() != 1 || contract.getC_seller_agree() != 1) {
+            throw new RuntimeException("双方未都同意，无法付款");
+        }
+        
+        // 4. 更新合同表信息
+        contract.setC_paid(1); // 标记为已付款（全款或首付）
+        contract.setC_paytime_actually(new Date()); // 设置实际付款时间
+        
+        // 5. 计算并设置交房截止时间（示例：付款后30天内交房）
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, 30);
+        contract.setC_delivery_ending(calendar.getTime());
+        
+        // 6. 更新数据库
+        buyerMapper.updateContract(contract);
+        
+        // 7. 根据付款方式返回不同消息
+        if ("full".equals(contract.getC_pay_way())) {
+            return "全款支付成功";
+        } else {
+            return "首付支付成功";
+        }
     }
 }

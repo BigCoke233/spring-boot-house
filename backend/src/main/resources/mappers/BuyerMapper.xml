@@ -18,5 +18,19 @@
             b_annual_income=#{b_annual_income} 
         WHERE b_id=#{b_id}
     </update>
+    
+    <!-- 根据合同ID获取合同信息 -->
+    <select id="getContractById" parameterType="int" resultType="com.zgqf.house.entity.Contract">
+        SELECT * FROM contract WHERE c_id = #{contractId}
+    </select>
+
+    <!-- 更新合同信息 -->
+    <update id="updateContract" parameterType="com.zgqf.house.entity.Contract">
+        UPDATE contract 
+        SET c_paid = #{c_paid},
+            c_paytime_actually = #{c_paytime_actually},
+            c_delivery_ending = #{c_delivery_ending}
+        WHERE c_id = #{c_id}
+    </update>
 
 </mapper>

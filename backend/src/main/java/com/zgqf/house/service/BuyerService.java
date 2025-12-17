@@ -17,4 +17,12 @@ public interface BuyerService {
      * @return 更新结果
      */
     boolean updateBuyerProfile(Integer buyerId, Buyer buyerInfo);
+    
+    /**
+     * 处理买家付款（全款/首付）
+     * @param buyerId 买家ID
+     * @param contractId 合同ID
+     * @return 处理结果消息
+     */
+    String processPayment(Integer buyerId, Integer contractId);
 }
