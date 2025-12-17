@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zgqf.house.mapper.BuyerMapper">
+
+    <!-- 根据买家ID获取买家信息 -->
+    <select id="getBuyerById" parameterType="int" resultType="com.zgqf.house.entity.Buyer">
+        SELECT * FROM buyer WHERE b_id = #{buyerId}
+    </select>
+
+    <!-- 更新买家信息 -->
+    <update id="updateBuyer" parameterType="com.zgqf.house.entity.Buyer">
+        UPDATE buyer 
+        SET b_name=#{b_name}, 
+            b_phone=#{b_phone}, 
+            b_email=#{b_email}, 
+            b_mobile_assets=#{b_mobile_assets}, 
+            b_fixed_assets=#{b_fixed_assets}, 
+            b_annual_income=#{b_annual_income} 
+        WHERE b_id=#{b_id}
+    </update>
+
+</mapper>
