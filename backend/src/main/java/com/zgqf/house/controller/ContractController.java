@@ -29,4 +29,24 @@ public class ContractController {
             return ResponseEntity.badRequest().body("付款失败: " + e.getMessage());
         }
     }
+    
+    /**
+     * 买家分期付款接口
+     * @param buyerId 买家ID
+     * @param contractId 合同ID
+     * @param period 付款期数
+     * @return 付款结果
+     */
+    @PostMapping("/installment/{contractId}")
+    public ResponseEntity<String> payInstallment(@RequestHeader("buyerId") Integer buyerId,
+                                               @PathVariable Integer contractId,
+                                               @RequestParam Integer period) {
+        try {
+            // 调用服务层处理分期付款逻辑
+            String result = buyerService.processInstallmentPayment(buyerId, contractId, period);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("分期付款失败: " + e.getMessage());
+        }
+    }
 }

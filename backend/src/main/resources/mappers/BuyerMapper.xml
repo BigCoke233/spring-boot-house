@@ -32,5 +32,33 @@
             c_delivery_ending = #{c_delivery_ending}
         WHERE c_id = #{c_id}
     </update>
+    
+    <!-- 根据合同ID获取分期付款信息 -->
+    <select id="getInstallmentByContractId" parameterType="int" resultType="com.zgqf.house.entity.Installment">
+        SELECT * FROM installment WHERE i_contract_id = #{contractId}
+    </select>
+    
+    <!-- 更新分期付款信息 -->
+    <update id="updateInstallment" parameterType="com.zgqf.house.entity.Installment">
+        UPDATE installment 
+        SET i_paid_count = #{i_paid_count}
+        WHERE i_contract_id = #{i_contract_id}
+    </update>
+    
+    <!-- 查询分期付款计算详情 -->
+    <select id="getInstallmentCalculationDetails" parameterType="int" resultType="map">
+        SELECT 
+            vi_contract_id,
+            vi_total_periods,
+            vi_paid_per_period,
+            vi_paid_count,
+            vi_down_payment,
+            vi_total_price,
+            vi_final_payment,
+            vi_paid_final,
+            vi_payment_status
+        FROM view_installment 
+        WHERE vi_contract_id = #{contractId}
+    </select>
 
 </mapper>

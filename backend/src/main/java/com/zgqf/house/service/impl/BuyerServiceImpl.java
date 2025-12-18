@@ -2,6 +2,7 @@ package com.zgqf.house.service.impl;
 
 import com.zgqf.house.entity.Buyer;
 import com.zgqf.house.entity.Contract;
+import com.zgqf.house.entity.Installment;
 import com.zgqf.house.mapper.BuyerMapper;
 import com.zgqf.house.service.BuyerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,5 +68,53 @@ public class BuyerServiceImpl implements BuyerService {
         } else {
             return "首付支付成功";
         }
+    }
+    
+    @Override
+    @Transactional
+    public String processInstallmentPayment(Integer buyerId, Integer contractId, Integer period) {
+        // 1. 获取合同信息
+        Contract contract = buyerMapper.getContractById(contractId);
+        
+        // 2. 验证合同是否存在以及是否属于当前买家
+        if (contract == null) {
+            throw new RuntimeException("合同不存在");
+        }
+        
+        if (!contract.getC_buyer_id().equals(buyerId)) {
+            throw new RuntimeException("合同不属于当前买家");
+        }
+        
+        // 3. 判断是否为分期付款方式
+        if (!"installment".equals(contract.getC_pay_way())) {
+            throw new RuntimeException("该合同不支持分期付款");
+        }
+        
+        // 4. 判断是否已经首付
+        if (contract.getC_paid() == null || contract.getC_paid() != 1) {
+            throw new RuntimeException("尚未支付首付款，无法进行分期付款");
+        }
+        
+        // 5. 获取分期付款信息
+        Installment installment = buyerMapper.getInstallmentByContractId(contractId);
+        if (installment == null) {
+            throw new RuntimeException("分期付款信息不存在");
+        }
+        
+        // 6. 验证期数是否有效（不能超过总期数）
+        int newPaidCount = (installment.getI_paid_count() == null ? 0 : installment.getI_paid_count()) + period;
+        if (newPaidCount > installment.getI_total_periods()) {
+            throw new RuntimeException("付款期数超过剩余期数");
+        }
+        
+        // 7. 更新分期付款信息（累加已付款期数）
+        installment.setI_paid_count(newPaidCount);
+        buyerMapper.updateInstallment(installment);
+        
+        // 8. 计算本次支付金额
+        double amount = period * installment.getI_paid_per_period();
+        
+        // 9. 返回成功信息
+        return "成功支付" + period + "期款项，共计:" + amount + "元";
     }
 }

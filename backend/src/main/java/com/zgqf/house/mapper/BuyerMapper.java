@@ -2,8 +2,11 @@ package com.zgqf.house.mapper;
 
 import com.zgqf.house.entity.Buyer;
 import com.zgqf.house.entity.Contract;
+import com.zgqf.house.entity.Installment;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.Map;
 
 @Mapper
 public interface BuyerMapper {
@@ -32,4 +35,24 @@ public interface BuyerMapper {
      * @param contract 合同对象
      */
     void updateContract(Contract contract);
+    
+    /**
+     * 根据合同ID获取分期付款信息
+     * @param contractId 合同ID
+     * @return 分期付款信息
+     */
+    Installment getInstallmentByContractId(@Param("contractId") Integer contractId);
+    
+    /**
+     * 更新分期付款信息
+     * @param installment 分期付款对象
+     */
+    void updateInstallment(Installment installment);
+    
+    /**
+     * 获取分期付款计算详情
+     * @param contractId 合同ID
+     * @return 分期付款计算详情Map
+     */
+    Map<String, Object> getInstallmentCalculationDetails(@Param("contractId") Integer contractId);
 }

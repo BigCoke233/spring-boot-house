@@ -25,4 +25,13 @@ public interface BuyerService {
      * @return 处理结果消息
      */
     String processPayment(Integer buyerId, Integer contractId);
+    
+    /**
+     * 处理买家分期付款
+     * @param buyerId 买家ID
+     * @param contractId 合同ID
+     * @param period 付款期数
+     * @return 处理结果消息
+     */
+    String processInstallmentPayment(Integer buyerId, Integer contractId, Integer period);
 }
