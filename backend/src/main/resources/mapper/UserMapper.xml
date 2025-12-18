@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zgqf.house.mapper.UserMapper">
+
+    <!-- 用户映射 -->
+    <resultMap id="UserMap" type="com.zgqf.house.entity.User">
+        <id column="u_id" property="id"/>
+        <result column="u_type" property="type"/>
+        <result column="u_username" property="username"/>
+        <result column="u_password" property="password"/>
+    </resultMap>
+
+    <!-- 买方映射（包含用户信息） -->
+    <resultMap id="BuyerWithUserMap" type="com.zgqf.house.entity.Buyer">
+        <id column="b_id" property="id"/>
+        <result column="b_name" property="name"/>
+        <result column="b_phone" property="phone"/>
+        <result column="b_email" property="email"/>
+        <result column="b_mobile_assets" property="mobileAssets"/>
+        <result column="b_fixed_assets" property="fixedAssets"/>
+        <result column="b_annual_income" property="annualIncome"/>
+        <association property="user" resultMap="UserMap"/>
+    </resultMap>
+
+    <!-- 卖方映射（包含用户信息） -->
+    <resultMap id="SellerWithUserMap" type="com.zgqf.house.entity.Seller">
+        <id column="s_id" property="id"/>
+        <result column="s_name" property="name"/>
+        <result column="s_describe" property="description"/>
+        <result column="s_phone" property="phone"/>
+        <result column="s_email" property="email"/>
+        <result column="s_website" property="website"/>
+        <association property="user" resultMap="UserMap"/>
+    </resultMap>
+
+    <!-- 用户SQL -->
+    <!-- 获取所有用户 -->
+    <select id="selectAllUsers" resultMap="UserMap">
+        SELECT * FROM user ORDER BY u_id
+    </select>
+    <select id="selectUserById" resultMap="UserMap">
+        SELECT * FROM user WHERE u_id = #{id}
+    </select>
+
+    <select id="selectUserByUsername" resultMap="UserMap">
+        SELECT * FROM user WHERE u_username = #{username}
+    </select>
+
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user(u_type, u_username, u_password)
+        VALUES(#{type}, #{username}, #{password})
+    </insert>
+
+    <!-- 买方SQL -->
+    <select id="selectBuyerWithUserById" resultMap="BuyerWithUserMap">
+        SELECT b.*, u.*
+        FROM buyer b
+                 JOIN user u ON b.b_id = u.u_id
+        WHERE b.b_id = #{id}
+    </select>
+
+    <insert id="insertBuyer">
+        INSERT INTO buyer(b_id, b_name, b_phone, b_email,
+                          b_mobile_assets, b_fixed_assets, b_annual_income)
+        VALUES(#{id}, #{name}, #{phone}, #{email},
+               #{mobileAssets}, #{fixedAssets}, #{annualIncome})
+    </insert>
+
+    <!-- 卖方SQL -->
+    <select id="selectSellerWithUserById" resultMap="SellerWithUserMap">
+        SELECT s.*, u.*
+        FROM seller s
+                 JOIN user u ON s.s_id = u.u_id
+        WHERE s.s_id = #{id}
+    </select>
+
+    <select id="selectSellerList" resultMap="SellerWithUserMap">
+        SELECT s.*, u.*
+        FROM seller s
+        JOIN user u ON s.s_id = u.u_id
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            AND s.s_name LIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+
+
+    <!-- 更新用户 -->
+    <update id="updateUser">
+        UPDATE user
+        SET u_username = #{username},
+            u_password = #{password}
+        WHERE u_id = #{id}
+    </update>
+
+    <!-- 更新买方 -->
+    <update id="updateBuyer">
+        UPDATE buyer
+        SET b_name = #{name},
+            b_phone = #{phone},
+            b_email = #{email},
+            b_mobile_assets = #{mobileAssets},
+            b_fixed_assets = #{fixedAssets},
+            b_annual_income = #{annualIncome}
+        WHERE b_id = #{id}
+    </update>
+
+    <!-- 删除买方 -->
+    <delete id="deleteBuyer">
+        DELETE FROM buyer WHERE b_id = #{id}
+    </delete>
+
+    <!-- 更新卖方 -->
+    <update id="updateSeller">
+        UPDATE seller
+        SET s_name = #{name},
+            s_describe = #{description},
+            s_phone = #{phone},
+            s_email = #{email},
+            s_website = #{website}
+        WHERE s_id = #{id}
+    </update>
+
+    <!-- 删除卖方 -->
+    <delete id="deleteSeller">
+        DELETE FROM seller WHERE s_id = #{id}
+    </delete>
+
+</mapper>
