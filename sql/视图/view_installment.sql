@@ -1,13 +1,13 @@
 CREATE OR REPLACE VIEW view_installment AS
-SELECT 
+SELECT
     i.i_contract_id AS `vi_contract_id`,
     i.i_down_payment AS vi_down_payment,
     i.i_total_periods AS vi_total_periods,
     i.i_paid_per_period AS vi_paid_per_period,
     i.i_paid_count AS vi_paid_count,
-    -- 合同首付比例
-    ROUND(i_down_payment / (h.h_price * h.h_square), 2) AS vi_rate_down_payment,
-    -- 合同总价
+        -- 合同首付比例
+        ROUND(i_down_payment / (h.h_price * h.h_square), 2) AS vi_rate_down_payment,
+		-- 合同总价
 		ROUND(h.h_price * h.h_square, 2) AS vi_total_price,
 		-- 合同总尾款
 		ROUND(h.h_price * h.h_square - i.i_down_payment, 2) AS vi_final_payment,

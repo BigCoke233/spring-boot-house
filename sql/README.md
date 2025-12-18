@@ -246,7 +246,8 @@
 |vi_down_payment|首付款|double|-|NOT NULL|无|
 |vi_total_periods|总期数|int|-|NULL|NULL|
 |vi_paid_per_period|每期还款额|double|-|NULL|NULL|
-|i_paid_count|已还款期数|int|-|NULL|NULL|
+|vi_paid_count|已还款期数|int|-|NULL|NULL|
+|vi\_rate\_down\_payment|合同首付比例|decimal(10,2)|-|NULL|无|
 |vi_total_price|合同总价|decimal(10,2)|-|NOT NULL|无|
 |vi_final_payment|尾款总额（总价-首付）|decimal(10,2)|-|NOT NULL|无|
 |vi_paid_final|已还尾款金额|decimal(10,2)|-|NULL|NULL|
