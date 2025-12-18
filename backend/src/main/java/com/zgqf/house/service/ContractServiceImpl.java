@@ -1,8 +1,8 @@
 package com.zgqf.house.service;
 
 import com.zgqf.house.entity.*;
-import com.zgqf.house.mapper.contractMapper;
 import com.zgqf.house.mapper.InstallmentMapper;
+import com.zgqf.house.mapper.ContractMapper;
 import com.zgqf.house.mapper.HouseMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +113,7 @@ public class ContractServiceImpl implements ContractService{
             Contract c = contractMapper.getLastInsertContract(nowContract);
 
             Installment installment = new Installment();
-            installment.setI_Contract_id(c.getC_id());
+            installment.setI_contract_id(c.getC_id());
             installment.setI_down_payment(Contract.getC_down_payment());
             installment.setI_total_periods(Contract.getC_total_periods());
             installment.setI_paid_count(0);
