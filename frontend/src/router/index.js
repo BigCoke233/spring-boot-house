@@ -60,6 +60,11 @@ const router = createRouter({
       component: SellerHouseListView,
     },
     {
+      path: '/seller/house/create',
+      name: 'seller-house-create',
+      component: SellerHouseEditView,
+    },
+    {
       path: '/seller/house/:id/edit',
       name: 'seller-house-edit',
       component: SellerHouseEditView,

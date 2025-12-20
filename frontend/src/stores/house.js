@@ -226,6 +226,107 @@ export const useHouseStore = defineStore('house', () => {
     }
   }
 
+  async function createHouse(houseData) {
+    isLoading.value = true
+    error.value = null
+    try {
+        if (useMock.value) {
+            await new Promise(resolve => setTimeout(resolve, 500))
+            const newId = Math.max(...MOCK_HOUSES.map(h => h.id), 0) + 1
+            const newHouse = {
+                ...houseData,
+                id: newId,
+                auditStatus: 'pending',
+                sellerId: houseData.sellerId || 1 // Default to 1 if not provided
+            }
+            MOCK_HOUSES.push(newHouse)
+            houseList.value.push(newHouse)
+            return newHouse
+        }
+        
+        const response = await fetch('/api/house', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(houseData)
+        })
+        if (!response.ok) throw new Error('Failed to create house')
+        const data = await response.json()
+        houseList.value.push(data)
+        return data
+    } catch (err) {
+        console.error('Create house error:', err)
+        error.value = err.message
+        if (!useMock.value) {
+             const newId = Math.max(...MOCK_HOUSES.map(h => h.id), 0) + 1
+             const newHouse = {
+                ...houseData,
+                id: newId,
+                auditStatus: 'pending',
+                sellerId: houseData.sellerId || 1
+            }
+            MOCK_HOUSES.push(newHouse)
+            houseList.value.push(newHouse)
+            return newHouse
+        }
+        throw err
+    } finally {
+        isLoading.value = false
+    }
+  }
+
+  async function deleteHouse(id) {
+    isLoading.value = true
+    error.value = null
+    try {
+        if (useMock.value) {
+            await new Promise(resolve => setTimeout(resolve, 500))
+            const index = MOCK_HOUSES.findIndex(h => h.id === id)
+            if (index !== -1) {
+                MOCK_HOUSES.splice(index, 1)
+                const localIndex = houseList.value.findIndex(h => h.id === id)
+                if (localIndex !== -1) {
+                    houseList.value.splice(localIndex, 1)
+                }
+                if (currentHouse.value && currentHouse.value.id === id) {
+                    currentHouse.value = null
+                }
+            }
+            return true
+        }
+
+        const response = await fetch(`/api/house/${id}`, {
+            method: 'DELETE'
+        })
+        if (!response.ok) throw new Error('Failed to delete house')
+        
+        const localIndex = houseList.value.findIndex(h => h.id === id)
+        if (localIndex !== -1) {
+            houseList.value.splice(localIndex, 1)
+        }
+        if (currentHouse.value && currentHouse.value.id === id) {
+            currentHouse.value = null
+        }
+        return true
+    } catch (err) {
+        console.error('Delete house error:', err)
+        error.value = err.message
+        if (!useMock.value) {
+             const index = MOCK_HOUSES.findIndex(h => h.id === id)
+             if (index !== -1) {
+                 MOCK_HOUSES.splice(index, 1)
+                 const localIndex = houseList.value.findIndex(h => h.id === id)
+                 if (localIndex !== -1) {
+                     houseList.value.splice(localIndex, 1)
+                 }
+                 return true
+             }
+        }
+        throw err
+    } finally {
+        isLoading.value = false
+    }
+  }
+
   // Helper compatibility methods from previous version
   function setHouses(items) {
     houseList.value = items
@@ -253,6 +354,8 @@ export const useHouseStore = defineStore('house', () => {
     fetchHouseList,
     fetchHouseById,
     updateHouse,
+    createHouse,
+    deleteHouse,
     toggleFavorite,
     getHouseById,
     setHouses,

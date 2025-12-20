@@ -3,12 +3,14 @@ import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/layouts/PageContainer.vue'
 import { useHouseStore } from '@/stores/house.js'
+import { useUserStore } from '@/stores/user.js'
 import AppButton from '@/components/AppButton.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 
 const route = useRoute()
 const router = useRouter()
 const houseStore = useHouseStore()
+const userStore = useUserStore()
 
 const form = ref({
     id: null,
@@ -26,6 +28,8 @@ const form = ref({
 const newImageFiles = ref([])
 
 const isLoading = computed(() => houseStore.isLoading)
+const isEditMode = computed(() => !!route.params.id)
+const pageTitle = computed(() => isEditMode.value ? '编辑房源' : '发布房源')
 
 onMounted(async () => {
     const id = route.params.id
@@ -75,11 +79,18 @@ async function handleSave() {
             saveData.image = saveData.images[0]
         }
         
-        await houseStore.updateHouse(saveData)
-        alert('保存成功')
+        if (isEditMode.value) {
+            await houseStore.updateHouse(saveData)
+            alert('保存成功')
+        } else {
+            saveData.sellerId = userStore.userInfo?.id || 1
+            await houseStore.createHouse(saveData)
+            alert('发布成功')
+        }
+        
         router.push('/seller/houses')
     } catch (e) {
-        alert('保存失败: ' + e.message)
+        alert((isEditMode.value ? '保存' : '发布') + '失败: ' + e.message)
     }
 }
 </script>
@@ -87,10 +98,10 @@ async function handleSave() {
 <template>
   <PageContainer class="my-20">
     <header class="mb-8">
-        <h1 class="text-2xl font-bold">编辑房源</h1>
+        <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>
     </header>
 
-    <div v-if="isLoading && !form.id" class="text-center py-10">
+    <div v-if="isLoading && isEditMode && !form.id" class="text-center py-10">
         加载中...
     </div>
 
@@ -162,7 +173,7 @@ async function handleSave() {
         <div class="flex justify-end gap-4 pt-4 border-t border-gray-100">
             <AppButton type="button" variant="secondary" @click="router.back()">取消</AppButton>
             <AppButton type="submit" :disabled="isLoading">
-                {{ isLoading ? '保存中...' : '保存修改' }}
+                {{ isLoading ? (isEditMode ? '保存中...' : '发布中...') : (isEditMode ? '保存修改' : '确认发布') }}
             </AppButton>
         </div>
     </form>

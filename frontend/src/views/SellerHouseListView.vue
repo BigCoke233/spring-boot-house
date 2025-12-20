@@ -27,6 +27,17 @@ function getStatusLabel(status) {
   }
 }
 
+async function handleDelete(id) {
+    if (!confirm('确定要删除这个房源吗？此操作无法撤销。')) return
+    
+    try {
+        await houseStore.deleteHouse(id)
+        alert('删除成功')
+    } catch (e) {
+        alert('删除失败: ' + e.message)
+    }
+}
+
 onMounted(() => {
     houseStore.fetchHouseList()
 })
@@ -36,7 +47,7 @@ onMounted(() => {
   <PageContainer class="my-20">
     <header class="flex justify-between items-center mb-8">
       <h1 class="text-2xl font-bold">我的房源管理</h1>
-      <AppButton variant="primary">发布新房源</AppButton>
+      <AppButton variant="primary" @click="router.push('/seller/house/create')">发布新房源</AppButton>
     </header>
 
     <div v-if="houseStore.isLoading" class="text-center py-10 text-neutral-500">
@@ -73,6 +84,7 @@ onMounted(() => {
             <div class="flex justify-end gap-3 mt-4 md:mt-0">
                 <AppButton size="sm" variant="secondary" :to="`/house/${house.id}`">查看</AppButton>
                 <AppButton size="sm" @click="router.push(`/seller/house/${house.id}/edit`)">编辑</AppButton>
+                <AppButton size="sm" variant="danger" @click="handleDelete(house.id)">删除</AppButton>
             </div>
         </div>
       </div>
