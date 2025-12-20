@@ -18,7 +18,7 @@ const variantClass = computed(() => {
     case 'secondary':
       return 'bg-neutral-300/50 hover:bg-neutral-400/50 text-neutral-900'
     case 'danger':
-      return 'bg-red-5 text-white hover:bg-red-6'
+      return 'b-1 b-red-5 b-solid text-red-6 hover:bg-red-6 hover:text-white'
     default:
       return 'b-1 b-neutral-300 b-solid'
   }
