@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+
 import PageContainer from '@/layouts/PageContainer.vue'
 import ContractCard from '@/components/ContractCard.vue'
 import PurchaseContractBox from '@/components/PurchaseContractBox.vue'
+import AppButton from '@/components/AppButton.vue'
 
 const route = useRoute()
 
@@ -43,6 +45,14 @@ const partyB = ref({
   phone: '13900000000',
   address: '乙方地址',
 })
+
+const userRole = "seller" // or "seller"
+const notSigned = (userRole == "buyer" && contract.value.buyerAgree == false)
+  || (userRole == "seller" && contract.value.sellerAgree == false)
+
+function handleSign() {
+  // 签署合同逻辑……
+}
 </script>
 
 <template>
@@ -51,9 +61,10 @@ const partyB = ref({
   </PageContainer>
   <div class="bg-neutral-300/20 p-6 rd-xl">
     <PageContainer class="my-20 space-y-8">
-      
         <PurchaseContractBox :partyA="partyA" :partyB="partyB" :contract="contract" />
+        <div v-if="notSigned" class="flex justify-center">
+          <AppButton @click="handleSign">签字确认</AppButton>
+        </div>
     </PageContainer>
   </div>
 </template>
-
