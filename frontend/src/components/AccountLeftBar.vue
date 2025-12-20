@@ -1,11 +1,20 @@
 <script setup>
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+
+const router = useRouter()
+const userStore = useUserStore()
+
 const nav = [
   { name: "基本设置", link: "/account" },
   { name: "个人资料", link: "/account/profile" },
 ]
 
 const handleLogout = () => {
-  // Implement logout logic here
+  if (confirm('确定要退出登录吗？')) {
+    userStore.logout()
+    router.push('/')
+  }
 }
 </script>
 
