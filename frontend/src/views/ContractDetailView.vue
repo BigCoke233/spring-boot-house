@@ -1,6 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useContractStore } from '@/stores/contract.js'
+import { useUserStore } from '@/stores/user.js'
 
 import PageContainer from '@/layouts/PageContainer.vue'
 import ContractCard from '@/components/ContractCard.vue'
@@ -8,63 +10,85 @@ import PurchaseContractBox from '@/components/PurchaseContractBox.vue'
 import AppButton from '@/components/AppButton.vue'
 
 const route = useRoute()
+const contractStore = useContractStore()
+const userStore = useUserStore()
 
-const contract = ref({
-  contractId: Number(route.params.id) || 1,
-  buyerId: 1,
-  houseId: 1,
-  sellerId: 1,
-  totalPrice: 800000,
-  payWay: 'installment',
-  paymentStatus: false,
-  completionStatus: false,
-  agreeStatus: false,
-  buyerAgree: true,
-  sellerAgree: false,
-  paid: false,
-  delivered: false,
-  paytimeEnding: '2026-03-31',
-  paytimeActually: null,
-  deliveryEnding: '2026-05-31',
-  deliveryActually: null,
-  totalPeriods: 12,
-  paidCount: 3,
-  downPaymentPaid: false,
+const contract = computed(() => contractStore.currentContract)
+
+const partyA = computed(() => {
+    if (!contract.value) return {}
+    return {
+        name: contract.value.buyer?.name || '未知',
+        id: contract.value.buyer?.idCard || '—',
+        phone: contract.value.buyer?.phone || '—',
+        address: '—', // Address not in mock currently
+    }
 })
 
-const partyA = ref({
-  name: '甲方姓名',
-  id: '110101199001010000',
-  phone: '13800000000',
-  address: '甲方地址',
+const partyB = computed(() => {
+    if (!contract.value) return {}
+    return {
+        name: contract.value.seller?.name || '未知',
+        id: contract.value.seller?.idCard || '—',
+        phone: contract.value.seller?.phone || '—',
+        address: '—', // Address not in mock currently
+    }
 })
 
-const partyB = ref({
-  name: '乙方姓名',
-  id: '110101199001010001',
-  phone: '13900000000',
-  address: '乙方地址',
+const notSigned = computed(() => {
+    if (!contract.value) return false
+    const role = userStore.user?.role
+    if (role === 'buyer') return !contract.value.buyerAgree
+    if (role === 'seller') return !contract.value.sellerAgree
+    return false
 })
 
-const userRole = "seller" // or "seller"
-const notSigned = (userRole == "buyer" && contract.value.buyerAgree == false)
-  || (userRole == "seller" && contract.value.sellerAgree == false)
-
-function handleSign() {
-  // 签署合同逻辑……
+async function handleSign() {
+  if (!contract.value) return
+  const role = userStore.user?.role
+  if (!role) {
+      alert('请先登录')
+      return
+  }
+  try {
+      await contractStore.signContract(contract.value.contractId, role)
+  } catch (e) {
+      alert('签署失败：' + e.message)
+  }
 }
+
+onMounted(async () => {
+    const id = route.params.id
+    if (id) {
+        await contractStore.fetchContractById(id)
+    }
+})
 </script>
 
 <template>
   <PageContainer class="my-20">
-    <ContractCard :data="contract" />
-  </PageContainer>
-  <div class="bg-neutral-300/20 p-6 rd-xl">
-    <PageContainer class="my-20 space-y-8">
-        <PurchaseContractBox :partyA="partyA" :partyB="partyB" :contract="contract" />
-        <div v-if="notSigned" class="flex justify-center">
-          <AppButton @click="handleSign">签字确认</AppButton>
+    <div v-if="contractStore.isLoading" class="text-center p-8 text-neutral-500">
+        加载中...
+    </div>
+    <div v-else-if="contractStore.error" class="text-center p-8 text-red-500">
+        {{ contractStore.error }}
+    </div>
+    <template v-else-if="contract">
+        <ContractCard :data="contract" />
+        <div class="bg-neutral-300/20 p-6 rd-xl mt-8">
+            <PageContainer class="my-20 space-y-8">
+                <PurchaseContractBox :partyA="partyA" :partyB="partyB" :contract="contract" />
+                <div v-if="notSigned" class="flex justify-center">
+                <AppButton @click="handleSign">签字确认</AppButton>
+                </div>
+                <div v-else class="flex justify-center text-green-600 font-bold">
+                    已签署
+                </div>
+            </PageContainer>
         </div>
-    </PageContainer>
-  </div>
+    </template>
+    <div v-else class="text-center p-8 text-neutral-500">
+        未找到合同
+    </div>
+  </PageContainer>
 </template>

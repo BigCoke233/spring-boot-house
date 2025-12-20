@@ -50,6 +50,18 @@ const MOCK_HOUSES = [
     sellerId: 2,
     developer: '保利地产',
     coordinates: [39.9042, 116.4074]
+  },
+  {
+    id: 5,
+    name: '滨海豪庭 · E5',
+    description: '坐拥无敌海景，私家沙滩。度假养老首选之地。',
+    address: '三亚市亚龙湾度假区',
+    price: 65000,
+    square: 135,
+    image: '',
+    sellerId: 3,
+    developer: '碧桂园',
+    coordinates: [18.2528, 109.5120]
   }
 ]
 
@@ -57,6 +69,7 @@ export const useHouseStore = defineStore('house', () => {
   // State
   const houseList = ref([])
   const currentHouse = ref(null)
+  const favorites = ref(JSON.parse(localStorage.getItem('house_favorites') || '[]'))
   const isLoading = ref(false)
   const error = ref(null)
   const useMock = ref(true) // Toggle for mock data
@@ -64,6 +77,10 @@ export const useHouseStore = defineStore('house', () => {
   // Getters
   const getHouseById = computed(() => (id) => {
     return houseList.value.find(h => h.id == id) || MOCK_HOUSES.find(h => h.id == id)
+  })
+
+  const isFavorite = computed(() => (id) => {
+    return favorites.value.some(f => f.id === id)
   })
 
   // Actions
@@ -133,6 +150,25 @@ export const useHouseStore = defineStore('house', () => {
     }
   }
 
+  async function toggleFavorite(house) {
+    if (!house) return
+    
+    // In a real app, you would also call an API endpoint here
+    // try {
+    //    await fetch(`/api/user/favorites/${house.id}`, { method: isFav ? 'DELETE' : 'POST' })
+    // } catch (e) { ... }
+
+    const index = favorites.value.findIndex(f => f.id === house.id)
+    if (index === -1) {
+      favorites.value.push(house)
+    } else {
+      favorites.value.splice(index, 1)
+    }
+    
+    // Persist to localStorage
+    localStorage.setItem('house_favorites', JSON.stringify(favorites.value))
+  }
+
   // Helper compatibility methods from previous version
   function setHouses(items) {
     houseList.value = items
@@ -152,11 +188,14 @@ export const useHouseStore = defineStore('house', () => {
   return {
     houseList,
     currentHouse,
+    favorites,
     isLoading,
     error,
     useMock,
+    isFavorite,
     fetchHouseList,
     fetchHouseById,
+    toggleFavorite,
     getHouseById,
     setHouses,
     setHouse

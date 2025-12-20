@@ -3,59 +3,30 @@ import { computed } from 'vue'
 import { useHouseStore } from '@/stores/house.js'
 import StatusLabel from '@/components/AgreeStatusLabel.vue'
 import AppButton from '@/components/AppButton.vue'
+
 const props = defineProps({
     data: {
         type: Object,
-        default: () => ({
-            contractId: 1,
-            buyerId: 1,
-            houseId: 1,
-            sellerId: 1,
-            totalPrice: 800000,
-            payWay: 'installment',
-            paymentStatus: false,
-            completionStatus: false,
-            agreeStatus: false,
-            buyerAgree: true,
-            sellerAgree: false,
-            paid: false,
-            delivered: false,
-            paytimeEnding: '2026-03-31',
-            paytimeActually: null,
-            deliveryEnding: '2026-05-31',
-            deliveryActually: null,
-            totalPeriods: 12,
-            paidCount: 3,
-            downPaymentPaid: false,
-        })
+        required: true
     }
 })
 
 const houseStore = useHouseStore()
-function getHouseById(id) { return houseStore.getHouseById(id) }
-const houseData = computed(() => getHouseById(props.data.houseId) || {
-  id: 1,
-  name: '房源名称',
-  price: 8000,
-  square: 100,
-  location: '房源地址',
+// Use computed to reactively get house data
+const houseData = computed(() => {
+    // If house data is not loaded yet, houseStore.houses might be empty
+    // But getHouseById handles finding it if it exists
+    const house = houseStore.getHouseById(props.data.houseId)
+    return house || {
+        id: props.data.houseId,
+        name: '未知房源',
+        price: 0,
+        square: 0,
+        location: '未知地址',
+    }
 })
 
 const isInstallment = computed(() => props.data.payWay === 'installment')
-const steps = computed(() => {
-  const created = true
-  const agreed = !!(props.data.buyerAgree && props.data.sellerAgree)
-  const paid = !!(props.data.paymentStatus || props.data.paid || (isInstallment.value && props.data.paidCount > 0))
-  const delivered = !!props.data.delivered
-  const completed = !!(props.data.completionStatus || (paid && delivered))
-  return [
-    { key: 'created', label: '已创建', active: created },
-    { key: 'agreed', label: '双方同意', active: agreed },
-    { key: 'paid', label: '买方付款', active: paid },
-    { key: 'delivered', label: '交房', active: delivered },
-    { key: 'completed', label: '完成', active: completed },
-  ]
-})
 
 const paymentSummary = computed(() => {
   if (!isInstallment.value) {
@@ -151,8 +122,8 @@ const paidInProgress = computed(() => {
             <p class="text-neutral">#{{ props.data.contractId }}</p>
         </header>
 
-        <section class="px-6 py-3">
-          <div class="flex items-center justify-between gap-4">
+        <section class="px-6 py-3 overflow-x-auto">
+          <div class="flex items-center justify-between gap-4 min-w-[500px]">
             <template v-for="(s, idx) in stepStatuses" :key="s.key">
               <div class="flex items-center gap-2 flex-shrink-0">
                 <span :class="statusDotClass(s.status)"></span>
@@ -163,9 +134,9 @@ const paidInProgress = computed(() => {
           </div>
         </section>
 
-        <section class="grid grid-cols-4">
+        <section class="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <!-- 付款状态 -->
-            <section class="px-6 py-4 grid-col-span-2">
+            <section class="px-6 py-4 lg:col-span-2">
                 <div class="text-lg font-bold">{{ paymentSummary.title }}</div>
                 <div v-if="isInstallment" class="mt-3">
                     <div class="flex justify-between items-center text-sm">
@@ -182,22 +153,30 @@ const paidInProgress = computed(() => {
                 </ul>
             </section>
             <!-- 双方进度跟踪 -->
-            <section class="px-6 pb-6">
+            <section class="px-6 pb-6 pt-4 lg:pt-6">
                 <div class="grid grid-rows-2 gap-4">
                     <StatusLabel title="买方" :status="props.data.buyerAgree ? '已同意' : '未同意'" />
                     <StatusLabel title="卖方" :status="props.data.sellerAgree ? '已同意' : '未同意'" />
                 </div>
             </section>
             <!-- 操作按钮 -->
-             <section class="flex flex-col items-start gap-2 px-6 pb-6">
-                <h4 class="font-bold text-sm">操作</h4>
-                <AppButton size="full" :to="`/contract/${props.data.contractId}`">查看详情</AppButton>
-                <AppButton v-if="!downPaid" size="full">支付首付</AppButton>
-                <AppButton v-if="paidInProgress" size="full">支付下一期</AppButton>
+             <section class="flex flex-col items-start gap-2 px-6 pb-6 pt-4 lg:pt-6">
+                <h4 class="font-bold text-sm m-0">操作</h4>
+                <div class="flex flex-row lg:flex-col gap-2 w-full">
+                    <AppButton size="full" :to="`/contract/${props.data.contractId}`">查看详情</AppButton>
+                    <!-- TODO: Logic for payment buttons based on user role and status -->
+                    <!-- Only show pay buttons if user is buyer (simplified check for now) -->
+                     <template v-if="!downPaid">
+                        <AppButton size="full" variant="secondary">支付首付</AppButton>
+                     </template>
+                     <template v-else-if="paidInProgress">
+                        <AppButton size="full" variant="secondary">支付下一期</AppButton>
+                     </template>
+                </div>
              </section>
         </section>
 
-        <section class="b-t-1 b-neutral-200 p-6 text-neutral-500 mt-4 grid grid-cols-2 gap-2 text-sm">
+        <section class="b-t-1 b-neutral-200 p-6 text-neutral-500 mt-0 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
             <div>付款截止：{{ props.data.paytimeEnding ?? '—' }}</div>
             <div>实际付款：{{ props.data.paytimeActually ?? '—' }}</div>
             <div>交房截止：{{ props.data.deliveryEnding ?? '—' }}</div>
