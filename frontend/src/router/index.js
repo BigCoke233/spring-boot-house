@@ -8,6 +8,8 @@ import HouseListView from '@/views/HouseListView.vue'
 import HouseDetailView from '@/views/HouseDetailView.vue'
 import FavoritesView from '@/views/FavoritesView.vue'
 import ContractDetailView from '@/views/ContractDetailView.vue'
+import SellerHouseListView from '@/views/SellerHouseListView.vue'
+import SellerHouseEditView from '@/views/SellerHouseEditView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +53,16 @@ const router = createRouter({
       path: '/house/:id',
       name: 'house-detail',
       component: HouseDetailView,
+    },
+    {
+      path: '/seller/houses',
+      name: 'seller-houses',
+      component: SellerHouseListView,
+    },
+    {
+      path: '/seller/house/:id/edit',
+      name: 'seller-house-edit',
+      component: SellerHouseEditView,
     }
   ],
 })
