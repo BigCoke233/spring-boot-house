@@ -142,6 +142,22 @@ export const useUserStore = defineStore('user', () => {
     setUserInfo({ role: newRole })
   }
 
+  async function changePassword({ oldPassword, newPassword }) {
+    try {
+      // Mock API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // In a real app, you'd send a request here
+      // const response = await fetch('/api/user/password', { ... })
+      
+      console.log('Password changed', { oldPassword, newPassword })
+      return true
+    } catch (error) {
+      console.error('Change password error:', error)
+      throw error
+    }
+  }
+
   return {
     token,
     userInfo,
@@ -152,6 +168,7 @@ export const useUserStore = defineStore('user', () => {
     fetchUserInfo,
     updateUserInfo,
     logout,
-    setRole
+    setRole,
+    changePassword
   }
 })
