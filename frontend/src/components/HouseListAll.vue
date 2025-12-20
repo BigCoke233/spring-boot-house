@@ -1,13 +1,19 @@
 <script setup>
+import { onMounted } from 'vue'
 import PageContainer from '@/layouts/PageContainer.vue';
 import HouseCard from '@/components/HouseCard.vue';
+import { useHouseStore } from '@/stores/house.js'
 
-const items = [1,2,3,4,5,6,7,8]
+const houseStore = useHouseStore()
 
 const categories = [
   { name: "decorated", label: "精装房", active: true },
   { name: "unfinished", label: "毛胚房", active: false }
 ]
+
+onMounted(() => {
+  houseStore.fetchHouseList()
+})
 </script>
 
 <template>
@@ -22,8 +28,13 @@ const categories = [
           v-for="category in categories" :key="category.name">{{ category.label }}</button>
       </div>
     </header>
-    <div class="grid grid-cols-3 gap-4 md:gap-6">
-      <HouseCard v-for="item in items" :key="item" />
+    
+    <div v-if="houseStore.isLoading && !houseStore.houseList.length" class="text-center py-10">
+      Loading...
+    </div>
+    
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <HouseCard v-for="house in houseStore.houseList" :key="house.id" :data="house" />
     </div>
   </PageContainer>
 </template>
