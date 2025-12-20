@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import AccountView from '../views/AccountView.vue'
 import ContractView from '../views/ContractView.vue'
-import AccountProfileView from '../views/AccountProfileView.vue'
+import ProfileDispatcher from '@/views/ProfileDispatcher.vue'
+import ProfileEditDispatcher from '@/views/ProfileEditDispatcher.vue'
 import HouseListView from '@/views/HouseListView.vue'
 import HouseDetailView from '@/views/HouseDetailView.vue'
 import FavoritesView from '@/views/FavoritesView.vue'
@@ -24,7 +25,12 @@ const router = createRouter({
     {
       path: '/account/profile',
       name: 'account-profile',
-      component: AccountProfileView,
+      component: ProfileDispatcher,
+    },
+    {
+      path: '/account/profile/edit',
+      name: 'account-profile-edit',
+      component: ProfileEditDispatcher,
     },
     {
       path: '/contract',
