@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zgqf.house.mapper.ContractMapper">
+	<!-- 查看卖家的合同列表 -->
+	<select id="getContractsBySeller" resultType="com.zgqf.house.entity.Contract">
+		select c.* from contract c, house h where h.h_seller_id=#{s_id}  and h.h_id = c.c_house_id
+	</select>
+	<!-- 查看买家的合同列表 -->
+	<select id="getContractsByBuyer" resultType="com.zgqf.house.entity.Contract">
+		select c.* from contract c, buyer b where b.b_id=#{b_id}  and b.b_id = c.c_buyer_id
+	</select>
+	<!-- 根据合同id查找合同 -->
+	<select id="getContractsById" resultType="com.zgqf.house.entity.Contract">
+		select * from contract where c_id = #{c_id}
+	</select>
+	<!-- 查看对方的商家资料 -->
+	<select id="getSellerByContract" resultType="com.zgqf.house.entity.Seller">
+		select s.* from contract c, seller s , house h where c.c_id = #{c_id}
+		                                                and h.h_seller_id = c.c_house_id
+		                                                and	h.h_seller_id = s.s_id
+	</select>
+	<!-- 查看对方的买家资料 -->
+	<select id="getBuyerByContract" resultType="com.zgqf.house.entity.Buyer">
+		select b.* from contract c , buyer b where c_id = #{c_id} and b.b_id = c.c_buyer_id
+	</select>
+	<!-- 签署或拒绝合同 -->
+	<update id="signContract" parameterType="com.zgqf.house.entity.Contract">
+		update contract set
+		<if test="c_buyer_agree != null">
+			 c_buyer_agree = #{c_buyer_agree}
+		</if>
+		<if test="c_seller_agree != null">
+			 c_seller_agree = #{c_seller_agree}
+		</if>
+		where c_id = #{c_id}
+	</update>
+	<!-- 查询房子是否可用 -->
+	<select id="houseUsable" resultType="com.zgqf.house.entity.Contract">
+		select * from view_house where vh_id = #{c_house_id} and vh_house_status = 0
+	</select>
+	<!-- 创建新合同 -->
+	<insert id="insertContract" parameterType="com.zgqf.house.entity.Contract">
+		insert into contract (c_id,c_house_id,c_pay_way,c_buyer_id,c_total_price)
+		values (null, #{c_house_id}, #{c_pay_way},#{c_buyer_id},#{c_total_price})
+	</insert>
+	<!-- 查找新添加的合同 -->
+	<select id="getLastInsertContract" resultType="com.zgqf.house.entity.Contract">
+		select * from contract where c_buyer_id = #{c_buyer_id}
+		                         and c_pay_way = #{c_pay_way}
+		                         and c_house_id = #{c_house_id}
+		                       order by c_id desc
+		                       limit 1
+	</select>
+	<!-- 添加预计付款时间 -->
+	<update id="addPayTimeEnding" parameterType="com.zgqf.house.entity.Contract">
+		update contract set c_paytime_ending = #{c_paytime_ending}
+		where c_id = #{c_id}
+	</update>
+</mapper>
