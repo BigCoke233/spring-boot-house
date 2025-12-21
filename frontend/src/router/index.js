@@ -10,10 +10,22 @@ import FavoritesView from '@/views/FavoritesView.vue'
 import ContractDetailView from '@/views/ContractDetailView.vue'
 import SellerHouseListView from '@/views/SellerHouseListView.vue'
 import SellerHouseEditView from '@/views/SellerHouseEditView.vue'
+import LoginView from '@/views/LoginView.vue'
+import RegisterView from '@/views/RegisterView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+    },
     {
       path: '/',
       name: 'home',

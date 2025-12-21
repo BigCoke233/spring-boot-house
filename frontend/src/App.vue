@@ -1,12 +1,22 @@
 <script setup>
-import { ref } from 'vue'
-import { RouterView } from 'vue-router'
+import { ref, watch } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 
 import NavBar from './components/NavBar.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import SidebarLayout from './layouts/SidebarLayout.vue'
 
+const route = useRoute()
 const collapsed = ref(false)
+
+// Hide sidebar on login/register pages
+watch(() => route.path, (path) => {
+  if (path === '/login' || path === '/register') {
+    collapsed.value = true
+  } else {
+    collapsed.value = false
+  }
+})
 </script>
 
 <template>

@@ -3,17 +3,18 @@ import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', () => {
   // State
-  const token = ref(localStorage.getItem('token') || '')
+  // We don't need to store token manually for session-based auth, but we might want to track if we are logged in
+  const isLoggedInState = ref(localStorage.getItem('isLoggedIn') === 'true')
   const userInfo = ref(JSON.parse(localStorage.getItem('userInfo') || '{"role": "buyer"}'))
-  
+
   // Getters
-  const isLoggedIn = computed(() => !!token.value)
+  const isLoggedIn = computed(() => isLoggedInState.value)
   const role = computed(() => userInfo.value.role || 'buyer')
 
   // Helper functions
-  function setToken(newToken) {
-    token.value = newToken
-    localStorage.setItem('token', newToken)
+  function setLoginState(status) {
+    isLoggedInState.value = status
+    localStorage.setItem('isLoggedIn', status)
   }
 
   function setUserInfo(info) {
@@ -22,35 +23,37 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function clearState() {
-    token.value = ''
+    setLoginState(false)
     userInfo.value = { role: 'buyer' }
-    localStorage.removeItem('token')
     localStorage.removeItem('userInfo')
   }
 
   // Actions
   async function login({ username, password }) {
     try {
-      // 模拟 /api/user/login 请求
-      const response = await fetch('/api/user/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       })
-      
+
       const data = await response.json()
-      
+
       if (!response.ok) {
         throw new Error(data.message || '登录失败')
       }
 
-      setToken(data.token)
+      setLoginState(true)
       if (data.user) {
-        setUserInfo(data.user)
+        // Backend returns "user" (basic info) and potentially "profile" (buyer/seller info) inside data
+        // But the response structure in AuthController is: { message, role, user (which is buyer/seller obj or user obj)
+        // Let's adapt based on the actual response.
+        // AuthController: return ResponseEntity.ok(Map.of("message", "Login successful", "role", "buyer", "user", buyer));
+        setUserInfo({ ...data.user, role: data.role })
       } else {
         await fetchUserInfo()
       }
-      
+
       return data
     } catch (error) {
       console.error('Login error:', error)
@@ -60,18 +63,18 @@ export const useUserStore = defineStore('user', () => {
 
   async function register(registerData) {
     try {
-      const response = await fetch('/api/user/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registerData)
       })
-      
+
       const data = await response.json()
-      
+
       if (!response.ok) {
         throw new Error(data.message || '注册失败')
       }
-      
+
       return data
     } catch (error) {
       console.error('Register error:', error)
@@ -79,96 +82,59 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function fetchUserInfo() {
-    if (!token.value) return
-
+  async function logout() {
     try {
-      const response = await fetch('/api/user/info', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token.value}`
-        }
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      clearState()
+      // Optional: redirect to login page
+      window.location.href = '/login'
+    }
+  }
+
+  async function fetchUserInfo() {
+    try {
+      const response = await fetch('/api/auth/current', {
+        method: 'GET'
       })
-      
+
       const data = await response.json()
-      
+
       if (!response.ok) {
         if (response.status === 401) {
-            logout()
+            clearState()
         }
         throw new Error(data.message || '获取用户信息失败')
       }
-      
-      setUserInfo(data)
-      return data
+
+      // /api/auth/current returns { user: User, profile: Buyer/Seller }
+      // We merge them for the frontend
+      const fullInfo = { ...data.user, ...data.profile, role: data.user.u_type }
+      setUserInfo(fullInfo)
+      setLoginState(true)
+
+      return fullInfo
     } catch (error) {
       console.error('Fetch user info error:', error)
       throw error
     }
   }
 
-  async function updateUserInfo(updateData) {
-    try {
-      const response = await fetch('/api/user/info', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token.value}`
-        },
-        body: JSON.stringify(updateData)
-      })
-      
-      const data = await response.json()
-      
-      if (!response.ok) {
-        throw new Error(data.message || '更新用户信息失败')
-      }
-      
-      // 更新本地状态
-      setUserInfo(updateData)
-      return data
-    } catch (error) {
-      console.error('Update user info error:', error)
-      throw error
-    }
-  }
-
-  function logout() {
-    clearState()
-    // 这里可以添加路由跳转逻辑，但通常在组件层处理
-  }
-
-  function setRole(newRole) {
-    setUserInfo({ role: newRole })
-  }
-
-  async function changePassword({ oldPassword, newPassword }) {
-    try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // In a real app, you'd send a request here
-      // const response = await fetch('/api/user/password', { ... })
-      
-      console.log('Password changed', { oldPassword, newPassword })
-      return true
-    } catch (error) {
-      console.error('Change password error:', error)
-      throw error
-    }
+  async function changePassword(passwordData) {
+      // TODO: Implement change password API if available
+      console.warn('Change password not implemented yet', passwordData)
   }
 
   return {
-    token,
+    isLoggedIn,
     userInfo,
     role,
-    isLoggedIn,
     login,
     register,
-    fetchUserInfo,
-    updateUserInfo,
     logout,
-    setRole,
+    fetchUserInfo,
     changePassword
   }
 })
