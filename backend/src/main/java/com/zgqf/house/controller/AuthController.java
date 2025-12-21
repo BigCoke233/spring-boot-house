@@ -9,6 +9,11 @@ import com.zgqf.house.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,13 +31,23 @@ public class AuthController {
     @Autowired
     private SellerMapper sellerMapper;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest, HttpSession session) {
         String username = loginRequest.get("username");
         String password = loginRequest.get("password");
 
-        User user = userService.login(username, password);
-        if (user != null) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+            );
+            
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+            
+            User user = userService.getUserByUsername(username);
             session.setAttribute("User", user);
             
             if ("buyer".equalsIgnoreCase(user.getU_type())) {
@@ -49,7 +64,7 @@ public class AuthController {
             }
             
             return ResponseEntity.ok(Map.of("message", "Login successful", "role", "unknown", "user", user));
-        } else {
+        } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
     }

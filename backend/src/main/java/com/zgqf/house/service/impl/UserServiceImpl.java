@@ -8,6 +8,7 @@ import com.zgqf.house.mapper.SellerMapper;
 import com.zgqf.house.mapper.UserMapper;
 import com.zgqf.house.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +26,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private SellerMapper sellerMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public User login(String username, String password) {
         User user = userMapper.findByUsername(username);
-        if (user != null && user.getU_password().equals(password)) {
+        if (user != null && passwordEncoder.matches(password, user.getU_password())) {
             return user;
         }
         return null;
@@ -41,6 +45,9 @@ public class UserServiceImpl implements UserService {
         if (userMapper.findByUsername(user.getU_username()) != null) {
             throw new RuntimeException("Username already exists");
         }
+
+        // Encode password
+        user.setU_password(passwordEncoder.encode(user.getU_password()));
 
         // Insert into User table
         userMapper.insert(user);
@@ -79,5 +86,10 @@ public class UserServiceImpl implements UserService {
         }
 
         return user;
+    }
+
+    @Override
+    public User getUserByUsername(String username) {
+        return userMapper.findByUsername(username);
     }
 }

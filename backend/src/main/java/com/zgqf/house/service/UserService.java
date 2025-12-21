@@ -19,4 +19,11 @@ public interface UserService {
      * @return Registered User
      */
     User register(User user, Map<String, Object> additionalInfo);
+
+    /**
+     * Get user by username
+     * @param username username
+     * @return User object
+     */
+    User getUserByUsername(String username);
 }

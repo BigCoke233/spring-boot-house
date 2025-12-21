@@ -11,10 +11,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
@@ -29,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 class AuthenticationTests {
 
     @Autowired
@@ -36,6 +40,9 @@ class AuthenticationTests {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @MockBean
     private UserMapper userMapper;
@@ -151,7 +158,7 @@ class AuthenticationTests {
         User mockUser = new User();
         mockUser.setU_id(1);
         mockUser.setU_username("testbuyer");
-        mockUser.setU_password("password123");
+        mockUser.setU_password(passwordEncoder.encode("password123"));
         mockUser.setU_type("buyer");
 
         Buyer mockBuyer = new Buyer();
@@ -181,7 +188,7 @@ class AuthenticationTests {
         User mockUser = new User();
         mockUser.setU_id(2);
         mockUser.setU_username("testseller");
-        mockUser.setU_password("password123");
+        mockUser.setU_password(passwordEncoder.encode("password123"));
         mockUser.setU_type("seller");
 
         Seller mockSeller = new Seller();
