@@ -61,4 +61,10 @@
         WHERE vi_contract_id = #{contractId}
     </select>
 
+    <!-- 新增买家信息 -->
+    <insert id="insert" parameterType="com.zgqf.house.entity.Buyer">
+        INSERT INTO buyer (b_id, b_name, b_phone, b_email, b_mobile_assets, b_fixed_assets, b_annual_income)
+        VALUES (#{b_id}, #{b_name}, #{b_phone}, #{b_email}, #{b_mobile_assets}, #{b_fixed_assets}, #{b_annual_income})
+    </insert>
+
 </mapper>

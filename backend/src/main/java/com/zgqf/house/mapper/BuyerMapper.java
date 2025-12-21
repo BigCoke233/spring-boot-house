@@ -55,4 +55,9 @@ public interface BuyerMapper {
      * @return 分期付款计算详情Map
      */
     Map<String, Object> getInstallmentCalculationDetails(@Param("contractId") Integer contractId);
+/**
+     * 新增买家信息
+     * @param buyer 买家对象
+     */
+    void insert(Buyer buyer);
 }

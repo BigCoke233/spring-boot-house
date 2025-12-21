@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zgqf.house.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.zgqf.house.entity.User">
+        <id column="u_id" property="u_id" />
+        <result column="u_type" property="u_type" />
+        <result column="u_username" property="u_username" />
+        <result column="u_password" property="u_password" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        u_id, u_type, u_username, u_password
+    </sql>
+
+    <select id="findByUsername" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM user
+        WHERE u_username = #{username}
+    </select>
+
+    <insert id="insert" parameterType="com.zgqf.house.entity.User" useGeneratedKeys="true" keyProperty="u_id">
+        INSERT INTO user (u_type, u_username, u_password)
+        VALUES (#{u_type}, #{u_username}, #{u_password})
+    </insert>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM user
+        WHERE u_id = #{id}
+    </select>
+
+</mapper>
