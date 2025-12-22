@@ -1,9 +1,10 @@
 <script setup>
-import { House, ReceiptText, FolderHeart } from 'lucide-vue-next'
+import { House, ReceiptText, FolderHeart, Warehouse } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 
 const nav = [
-  { name: "房源", icon: House, link: '/' },
+  { name: "首页", icon: House, link: '/' },
+  { name: "房源", icon: Warehouse, link: '/houses' },
   { name: "收藏", icon: FolderHeart, link: '/favorites' },
   { name: "合同", icon: ReceiptText, link: '/contract' }
 ]

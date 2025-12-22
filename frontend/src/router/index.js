@@ -5,6 +5,7 @@ import ContractView from '../views/ContractView.vue'
 import ProfileDispatcher from '@/views/ProfileDispatcher.vue'
 import ProfileEditDispatcher from '@/views/ProfileEditDispatcher.vue'
 import HouseListView from '@/views/HouseListView.vue'
+import AllHousesView from '@/views/AllHousesView.vue'
 import HouseDetailView from '@/views/HouseDetailView.vue'
 import FavoritesView from '@/views/FavoritesView.vue'
 import ContractDetailView from '@/views/ContractDetailView.vue'
@@ -27,6 +28,11 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView,
+    },
+    {
+      path: '/houses',
+      name: 'houses',
+      component: AllHousesView,
     },
     {
       path: '/',
