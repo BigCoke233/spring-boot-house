@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class HouseController {
     @Autowired
-    private  HouseService houseService;
+    private HouseService houseService;
 
     /**
      * GET /api/public/houses
@@ -72,20 +72,6 @@ public class HouseController {
     public ResponseEntity<HouseResultDTO> getHouseById(@PathVariable Integer id) {
         HouseResultDTO house = houseService.getHouseById(id);
         return ResponseEntity.ok(house);
-    }
-
-    /**
-     * GET /api/public/houses/by-tag-type
-     * 根据标签类型查询（如：decorated）
-     * 示例：/api/public/houses/by-tag-type?type=decorated&pageNum=1&pageSize=10
-     */
-    @GetMapping("/by-tag-type")
-    public ResponseEntity<Page<HouseResultDTO>> getHousesByTagType(
-            @RequestParam String type,
-            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
-            @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
-        Page<HouseResultDTO> houses = houseService.getHousesByTagType(type, pageNum, pageSize);
-        return ResponseEntity.ok(houses);
     }
 
     /**
