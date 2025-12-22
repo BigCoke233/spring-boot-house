@@ -8,12 +8,11 @@ import AppButton from '@/components/AppButton.vue';
 const router = useRouter()
 
 const profile = ref({
-  name: "李四",
-  telephone: "13900139000",
-  email: "lisi@example.com",
-  company: "宏达地产",
-  registeredCapital: 5000000,
-  annualRevenue: 20000000,
+  name: "宏达地产",
+  description: "一家专注于高端商业地产开发的领军企业，致力于为客户提供优质的房产资源和服务。",
+  phone: "021-88888888",
+  email: "contact@hongda.com",
+  website: "www.hongda.com",
 })
 
 const handleSave = () => {
@@ -26,31 +25,27 @@ const handleSave = () => {
 <template>
   <AccountLayout>
     <PageContainer>
-      <h1 class="text-xl font-bold mb-6">编辑个人信息 (卖方)</h1>
+      <h1 class="text-xl font-bold mb-6">编辑资料 (卖方)</h1>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-neutral-600">姓名</label>
+         <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-neutral-600">公司名称</label>
             <input v-model="profile.name" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition" />
         </div>
         <div class="flex flex-col gap-2">
             <label class="text-sm font-bold text-neutral-600">电话</label>
-            <input v-model="profile.telephone" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition" />
+            <input v-model="profile.phone" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition" />
         </div>
          <div class="flex flex-col gap-2">
             <label class="text-sm font-bold text-neutral-600">邮箱</label>
             <input v-model="profile.email" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition" />
         </div>
          <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-neutral-600">公司名称</label>
-            <input v-model="profile.company" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition" />
+            <label class="text-sm font-bold text-neutral-600">官网</label>
+            <input v-model="profile.website" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition" />
         </div>
-         <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-neutral-600">注册资金</label>
-            <input v-model="profile.registeredCapital" type="number" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition" />
-        </div>
-         <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-neutral-600">年营业额</label>
-            <input v-model="profile.annualRevenue" type="number" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition" />
+        <div class="flex flex-col gap-2 md:col-span-2">
+            <label class="text-sm font-bold text-neutral-600">公司描述</label>
+            <textarea v-model="profile.description" rows="4" class="p-2 border border-neutral-300 rounded focus:outline-none focus:border-neutral-500 transition"></textarea>
         </div>
       </div>
       <div class="mt-8 flex gap-4">
