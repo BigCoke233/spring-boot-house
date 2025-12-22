@@ -12,6 +12,8 @@ import SellerHouseListView from '@/views/SellerHouseListView.vue'
 import SellerHouseEditView from '@/views/SellerHouseEditView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
+import PublicSellerProfileView from '@/views/public/PublicSellerProfileView.vue'
+import PublicBuyerProfileView from '@/views/public/PublicBuyerProfileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,6 +82,16 @@ const router = createRouter({
       path: '/seller/house/:id/edit',
       name: 'seller-house-edit',
       component: SellerHouseEditView,
+    },
+    {
+      path: '/seller/:id',
+      name: 'public-seller-profile',
+      component: PublicSellerProfileView,
+    },
+    {
+      path: '/buyer/:id',
+      name: 'public-buyer-profile',
+      component: PublicBuyerProfileView,
     }
   ],
 })

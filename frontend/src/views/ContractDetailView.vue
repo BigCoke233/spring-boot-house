@@ -77,6 +77,10 @@ onMounted(async () => {
         <ContractCard :data="contract" />
         <div class="bg-neutral-300/20 p-6 rd-xl mt-8">
             <PageContainer class="my-20 space-y-8">
+                <div class="flex justify-end">
+                    <AppButton v-if="userStore.user?.role === 'buyer'" variant="secondary" :to="`/seller/${contract.seller?.id}`">查看卖家资料</AppButton>
+                    <AppButton v-if="userStore.user?.role === 'seller'" variant="secondary" :to="`/buyer/${contract.buyer?.id}`">查看买家资料</AppButton>
+                </div>
                 <PurchaseContractBox :partyA="partyA" :partyB="partyB" :contract="contract" />
                 <div v-if="notSigned" class="flex justify-center">
                 <AppButton @click="handleSign">签字确认</AppButton>
