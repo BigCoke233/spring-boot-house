@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useContractStore } from '@/stores/contract.js'
 import { useUserStore } from '@/stores/user.js'
@@ -14,6 +14,53 @@ const contractStore = useContractStore()
 const userStore = useUserStore()
 
 const contract = computed(() => contractStore.currentContract)
+
+const isInstallment = computed(() => contract.value?.payWay === 'installment')
+
+const fullPaid = computed(() => !!(contract.value?.paymentStatus || contract.value?.paid))
+
+const downPaid = computed(() => {
+  const paidCount = Number(contract.value?.paidCount || 0)
+  return !!contract.value?.downPaymentPaid || paidCount > 0
+})
+
+const paidInProgress = computed(() => {
+  if (!isInstallment.value) return false
+  const total = Number(contract.value?.totalPeriods || 0)
+  const paidCount = Number(contract.value?.paidCount || 0)
+  return total > 0 && paidCount > 0 && paidCount < total
+})
+
+const paying = ref(false)
+
+async function handlePay() {
+    if (!contract.value) return
+    if (!confirm('确认支付？')) return
+    paying.value = true
+    try {
+        const msg = await contractStore.payContract(contract.value.contractId, userStore.user.id)
+        alert(msg)
+    } catch (e) {
+        alert(e.message)
+    } finally {
+        paying.value = false
+    }
+}
+
+async function handlePayInstallment() {
+    if (!contract.value) return
+    if (!confirm('确认支付下一期？')) return
+    paying.value = true
+    try {
+        const nextPeriod = (contract.value.paidCount || 0) + 1
+        const msg = await contractStore.payInstallment(contract.value.contractId, userStore.user.id, nextPeriod)
+        alert(msg)
+    } catch (e) {
+        alert(e.message)
+    } finally {
+        paying.value = false
+    }
+}
 
 const partyA = computed(() => {
     if (!contract.value) return {}
@@ -85,8 +132,20 @@ onMounted(async () => {
                 <div v-if="notSigned" class="flex justify-center">
                 <AppButton @click="handleSign">签字确认</AppButton>
                 </div>
-                <div v-else class="flex justify-center text-green-600 font-bold">
-                    已签署
+                <div v-else class="flex flex-col items-center gap-4">
+                    <div class="text-green-600 font-bold">已签署</div>
+                    <template v-if="userStore.user?.role === 'buyer' && !fullPaid">
+                        <template v-if="!downPaid">
+                            <AppButton variant="secondary" @click="handlePay" :disabled="paying">
+                                {{ isInstallment ? '支付首付' : '支付全款' }}
+                            </AppButton>
+                        </template>
+                        <template v-else-if="paidInProgress">
+                            <AppButton variant="secondary" @click="handlePayInstallment" :disabled="paying">
+                                支付下一期 ({{ (contract.paidCount || 0) + 1 }})
+                            </AppButton>
+                        </template>
+                    </template>
                 </div>
             </PageContainer>
         </div>

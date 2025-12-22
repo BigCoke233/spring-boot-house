@@ -1,6 +1,8 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useHouseStore } from '@/stores/house.js'
+import { useUserStore } from '@/stores/user.js'
+import { useContractStore } from '@/stores/contract.js'
 import StatusLabel from '@/components/AgreeStatusLabel.vue'
 import AppButton from '@/components/AppButton.vue'
 
@@ -12,6 +14,11 @@ const props = defineProps({
 })
 
 const houseStore = useHouseStore()
+const userStore = useUserStore()
+const contractStore = useContractStore()
+
+const loading = ref(false)
+
 // Use computed to reactively get house data
 const houseData = computed(() => {
     // If house data is not loaded yet, houseStore.houses might be empty
@@ -39,7 +46,6 @@ const paymentSummary = computed(() => {
       ],
     }
   }
-  const total = props.data.totalPeriods ?? 0
   const paidCount = props.data.paidCount ?? 0
   const downPaid = !!props.data.downPaymentPaid || paidCount > 0
   return {
@@ -113,6 +119,37 @@ const paidInProgress = computed(() => {
   const paidCount = Number(props.data.paidCount || 0)
   return total > 0 && paidCount > 0 && paidCount < total
 })
+
+const fullPaid = computed(() => {
+  return !!(props.data.paymentStatus || props.data.paid)
+})
+
+async function handlePay() {
+    if (!confirm('确认支付？')) return
+    loading.value = true
+    try {
+        const msg = await contractStore.payContract(props.data.contractId, userStore.user.id)
+        alert(msg)
+    } catch (e) {
+        alert(e.message)
+    } finally {
+        loading.value = false
+    }
+}
+
+async function handlePayInstallment() {
+    if (!confirm('确认支付下一期？')) return
+    loading.value = true
+    try {
+        const nextPeriod = (props.data.paidCount || 0) + 1
+        const msg = await contractStore.payInstallment(props.data.contractId, userStore.user.id, nextPeriod)
+        alert(msg)
+    } catch (e) {
+        alert(e.message)
+    } finally {
+        loading.value = false
+    }
+}
 </script>
 
 <template>
@@ -164,14 +201,18 @@ const paidInProgress = computed(() => {
                 <h4 class="font-bold text-sm m-0">操作</h4>
                 <div class="flex flex-row lg:flex-col gap-2 w-full">
                     <AppButton size="full" :to="`/contract/${props.data.contractId}`">查看详情</AppButton>
-                    <!-- TODO: Logic for payment buttons based on user role and status -->
-                    <!-- Only show pay buttons if user is buyer (simplified check for now) -->
-                     <template v-if="!downPaid">
-                        <AppButton size="full" variant="secondary">支付首付</AppButton>
-                     </template>
-                     <template v-else-if="paidInProgress">
-                        <AppButton size="full" variant="secondary">支付下一期</AppButton>
-                     </template>
+                    <template v-if="userStore.user?.role === 'buyer' && !fullPaid">
+                        <template v-if="!downPaid">
+                            <AppButton size="full" variant="secondary" @click="handlePay" :disabled="loading">
+                                {{ isInstallment ? '支付首付' : '支付全款' }}
+                            </AppButton>
+                        </template>
+                        <template v-else-if="paidInProgress">
+                            <AppButton size="full" variant="secondary" @click="handlePayInstallment" :disabled="loading">
+                                支付下一期 ({{ (props.data.paidCount || 0) + 1 }})
+                            </AppButton>
+                        </template>
+                    </template>
                 </div>
              </section>
         </section>

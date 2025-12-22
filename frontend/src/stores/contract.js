@@ -268,6 +268,84 @@ export const useContractStore = defineStore('contract', () => {
       }
   }
 
+  async function payContract(contractId, buyerId) {
+      isLoading.value = true
+      try {
+        if (useMock.value) {
+            await new Promise(resolve => setTimeout(resolve, 500))
+            const contract = MOCK_CONTRACTS.find(c => c.contractId == contractId)
+            if (contract) {
+                if (contract.payWay === 'full') {
+                    contract.paymentStatus = true
+                    contract.paid = true
+                    contract.paytimeActually = new Date().toISOString().split('T')[0]
+                } else {
+                    contract.downPaymentPaid = true
+                    contract.paidCount = (contract.paidCount || 0) + 1 
+                }
+                // Update current contract
+                if (currentContract.value && currentContract.value.contractId == contractId) {
+                    Object.assign(currentContract.value, contract)
+                }
+            }
+            return "支付成功"
+        }
+
+        const response = await fetch(`/api/contract/pay/${contractId}`, {
+            method: 'POST',
+            headers: {
+                'buyerId': buyerId
+            }
+        })
+        if (!response.ok) throw new Error('Payment failed')
+        const msg = await response.text()
+        await fetchContractById(contractId)
+        return msg
+      } catch (e) {
+          console.error(e)
+          throw e
+      } finally {
+          isLoading.value = false
+      }
+    }
+
+    async function payInstallment(contractId, buyerId, period) {
+        isLoading.value = true
+        try {
+            if (useMock.value) {
+                await new Promise(resolve => setTimeout(resolve, 500))
+                const contract = MOCK_CONTRACTS.find(c => c.contractId == contractId)
+                if (contract) {
+                    contract.paidCount = (contract.paidCount || 0) + 1
+                    if (contract.paidCount >= contract.totalPeriods) {
+                        contract.paymentStatus = true
+                        contract.paid = true
+                    }
+                    if (currentContract.value && currentContract.value.contractId == contractId) {
+                        Object.assign(currentContract.value, contract)
+                    }
+                }
+                return "分期付款成功"
+            }
+
+            const response = await fetch(`/api/contract/installment/${contractId}?period=${period}`, {
+                method: 'POST',
+                headers: {
+                    'buyerId': buyerId
+                }
+            })
+            if (!response.ok) throw new Error('Payment failed')
+            const msg = await response.text()
+            await fetchContractById(contractId)
+            return msg
+        } catch (e) {
+            console.error(e)
+            throw e
+        } finally {
+            isLoading.value = false
+        }
+    }
+
   return {
     contractList,
     currentContract,
@@ -277,6 +355,8 @@ export const useContractStore = defineStore('contract', () => {
     fetchContractList,
     fetchContractById,
     getContractById,
-    signContract
+    signContract,
+    payContract,
+    payInstallment
   }
 })
