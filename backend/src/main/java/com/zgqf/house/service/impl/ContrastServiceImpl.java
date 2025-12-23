@@ -1,5 +1,5 @@
 // ContrastServiceImpl.java
-package com.zgqf.house.service.serviceImpl;
+package com.zgqf.house.service.impl;
 
 import com.zgqf.house.dto.ContrastQueryDTO;
 import com.zgqf.house.dto.ContrastCreateDTO;

@@ -28,5 +28,4 @@ public interface UserService {
     List<Seller> searchSellers(String name);
     Seller createSeller(Seller seller);
     Seller updateSeller(Seller seller);
-
 }

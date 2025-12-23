@@ -1,0 +1,66 @@
+项目API接口总结
+
+1. 买家相关接口 (/api/buyer)
+
+1.1 房源收藏接口
+
+1.1.1添加房源到收藏夹
+URL: POST /api/buyer/follows/{houseId}
+说明: 将指定房源添加到买家的收藏夹
+参数:
+请求头: buyerId (买家ID)
+路径参数: houseId (房源ID)
+返回: 操作结果消息
+
+1.1.2从收藏夹中移除房源
+URL: DELETE /api/buyer/follows/{houseId}
+说明: 从买家的收藏夹中移除指定房源
+参数:
+请求头: buyerId (买家ID)
+路径参数: houseId (房源ID)
+返回: 操作结果消息
+
+1.1.3获取买家收藏的房源列表
+URL: GET /api/buyer/follows
+说明: 获取买家收藏的所有房源详细信息列表
+参数:
+请求头: buyerId (买家ID)
+返回: 房源详细信息列表
+
+1.2 买家个人信息接口
+
+1.2.1获取买家个人信息
+URL: GET /api/buyer/profile
+说明: 获取买家的个人资料信息
+参数:
+请求头: buyerId (买家ID)
+返回: 买家信息对象
+
+1.2.2更新买家个人信息
+URL: POST /api/buyer/profile
+说明: 更新买家的个人资料信息
+参数:
+请求头: buyerId (买家ID)
+请求体: Buyer 对象（包含要更新的信息）
+返回: 操作结果消息
+
+2. 合同相关接口 (/api/contract)
+
+2.1 付款接口
+
+2.1.1付款接口（全款/首付）
+URL: POST /api/contract/pay/{contractId}
+说明: 买家进行合同付款（全款或首付）
+参数:
+请求头: buyerId (买家ID)
+路径参数: contractId (合同ID)
+返回: 付款结果消息
+
+2.1.2分期付款接口
+URL: POST /api/contract/installment/{contractId}
+说明: 买家进行合同的分期付款
+参数:
+请求头: buyerId (买家ID)
+路径参数: contractId (合同ID)
+查询参数: period (付款期数)
+返回: 付款结果消息

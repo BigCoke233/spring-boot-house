@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zgqf.house.mapper.FollowMapper">
+
+    <!-- 插入收藏记录 -->
+    <insert id="insertFollow" parameterType="com.zgqf.house.entity.Follow">
+        INSERT INTO follow(f_buyer_id, f_house_id) VALUES(#{f_buyer_id}, #{f_house_id})
+    </insert>
+
+    <!-- 删除收藏记录 -->
+    <delete id="deleteFollow">
+        DELETE FROM follow WHERE f_buyer_id = #{buyerId} AND f_house_id = #{houseId}
+    </delete>
+
+    <!-- 查询收藏记录 -->
+    <select id="getFollow" resultType="com.zgqf.house.entity.Follow">
+        SELECT f_buyer_id, f_house_id FROM follow WHERE f_buyer_id = #{buyerId} AND f_house_id = #{houseId}
+    </select>
+
+    <!-- 获取买家收藏的所有房源详细信息 -->
+    <select id="getFollowHouses" parameterType="int" resultType="com.zgqf.house.entity.House">
+        SELECT h.* FROM house h INNER JOIN follow f ON h.h_id = f.f_house_id WHERE f.f_buyer_id = #{buyerId}
+    </select>
+
+</mapper>

@@ -4,12 +4,15 @@ package com.zgqf.house.service.serviceImpl;
 import com.zgqf.house.dto.HouseQueryDTO;
 import com.zgqf.house.dto.HouseResultDTO;
 import com.zgqf.house.entity.House;
+import com.zgqf.house.entity.Seller;
 import com.zgqf.house.mapper.HouseMapper;
+import com.zgqf.house.mapper.SellerMapper;
 import com.zgqf.house.service.HouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class HouseServiceImpl implements HouseService {
 
     private final HouseMapper houseMapper;
+    private final SellerMapper sellerMapper;
 
     @Override
     public Page<HouseResultDTO> getHouses(HouseQueryDTO queryDTO) {
@@ -87,26 +91,37 @@ public class HouseServiceImpl implements HouseService {
     @Override
     public HouseResultDTO convertToResultDTO(House house) {
         HouseResultDTO dto = new HouseResultDTO();
-        dto.setId(house.getId());
-        dto.setName(house.getName());
-        dto.setDescription(house.getDescription());
-        dto.setAddress(house.getAddress());
-        dto.setDetailAddress(house.getDetailAddress());
-        dto.setPrice(house.getPrice());
-        dto.setLongitude(house.getLongitude());
-        dto.setLatitude(house.getLatitude());
-        dto.setSquare(house.getSquare());
-        dto.setTotalPrice(house.getTotalPrice());
-        dto.setSellerName(house.getSellerName());
-        dto.setSellerPhone(house.getSellerPhone());
-        dto.setSellerEmail(house.getSellerEmail());
+        dto.setId(house.getH_id());
+        dto.setName(house.getH_name()); 
+        dto.setDescription(house.getH_describe());
+        dto.setAddress(house.getH_address());
+        dto.setDetailAddress(house.getH_detail_address());
+        dto.setPrice(BigDecimal.valueOf(house.getH_price()));
+        dto.setLongitude(house.getH_longitude());
+        dto.setLatitude(house.getH_latitude());
+        dto.setSquare(house.getH_square());
+        
+        // Calculate Total Price
+        if (house.getH_price() != null && house.getH_square() != null) {
+            dto.setTotalPrice(BigDecimal.valueOf(house.getH_price()).multiply(BigDecimal.valueOf(house.getH_square())));
+        }
+
+        // Fetch Seller Info
+        if (house.getH_seller_id() != null) {
+            Seller seller = sellerMapper.getSellerById(house.getH_seller_id());
+            if (seller != null) {
+                dto.setSellerName(seller.getS_name());
+                dto.setSellerPhone(seller.getS_phone());
+                dto.setSellerEmail(seller.getS_email());
+            }
+        }
 
         // 查询标签
-        List<String> tags = houseMapper.selectTagsByHouseId(house.getId());
+        List<String> tags = houseMapper.selectTagsByHouseId(house.getH_id());
         dto.setTagNames(tags);
 
         // 查询图片
-        List<String> pictures = houseMapper.selectPicturesByHouseId(house.getId());
+        List<String> pictures = houseMapper.selectPicturesByHouseId(house.getH_id());
         dto.setPicturePaths(pictures);
 
         return dto;

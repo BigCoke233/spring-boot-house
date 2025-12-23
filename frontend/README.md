@@ -1,44 +1,40 @@
-# frontend
+# 前端说明
 
-This template should help get you started developing with Vue 3 in Vite.
+## 架构
 
-## Recommended IDE Setup
+- **框架**：Vue.js
+- **打包构建**：Vite
+- **代码格式化**：ESLint + Prettifier
+- **包管理器：**pnpm（不要使用 npm）
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### 其他技术栈
 
-## Recommended Browser Setup
+- 使用 [UnoCSS](https://unocss.dev/guide/) 提供原子化 CSS，**尽量少编写 CSS 代码**，使用 UnoCSS 提供的工具类，如 `text-lg` `overflow-hidden`
+- 使用 [Lucide](https://lucide.dev/guide/) 提供图标。
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## 开发环境
 
-## Customize configuration
+1. 需[安装 Node.js](https://nodejs.org/en/download)
+2. 需[安装 pnpm](https://pnpm.io/installation#using-npm)
+    ```shell
+    npm install -g pnpm@latest-10
+    ```
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## 开发
 
-## Project Setup
-
-```sh
-pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-pnpm dev
-```
-
-### Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+1. 安装前端依赖项
+    ```sh
+    pnpm install
+    ```
+2. 开发，运行命令后会在本地启动一个 HTTP 服务器，能够实时看到前端代码修改后的结果
+    ```sh
+    pnpm dev
+    ```
+3. 编译构建
+    ```sh
+    pnpm build
+    ```
+4. 格式化代码并排查问题
+    ```sh
+    pnpm lint
+    ```

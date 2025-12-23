@@ -41,7 +41,7 @@ public class UserController {
     // 用户管理 - 更新用户
     @PostMapping("/user/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User user) {
-        user.setId(id);
+        user.setU_id(id);
         return ResponseEntity.ok(userService.updateUser(user));
     }
 
