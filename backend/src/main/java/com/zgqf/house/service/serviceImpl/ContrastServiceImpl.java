@@ -69,12 +69,6 @@ public class ContrastServiceImpl implements ContrastService {
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Contrast getContrastById(Integer id) {
-        log.info("查询合同详情, id={}", id);
-        return contrastMapper.selectContrastById(id);
-    }
 
     @Override
     @Transactional(readOnly = true)

@@ -83,12 +83,4 @@ public class UserController {
         return ResponseEntity.ok(userService.createSeller(seller));
     }
 
-    // 登录 - 可能需要调整路径，根据实际需求
-    @PostMapping("/login")
-    public ResponseEntity<User> login(
-            @RequestParam String username,
-            @RequestParam String password) {
-        User user = userService.authenticate(username, password);
-        return ResponseEntity.ok(user);
-    }
 }

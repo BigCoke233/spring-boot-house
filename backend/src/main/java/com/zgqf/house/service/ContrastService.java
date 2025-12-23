@@ -11,8 +11,6 @@ public interface ContrastService {
 
     Page<Contrast> getContrasts(ContrastQueryDTO queryDTO);
 
-    Contrast getContrastById(Integer id);
-
     Contrast getContrastDetail(Integer id);
 
     Contrast createContrast(ContrastCreateDTO createDTO);

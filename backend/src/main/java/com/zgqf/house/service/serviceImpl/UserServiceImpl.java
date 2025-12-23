@@ -77,23 +77,20 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Integer id) {
         log.info("删除用户: id={}", id);
 
-        // 1. 先检查用户是否存在
         User user = userMapper.selectUserById(id);
         if (user == null) {
             log.warn("删除失败: 用户不存在，ID: {}", id);
             throw new RuntimeException("用户不存在，ID: " + id);
         }
 
-        // 2. 根据用户类型执行不同的删除逻辑
         if ("buyer".equals(user.getType())) {
-            // 先删除buyer记录
+
             userMapper.deleteBuyer(id);
         } else if ("seller".equals(user.getType())) {
-            // 先删除seller记录
+
             userMapper.deleteSeller(id);
         }
 
-        // 3. 删除用户记录
         int rows = userMapper.deleteUser(id);
         if (rows == 0) {
             throw new RuntimeException("删除用户失败，ID: " + id);
@@ -240,16 +237,5 @@ public class UserServiceImpl implements UserService {
         return existingSeller;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public User authenticate(String username, String password) {
-        log.info("用户登录尝试: username={}", username);
-        User user = userMapper.selectUserByUsername(username);
-        if (user != null && password.equals(user.getPassword())) {
-            log.info("用户登录成功: username={}, type={}", username, user.getType());
-            return user;
-        }
-        log.warn("用户登录失败: username={}", username);
-        return null;
-    }
+
 }

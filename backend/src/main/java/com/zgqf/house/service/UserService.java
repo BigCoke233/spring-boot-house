@@ -29,6 +29,4 @@ public interface UserService {
     Seller createSeller(Seller seller);
     Seller updateSeller(Seller seller);
 
-    // 登录验证
-    User authenticate(String username, String password);
 }

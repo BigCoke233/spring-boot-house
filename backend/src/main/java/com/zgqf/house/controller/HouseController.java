@@ -19,7 +19,6 @@ public class HouseController {
     /**
      * GET /api/public/houses
      * 查询房源列表（支持多种筛选条件）
-     * 示例：/api/public/houses?type=decorated&minSquare=100
      */
     @GetMapping
     public ResponseEntity<Page<HouseResultDTO>> getHouses(
