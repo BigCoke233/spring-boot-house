@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zgqf.house.mapper.ContrastMapper">
+
+    <!-- 合同详情映射（包含买方和房源信息） -->
+    <resultMap id="ContrastDetailMap" type="com.zgqf.house.entity.Contrast">
+        <id column="c_id" property="id"/>
+        <result column="c_buyer_id" property="buyerId"/>
+        <result column="c_house_id" property="houseId"/>
+        <result column="c_total_price" property="totalPrice"/>
+        <result column="c_pay_way" property="payWay"/>
+        <result column="c_paytime_ending" property="paytimeEnding"/>
+        <result column="c_paytime_actually" property="paytimeActually"/>
+        <result column="c_delivery_ending" property="deliveryEnding"/>
+        <result column="c_delivery_actually" property="deliveryActually"/>
+        <result column="c_buyer_agree" property="buyerAgree"/>
+        <result column="c_seller_agree" property="sellerAgree"/>
+        <result column="c_paid" property="paid"/>
+        <result column="c_delivered" property="delivered"/>
+
+        <!-- 关联买方信息 -->
+        <association property="buyer" javaType="com.zgqf.house.entity.Buyer">
+            <id column="b_id" property="id"/>
+            <result column="b_name" property="name"/>
+            <result column="b_phone" property="phone"/>
+            <result column="b_email" property="email"/>
+        </association>
+
+        <!-- 关联房源信息 -->
+        <association property="house" javaType="com.zgqf.house.entity.House">
+            <id column="h_id" property="id"/>
+            <result column="h_name" property="name"/>
+            <result column="h_price" property="price"/>
+            <result column="h_square" property="square"/>
+        </association>
+    </resultMap>
+
+    <!-- 查询合同列表 -->
+    <select id="selectContrastList" resultMap="ContrastDetailMap">
+        SELECT c.*, b.*, h.*
+        FROM contrast c
+        LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
+        LEFT JOIN house h ON c.c_house_id = h.h_id
+        WHERE 1=1
+        <if test="buyerId != null">
+            AND c.c_buyer_id = #{buyerId}
+        </if>
+        <if test="sellerId != null">
+            AND h.h_seller_id = #{sellerId}
+        </if>
+        <if test="houseId != null">
+            AND c.c_house_id = #{houseId}
+        </if>
+        <if test="buyerAgree != null">
+            AND c.c_buyer_agree = #{buyerAgree}
+        </if>
+        <if test="sellerAgree != null">
+            AND c.c_seller_agree = #{sellerAgree}
+        </if>
+        <if test="paid != null">
+            AND c.c_paid = #{paid}
+        </if>
+        <if test="delivered != null">
+            AND c.c_delivered = #{delivered}
+        </if>
+        <if test="startDate != null">
+            AND c.c_paytime_ending >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND c.c_paytime_ending &lt;= #{endDate}
+        </if>
+        ORDER BY ${sortBy} ${sortOrder}
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 统计合同数量 -->
+    <select id="countContrastList" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM contrast c
+        LEFT JOIN house h ON c.c_house_id = h.h_id
+        WHERE 1=1
+        <if test="buyerId != null">
+            AND c.c_buyer_id = #{buyerId}
+        </if>
+        <if test="sellerId != null">
+            AND h.h_seller_id = #{sellerId}
+        </if>
+        <!-- 其他条件与selectContrastList保持一致 -->
+        <if test="houseId != null">
+            AND c.c_house_id = #{houseId}
+        </if>
+        <if test="buyerAgree != null">
+            AND c.c_buyer_agree = #{buyerAgree}
+        </if>
+        <if test="sellerAgree != null">
+            AND c.c_seller_agree = #{sellerAgree}
+        </if>
+        <if test="paid != null">
+            AND c.c_paid = #{paid}
+        </if>
+        <if test="delivered != null">
+            AND c.c_delivered = #{delivered}
+        </if>
+        <if test="startDate != null">
+            AND DATE(c.c_paytime_ending) >= DATE(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND DATE(c.c_paytime_ending) &lt;= DATE(#{endDate})
+        </if>
+    </select>
+
+    <!-- 查询合同详情 -->
+    <select id="selectContrastDetailById" resultMap="ContrastDetailMap">
+        SELECT c.*, b.*, h.*
+        FROM contrast c
+                 LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
+                 LEFT JOIN house h ON c.c_house_id = h.h_id
+        WHERE c.c_id = #{id}
+    </select>
+
+    <!-- 插入合同 -->
+    <insert id="insertContrast" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO contrast(
+            c_buyer_id, c_house_id, c_total_price, c_pay_way,
+            c_paytime_ending, c_delivery_ending,
+            c_buyer_agree, c_seller_agree, c_paid, c_delivered
+        ) VALUES(
+                    #{buyerId}, #{houseId}, #{totalPrice}, #{payWay},
+                    #{paytimeEnding}, #{deliveryEnding},
+                    0, 0, 0, 0
+                )
+    </insert>
+
+    <!-- 更新合同 -->
+    <update id="updateContrast">
+        UPDATE contrast
+        <set>
+            <if test="buyerAgree != null">c_buyer_agree = #{buyerAgree},</if>
+            <if test="sellerAgree != null">c_seller_agree = #{sellerAgree},</if>
+            <if test="paytimeActually != null">c_paytime_actually = #{paytimeActually},</if>
+            <if test="deliveryActually != null">c_delivery_actually = #{deliveryActually},</if>
+            <if test="paid != null">c_paid = #{paid},</if>
+            <if test="delivered != null">c_delivered = #{delivered}</if>
+        </set>
+        WHERE c_id = #{id}
+    </update>
+
+</mapper>

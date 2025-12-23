@@ -1,19 +1,19 @@
 package com.zgqf.house.entity;
 
 public class Installment {
-    private Integer i_contrast_id;
+    private Integer i_contract_id;
     private Double i_down_payment;
     private Integer i_total_periods;
     private Double i_paid_per_period;
     private Integer i_paid_count;
 
     // Getters and Setters
-    public Integer getI_contrast_id() {
-        return i_contrast_id;
+    public Integer getI_contract_id() {
+        return i_contract_id;
     }
 
-    public void setI_contrast_id(Integer i_contrast_id) {
-        this.i_contrast_id = i_contrast_id;
+    public void setI_contract_id(Integer i_contract_id) {
+        this.i_contract_id = i_contract_id;
     }
 
     public Double getI_down_payment() {

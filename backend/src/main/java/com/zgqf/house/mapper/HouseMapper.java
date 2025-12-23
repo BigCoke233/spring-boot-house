@@ -1,8 +1,9 @@
 package com.zgqf.house.mapper;
 
+import com.zgqf.house.dto.HouseQueryDTO;
 import com.zgqf.house.entity.House;
-import org.apache.ibatis.annotations.*;
-
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper
@@ -27,4 +28,39 @@ public interface HouseMapper {
      * 根据ID删除房源
      */
     int deleteById(@Param("houseId") Integer houseId);
+
+    /**
+     * 查询房源列表（带分页和条件）
+     */
+    List<House> selectHouseList(HouseQueryDTO queryDTO);
+
+    /**
+     * 查询房源总数（用于分页）
+     */
+    Long countHouseList(HouseQueryDTO queryDTO);
+
+    /**
+     * 根据ID查询房源详情
+     */
+    House selectHouseById(@Param("id") Integer id);
+
+    /**
+     * 根据房源ID查询标签列表
+     */
+    List<String> selectTagsByHouseId(@Param("houseId") Integer houseId);
+
+    /**
+     * 根据房源ID查询图片列表
+     */
+    List<String> selectPicturesByHouseId(@Param("houseId") Integer houseId);
+
+    /**
+     * 根据标签类型查询房源
+     */
+    List<House> selectHousesByTagType(@Param("tagType") String tagType);
+
+    /**
+     * 根据标签名查询房源
+     */
+    List<House> selectHousesByTagName(@Param("tagName") String tagName);
 }

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zgqf.house.mapper.BuyerMapper">
+
+    <!-- 根据买家ID获取买家信息 -->
+    <select id="getBuyerById" parameterType="int" resultType="com.zgqf.house.entity.Buyer">
+        SELECT * FROM buyer WHERE b_id = #{buyerId}
+    </select>
+
+    <!-- 更新买家信息 -->
+    <update id="updateBuyer" parameterType="com.zgqf.house.entity.Buyer">
+        UPDATE buyer 
+        SET b_name=#{b_name}, 
+            b_phone=#{b_phone}, 
+            b_email=#{b_email}, 
+            b_mobile_assets=#{b_mobile_assets}, 
+            b_fixed_assets=#{b_fixed_assets}, 
+            b_annual_income=#{b_annual_income} 
+        WHERE b_id=#{b_id}
+    </update>
+    
+    <!-- 根据合同ID获取合同信息 -->
+    <select id="getContractById" parameterType="int" resultType="com.zgqf.house.entity.Contract">
+        SELECT * FROM contract WHERE c_id = #{contractId}
+    </select>
+
+    <!-- 更新合同信息 -->
+    <update id="updateContract" parameterType="com.zgqf.house.entity.Contract">
+        UPDATE contract 
+        SET c_paid = #{c_paid},
+            c_paytime_actually = #{c_paytime_actually},
+            c_delivery_ending = #{c_delivery_ending}
+        WHERE c_id = #{c_id}
+    </update>
+    
+    <!-- 根据合同ID获取分期付款信息 -->
+    <select id="getInstallmentByContractId" parameterType="int" resultType="com.zgqf.house.entity.Installment">
+        SELECT * FROM installment WHERE i_contract_id = #{contractId}
+    </select>
+    
+    <!-- 更新分期付款信息 -->
+    <update id="updateInstallment" parameterType="com.zgqf.house.entity.Installment">
+        UPDATE installment 
+        SET i_paid_count = #{i_paid_count}
+        WHERE i_contract_id = #{i_contract_id}
+    </update>
+    
+    <!-- 查询分期付款计算详情 -->
+    <select id="getInstallmentCalculationDetails" parameterType="int" resultType="map">
+        SELECT 
+            vi_contract_id,
+            vi_total_periods,
+            vi_paid_per_period,
+            vi_paid_count,
+            vi_down_payment,
+            vi_total_price,
+            vi_final_payment,
+            vi_paid_final,
+            vi_payment_status
+        FROM view_installment 
+        WHERE vi_contract_id = #{contractId}
+    </select>
+
+    <!-- 新增买家信息 -->
+    <insert id="insert" parameterType="com.zgqf.house.entity.Buyer">
+        INSERT INTO buyer (b_id, b_name, b_phone, b_email, b_mobile_assets, b_fixed_assets, b_annual_income)
+        VALUES (#{b_id}, #{b_name}, #{b_phone}, #{b_email}, #{b_mobile_assets}, #{b_fixed_assets}, #{b_annual_income})
+    </insert>
+
+</mapper>

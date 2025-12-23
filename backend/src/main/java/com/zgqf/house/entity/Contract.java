@@ -2,7 +2,7 @@ package com.zgqf.house.entity;
 
 import java.util.Date;
 
-public class Contrast {
+public class Contract {
     private Integer c_id;
     private Integer c_buyer_id;
     private Integer c_house_id;
@@ -16,6 +16,9 @@ public class Contrast {
     private Integer c_seller_agree;
     private Integer c_paid;
     private Integer c_delivered;
+    private Double c_down_payment;  //首付金额
+    private Integer c_total_periods;    //尾款总期数
+
 
     // Getters and Setters
     public Integer getC_id() {
@@ -120,5 +123,21 @@ public class Contrast {
 
     public void setC_delivered(Integer c_delivered) {
         this.c_delivered = c_delivered;
+    }
+
+    public Double getC_down_payment() {
+        return c_down_payment;
+    }
+
+    public void setC_down_payment(Double c_down_payment) {
+        this.c_down_payment = c_down_payment;
+    }
+
+    public Integer getC_total_periods() {
+        return c_total_periods;
+    }
+
+    public void setC_total_periods(Integer c_total_periods) {
+        this.c_total_periods = c_total_periods;
     }
 }

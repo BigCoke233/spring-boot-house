@@ -16,12 +16,12 @@ public class SellerServiceImpl implements SellerService {
     public Seller getSellerInfo() {
         // 假设当前登录用户是卖家，获取卖家ID
         Integer sellerId = getCurrentSellerId(); // 需要从安全上下文中获取
-        return sellerMapper.selectById(sellerId);
+        return sellerMapper.getSellerById(sellerId);
     }
 
     @Override
     public Seller updateSellerInfo(Seller seller) {
-        sellerMapper.update(seller);
+        sellerMapper.updateSeller(seller);
         return seller;
     }
 
