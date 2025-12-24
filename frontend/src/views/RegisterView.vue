@@ -161,8 +161,12 @@ const handleRegister = async () => {
       info: info
     })
     
-    alert('注册成功，请登录')
-    router.push('/login')
+    await userStore.login({
+      username: formData.username,
+      password: formData.password
+    })
+    
+    router.push('/')
   } catch (err) {
     error.value = err.message || '注册失败，请重试'
   } finally {
