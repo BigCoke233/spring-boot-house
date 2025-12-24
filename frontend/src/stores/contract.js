@@ -4,149 +4,21 @@ import { defineStore } from 'pinia'
 // Mock Data based on the structure used in ContractView.vue
 const MOCK_CONTRACTS = [
   {
-    contractId: 1001,
-    buyerId: 501,
-    houseId: 1,
-    sellerId: 201,
-    totalPrice: 980000,
-    payWay: 'installment',
-    paymentStatus: false,
-    completionStatus: false,
-    agreeStatus: false,
-    buyerAgree: true,
-    sellerAgree: true,
-    paid: false,
-    delivered: false,
-    paytimeEnding: '2026-03-31',
-    paytimeActually: null,
-    deliveryEnding: '2026-05-31',
-    deliveryActually: null,
-    totalPeriods: 12,
-    paidCount: 3,
-    downPaymentPaid: true,
-    buyer: { id: 501, name: '张三', idCard: '110101199001010000', phone: '13800000000' },
-    seller: { id: 201, name: '万科地产', idCard: '91440000MA5G3U1234', phone: '020-88888888' },
-    legalClauses: {
-        liabilityBuyer: '买方需按约定时间支付款项，逾期按日万分之五支付违约金。',
-        liabilitySeller: '卖方需按约定时间交房，逾期按日万分之五支付违约金。',
-        disputeResolution: '双方协商不成，可向房屋所在地人民法院提起诉讼。'
-    }
-  },
-  {
-    contractId: 1002,
-    buyerId: 502,
-    houseId: 2,
-    sellerId: 202,
-    totalPrice: 1200000,
-    payWay: 'full',
-    paymentStatus: true,
-    completionStatus: false,
-    agreeStatus: true,
-    buyerAgree: true,
-    sellerAgree: true,
-    paid: true,
-    delivered: false,
-    paytimeEnding: '2025-12-31',
-    paytimeActually: '2025-10-20',
-    deliveryEnding: '2026-02-28',
-    deliveryActually: null,
-    totalPeriods: 0,
-    paidCount: 0,
-    downPaymentPaid: false,
-    buyer: { id: 502, name: '李四', idCard: '110101199202020000', phone: '13900000000' },
-    seller: { id: 202, name: '恒大地产', idCard: '91440000MA5G3U5678', phone: '0755-88888888' },
-    legalClauses: {
-        liabilityBuyer: '买方需按约定时间支付款项。',
-        liabilitySeller: '卖方需按约定时间交房。',
-        disputeResolution: '双方协商解决。'
-    }
-  },
-  {
-    contractId: 1003,
-    buyerId: 503,
-    houseId: 3,
-    sellerId: 203,
-    totalPrice: 860000,
-    payWay: 'installment',
-    paymentStatus: false,
-    completionStatus: false,
-    agreeStatus: false,
-    buyerAgree: false,
-    sellerAgree: true,
-    paid: false,
-    delivered: false,
-    paytimeEnding: '2026-04-15',
-    paytimeActually: null,
-    deliveryEnding: '2026-06-30',
-    deliveryActually: null,
-    totalPeriods: 24,
-    paidCount: 0,
-    downPaymentPaid: false,
-    buyer: { id: 503, name: '王五', idCard: '110101199505050000', phone: '13700000000' },
-    seller: { id: 203, name: '绿地集团', idCard: '91310000MA5G3U9012', phone: '021-88888888' },
-    legalClauses: {
-        liabilityBuyer: '买方违约需支付合同总价20%的违约金。',
-        liabilitySeller: '卖方违约需双倍返还定金。',
-        disputeResolution: '提交仲裁委员会仲裁。'
-    }
-  },
-  {
-    contractId: 1004,
-    buyerId: 504,
-    houseId: 4,
-    sellerId: 204,
-    totalPrice: 1500000,
-    payWay: 'full',
-    paymentStatus: true,
-    completionStatus: true,
-    agreeStatus: true,
-    buyerAgree: true,
-    sellerAgree: true,
-    paid: true,
-    delivered: true,
-    paytimeEnding: '2024-12-31',
-    paytimeActually: '2024-11-15',
-    deliveryEnding: '2025-01-31',
-    deliveryActually: '2025-01-10',
-    totalPeriods: 0,
-    paidCount: 0,
-    downPaymentPaid: false,
-    buyer: { id: 504, name: '赵六', idCard: '110101198808080000', phone: '13600000000' },
-    seller: { id: 204, name: '碧桂园', idCard: '91440000MA5G3U3456', phone: '0757-88888888' },
-    legalClauses: {
-        liabilityBuyer: '逾期付款需支付滞纳金。',
-        liabilitySeller: '逾期交房需支付违约金。',
-        disputeResolution: '向法院起诉。'
-    }
-  },
-  {
-    contractId: 1005,
-    buyerId: 505,
-    houseId: 5,
-    sellerId: 205,
-    totalPrice: 2000000,
-    payWay: 'installment',
-    paymentStatus: false,
-    completionStatus: false,
-    agreeStatus: true,
-    buyerAgree: true,
-    sellerAgree: true,
-    paid: false,
-    delivered: false,
-    paytimeEnding: '2027-06-30',
-    paytimeActually: null,
-    deliveryEnding: '2027-12-31',
-    deliveryActually: null,
-    totalPeriods: 36,
-    paidCount: 12,
-    downPaymentPaid: true,
-    buyer: { id: 505, name: '孙七', idCard: '110101199303030000', phone: '13500000000' },
-    seller: { id: 205, name: '保利地产', idCard: '91440000MA5G3U7890', phone: '020-66666666' },
-    legalClauses: {
-        liabilityBuyer: '分期付款违约将导致合同终止。',
-        liabilitySeller: '房屋质量问题需在30天内整改。',
-        disputeResolution: '双方协商或仲裁。'
-    }
+    c_id: 1001,
+    c_buyer_id: 501,
+    c_house_id: 1,
+    c_total_price: 980000,
+    c_pay_way: 'installment',
+    c_buyer_agree: 1,
+    c_seller_agree: 1,
+    c_paid: 0,
+    c_delivered: 0,
+    c_paytime_ending: '2026-03-31',
+    c_paytime_actually: null,
+    c_delivery_ending: '2026-05-31',
+    c_delivery_actually: null,
+    buyer: { b_id: 501, b_name: '张三', b_phone: '13800000000' },
+    house: { h_id: 1, h_name: '映月城 · A1' }
   }
 ]
 
@@ -156,11 +28,11 @@ export const useContractStore = defineStore('contract', () => {
   const currentContract = ref(null)
   const isLoading = ref(false)
   const error = ref(null)
-  const useMock = ref(true)
+  const useMock = ref(false) // Default to false to use real API
 
   // Getters
   const getContractById = computed(() => (id) => {
-    return contractList.value.find(c => c.contractId == id) || MOCK_CONTRACTS.find(c => c.contractId == id)
+    return contractList.value.find(c => c.c_id == id) || (useMock.value ? MOCK_CONTRACTS.find(c => c.c_id == id) : null)
   })
 
   // Actions
@@ -175,19 +47,17 @@ export const useContractStore = defineStore('contract', () => {
       }
 
       const query = new URLSearchParams(filters).toString()
+      // Supports /api/contract or /api/admin/contracts depending on usage, 
+      // but Controller maps both to same method. We use /api/contract for simplicity.
       const response = await fetch(`/api/contract?${query}`)
       if (!response.ok) throw new Error('Failed to fetch contract list')
       const data = await response.json()
-      contractList.value = data
-      return data
+      // API returns Page<Contract>, we need content
+      contractList.value = data.content || data
+      return contractList.value
     } catch (err) {
       console.error('Fetch contract list error:', err)
       error.value = err.message
-      if (!useMock.value) {
-          console.warn('Falling back to mock data')
-          contractList.value = MOCK_CONTRACTS
-          return MOCK_CONTRACTS
-      }
       throw err
     } finally {
       isLoading.value = false
@@ -200,19 +70,16 @@ export const useContractStore = defineStore('contract', () => {
     try {
       if (useMock.value) {
         await new Promise(resolve => setTimeout(resolve, 300))
-        const contract = MOCK_CONTRACTS.find(c => c.contractId == id)
+        const contract = MOCK_CONTRACTS.find(c => c.c_id == id)
         if (!contract) throw new Error('Contract not found')
-        
-        // Ensure nested objects exist for mock data if missing (safety check)
-        if (!contract.buyer) contract.buyer = { id: contract.buyerId, name: '未知买方', idCard: '—', phone: '—' }
-        if (!contract.seller) contract.seller = { id: contract.sellerId, name: '未知卖方', idCard: '—', phone: '—' }
-        if (!contract.legalClauses) contract.legalClauses = { liabilityBuyer: '—', liabilitySeller: '—', disputeResolution: '—' }
-
         currentContract.value = contract
         return contract
       }
 
-      const response = await fetch(`/api/contract/${id}`)
+      // Backend requires POST for detail per Controller: @PostMapping("/contract/{id}")
+      const response = await fetch(`/api/contract/${id}`, {
+          method: 'POST'
+      })
       if (!response.ok) throw new Error('Failed to fetch contract details')
       const data = await response.json()
       currentContract.value = data
@@ -220,131 +87,127 @@ export const useContractStore = defineStore('contract', () => {
     } catch (err) {
       console.error(`Fetch contract ${id} error:`, err)
       error.value = err.message
-       if (!useMock.value) {
-           const contract = MOCK_CONTRACTS.find(c => c.contractId == id)
-           if (contract) {
-               console.warn('Falling back to mock data')
-               currentContract.value = contract
-               return contract
-           }
-       }
       throw err
     } finally {
       isLoading.value = false
     }
   }
 
-  async function signContract(contractId, role) {
-      // role: 'buyer' or 'seller'
+  async function createContract(contractData) {
+      isLoading.value = true
+      error.value = null
       try {
           if (useMock.value) {
-              await new Promise(resolve => setTimeout(resolve, 500))
-              const contract = MOCK_CONTRACTS.find(c => c.contractId == contractId)
-              if (contract) {
-                  if (role === 'buyer') contract.buyerAgree = true
-                  if (role === 'seller') contract.sellerAgree = true
-                  // Update current if matches
-                  if (currentContract.value && currentContract.value.contractId == contractId) {
-                       if (role === 'buyer') currentContract.value.buyerAgree = true
-                       if (role === 'seller') currentContract.value.sellerAgree = true
-                  }
-              }
-              return true
+              // Mock creation
+              return contractData
           }
-          
-          const response = await fetch(`/api/contract/${contractId}/sign`, {
+          const response = await fetch('/api/contract', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ role })
+              body: JSON.stringify(contractData)
+          })
+          if (!response.ok) throw new Error('Failed to create contract')
+          return await response.json()
+      } catch (err) {
+          error.value = err.message
+          throw err
+      } finally {
+          isLoading.value = false
+      }
+  }
+
+  async function updateContract(id, updateData) {
+      isLoading.value = true
+      try {
+          const response = await fetch(`/api/contract/${id}/update`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updateData)
+          })
+          if (!response.ok) throw new Error('Failed to update contract')
+          return await response.json()
+      } catch (err) {
+          error.value = err.message
+          throw err
+      } finally {
+          isLoading.value = false
+      }
+  }
+
+  async function deleteContract(id) {
+      isLoading.value = true
+      try {
+          const response = await fetch(`/api/contract/${id}`, {
+              method: 'DELETE'
+          })
+          if (!response.ok) throw new Error('Failed to delete contract')
+          return true
+      } catch (err) {
+          error.value = err.message
+          throw err
+      } finally {
+          isLoading.value = false
+      }
+  }
+
+  async function signContract(contractId, role, agree) {
+      // role: 'buyer' or 'seller'
+      // agree: -1 (reject), 1 (agree)
+      try {
+          const endpoint = role === 'buyer' 
+              ? `/api/contract/${contractId}/buyer-agree?agree=${agree}`
+              : `/api/contract/${contractId}/seller-agree?agree=${agree}`
+          
+          const response = await fetch(endpoint, {
+              method: 'POST'
           })
           if (!response.ok) throw new Error('Sign failed')
           
           // Refresh data
-          await fetchContractById(contractId)
-          return true
+          const updatedContract = await response.json()
+          if (currentContract.value && currentContract.value.c_id == contractId) {
+              currentContract.value = updatedContract
+          }
+          return updatedContract
       } catch (e) {
           console.error('Sign contract error:', e)
           throw e
       }
   }
 
-  async function payContract(contractId, buyerId) {
-      isLoading.value = true
+  async function updatePayment(contractId, paid) {
       try {
-        if (useMock.value) {
-            await new Promise(resolve => setTimeout(resolve, 500))
-            const contract = MOCK_CONTRACTS.find(c => c.contractId == contractId)
-            if (contract) {
-                if (contract.payWay === 'full') {
-                    contract.paymentStatus = true
-                    contract.paid = true
-                    contract.paytimeActually = new Date().toISOString().split('T')[0]
-                } else {
-                    contract.downPaymentPaid = true
-                    contract.paidCount = (contract.paidCount || 0) + 1 
-                }
-                // Update current contract
-                if (currentContract.value && currentContract.value.contractId == contractId) {
-                    Object.assign(currentContract.value, contract)
-                }
-            }
-            return "支付成功"
-        }
-
-        const response = await fetch(`/api/contract/pay/${contractId}`, {
-            method: 'POST',
-            headers: {
-                'buyerId': buyerId
-            }
+        const response = await fetch(`/api/contract/${contractId}/payment?paid=${paid}`, {
+            method: 'POST'
         })
-        if (!response.ok) throw new Error('Payment failed')
-        const msg = await response.text()
-        await fetchContractById(contractId)
-        return msg
+        if (!response.ok) throw new Error('Payment update failed')
+        const updatedContract = await response.json()
+        if (currentContract.value && currentContract.value.c_id == contractId) {
+            currentContract.value = updatedContract
+        }
+        return updatedContract
       } catch (e) {
           console.error(e)
           throw e
-      } finally {
-          isLoading.value = false
       }
     }
 
-    async function payInstallment(contractId, buyerId, period) {
-        isLoading.value = true
+    async function updateDelivery(contractId, delivered) {
         try {
-            if (useMock.value) {
-                await new Promise(resolve => setTimeout(resolve, 500))
-                const contract = MOCK_CONTRACTS.find(c => c.contractId == contractId)
-                if (contract) {
-                    contract.paidCount = (contract.paidCount || 0) + 1
-                    if (contract.paidCount >= contract.totalPeriods) {
-                        contract.paymentStatus = true
-                        contract.paid = true
-                    }
-                    if (currentContract.value && currentContract.value.contractId == contractId) {
-                        Object.assign(currentContract.value, contract)
-                    }
-                }
-                return "分期付款成功"
-            }
-
-            const response = await fetch(`/api/contract/installment/${contractId}?period=${period}`, {
-                method: 'POST',
-                headers: {
-                    'buyerId': buyerId
-                }
-            })
-            if (!response.ok) throw new Error('Payment failed')
-            const msg = await response.text()
-            await fetchContractById(contractId)
-            return msg
+          const response = await fetch(`/api/contract/${contractId}/delivery?delivered=${delivered}`, {
+              method: 'POST'
+          })
+          if (!response.ok) throw new Error('Delivery update failed')
+          const updatedContract = await response.json()
+          if (currentContract.value && currentContract.value.c_id == contractId) {
+              currentContract.value = updatedContract
+          }
+          return updatedContract
         } catch (e) {
             console.error(e)
             throw e
-        } finally {
-            isLoading.value = false
         }
-    }
+      }
 
   return {
     contractList,
@@ -355,8 +218,11 @@ export const useContractStore = defineStore('contract', () => {
     fetchContractList,
     fetchContractById,
     getContractById,
+    createContract,
+    updateContract,
+    deleteContract,
     signContract,
-    payContract,
-    payInstallment
+    updatePayment,
+    updateDelivery
   }
 })

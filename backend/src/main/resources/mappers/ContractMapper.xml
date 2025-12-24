@@ -58,4 +58,110 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		update contract set c_paytime_ending = #{c_paytime_ending}
 		where c_id = #{c_id}
 	</update>
+    <!-- === 新增方法以支持合并后的 Service 逻辑 === -->
+
+    <!-- 通用查询条件 -->
+    <sql id="Contract_Where_Clause">
+        <where>
+            <if test="buyerId != null">
+                AND c.c_buyer_id = #{buyerId}
+            </if>
+            <if test="sellerId != null">
+                AND h.h_seller_id = #{sellerId}
+            </if>
+            <if test="houseId != null">
+                AND c.c_house_id = #{houseId}
+            </if>
+            <if test="buyerAgree != null">
+                AND c.c_buyer_agree = #{buyerAgree}
+            </if>
+            <if test="sellerAgree != null">
+                AND c.c_seller_agree = #{sellerAgree}
+            </if>
+            <if test="paid != null">
+                AND c.c_paid = #{paid}
+            </if>
+            <if test="delivered != null">
+                AND c.c_delivered = #{delivered}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 条件查询合同列表 -->
+    <select id="selectContractList" resultType="com.zgqf.house.entity.Contract">
+        SELECT c.*
+        FROM contract c
+        LEFT JOIN house h ON c.c_house_id = h.h_id
+        <include refid="Contract_Where_Clause"/>
+        ORDER BY ${sortBy} ${sortOrder}
+        <if test="offset != null and pageSize != null">
+            LIMIT #{pageSize} OFFSET #{offset}
+        </if>
+    </select>
+
+    <!-- 统计合同数量 -->
+    <select id="countContractList" resultType="long">
+        SELECT count(c.c_id)
+        FROM contract c
+        LEFT JOIN house h ON c.c_house_id = h.h_id
+        <include refid="Contract_Where_Clause"/>
+    </select>
+
+    <!-- 根据ID查询详情 -->
+    <select id="selectContractDetailById" resultType="com.zgqf.house.entity.Contract">
+        SELECT * FROM contract WHERE c_id = #{id}
+    </select>
+
+    <!-- 更新合同 -->
+    <update id="updateContract" parameterType="com.zgqf.house.entity.Contract">
+        UPDATE contract
+        <set>
+            <if test="c_total_price != null">c_total_price = #{c_total_price},</if>
+            <if test="c_pay_way != null">c_pay_way = #{c_pay_way},</if>
+            <if test="c_paytime_ending != null">c_paytime_ending = #{c_paytime_ending},</if>
+            <if test="c_paytime_actually != null">c_paytime_actually = #{c_paytime_actually},</if>
+            <if test="c_delivery_ending != null">c_delivery_ending = #{c_delivery_ending},</if>
+            <if test="c_delivery_actually != null">c_delivery_actually = #{c_delivery_actually},</if>
+            <if test="c_buyer_agree != null">c_buyer_agree = #{c_buyer_agree},</if>
+            <if test="c_seller_agree != null">c_seller_agree = #{c_seller_agree},</if>
+            <if test="c_paid != null">c_paid = #{c_paid},</if>
+            <if test="c_delivered != null">c_delivered = #{c_delivered},</if>
+        </set>
+        WHERE c_id = #{c_id}
+    </update>
+
+    <!-- 删除合同 -->
+    <delete id="deleteContract">
+        DELETE FROM contract WHERE c_id = #{id}
+    </delete>
+
+    <!-- 状态更新快捷方法 -->
+    <update id="updateBuyerAgree">
+        UPDATE contract SET c_buyer_agree = #{agree} WHERE c_id = #{id}
+    </update>
+
+    <update id="updateSellerAgree">
+        UPDATE contract SET c_seller_agree = #{agree} WHERE c_id = #{id}
+    </update>
+
+    <update id="updatePaymentStatus">
+        UPDATE contract SET c_paid = #{paid} WHERE c_id = #{id}
+    </update>
+
+    <update id="updateDeliveryStatus">
+        UPDATE contract SET c_delivered = #{delivered} WHERE c_id = #{id}
+    </update>
+
+    <!-- 统计方法 -->
+    <select id="countContractByBuyerId" resultType="long">
+        SELECT count(*) FROM contract WHERE c_buyer_id = #{buyerId}
+    </select>
+
+    <select id="countContractBySellerId" resultType="long">
+        SELECT count(c.c_id) 
+        FROM contract c 
+        JOIN house h ON c.c_house_id = h.h_id 
+        WHERE h.h_seller_id = #{sellerId}
+    </select>
+
 </mapper>

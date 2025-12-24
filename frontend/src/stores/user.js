@@ -3,13 +3,18 @@ import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', () => {
   // State
-  // We don't need to store token manually for session-based auth, but we might want to track if we are logged in
   const isLoggedInState = ref(localStorage.getItem('isLoggedIn') === 'true')
   const userInfo = ref(JSON.parse(localStorage.getItem('userInfo') || '{"role": "buyer"}'))
 
   // Getters
   const isLoggedIn = computed(() => isLoggedInState.value)
   const role = computed(() => userInfo.value.role || 'buyer')
+  const currentUserId = computed(() => {
+      // Return buyer/seller ID if available, otherwise user ID
+      if (role.value === 'buyer') return userInfo.value.b_id
+      if (role.value === 'seller') return userInfo.value.s_id
+      return userInfo.value.u_id
+  })
 
   // Helper functions
   function setLoginState(status) {
@@ -44,15 +49,10 @@ export const useUserStore = defineStore('user', () => {
       }
 
       setLoginState(true)
-      if (data.user) {
-        // Backend returns "user" (basic info) and potentially "profile" (buyer/seller info) inside data
-        // But the response structure in AuthController is: { message, role, user (which is buyer/seller obj or user obj)
-        // Let's adapt based on the actual response.
-        // AuthController: return ResponseEntity.ok(Map.of("message", "Login successful", "role", "buyer", "user", buyer));
-        setUserInfo({ ...data.user, role: data.role })
-      } else {
-        await fetchUserInfo()
-      }
+      // data.user contains the main User object or specific role object depending on controller logic
+      // AuthController returns: { message, role, user: (Buyer|Seller|User) }
+      const userObj = data.user
+      setUserInfo({ ...userObj, role: data.role })
 
       return data
     } catch (error) {
@@ -89,7 +89,6 @@ export const useUserStore = defineStore('user', () => {
       console.error('Logout error:', error)
     } finally {
       clearState()
-      // Optional: redirect to login page
       window.location.href = '/login'
     }
   }
@@ -122,19 +121,180 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function changePassword(passwordData) {
-      // TODO: Implement change password API if available
-      console.warn('Change password not implemented yet', passwordData)
+  // Buyer Profile Management
+  async function fetchBuyerProfile(buyerId) {
+      try {
+          const response = await fetch('/api/buyer/profile', {
+              headers: { 'buyerId': buyerId }
+          })
+          if (!response.ok) throw new Error('Failed to fetch profile')
+          const data = await response.json()
+          setUserInfo(data) // Update local info
+          return data
+      } catch (error) {
+          console.error(error)
+          throw error
+      }
+  }
+
+  async function updateBuyerProfile(buyerId, profileData) {
+      try {
+          const response = await fetch('/api/buyer/profile', {
+              method: 'POST',
+              headers: { 
+                  'Content-Type': 'application/json',
+                  'buyerId': buyerId
+              },
+              body: JSON.stringify(profileData)
+          })
+          if (!response.ok) throw new Error('Failed to update profile')
+          
+          // Refresh info
+          await fetchBuyerProfile(buyerId)
+      } catch (error) {
+          console.error(error)
+          throw error
+      }
+  }
+
+  // Seller Profile Management
+  async function updateSellerProfile(profileData) {
+      try {
+          const response = await fetch('/api/seller/profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(profileData)
+          })
+          if (!response.ok) throw new Error('Failed to update seller profile')
+          
+          // Refresh info if needed, though we don't have explicit getSellerProfile endpoint other than current
+          await fetchUserInfo() 
+      } catch (error) {
+          console.error(error)
+          throw error
+      }
+  }
+
+  // Admin Management
+  async function fetchAllUsers() {
+    try {
+      const response = await fetch('/api/admin/users')
+      if (!response.ok) throw new Error('Failed to fetch users')
+      return await response.json()
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
+  async function fetchUserById(id) {
+    try {
+      const response = await fetch(`/api/admin/user/${id}`)
+      if (!response.ok) throw new Error('Failed to fetch user')
+      return await response.json()
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
+  async function adminCreateUser(userData) {
+    try {
+      const response = await fetch('/api/admin/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      })
+      if (!response.ok) throw new Error('Failed to create user')
+      return await response.json()
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
+  async function adminUpdateUser(id, userData) {
+    try {
+      const response = await fetch(`/api/admin/user/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      })
+      if (!response.ok) throw new Error('Failed to update user')
+      return await response.json()
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
+  async function deleteUser(id) {
+    try {
+      const response = await fetch(`/api/admin/user/${id}`, {
+        method: 'DELETE'
+      })
+      if (!response.ok) throw new Error('Failed to delete user')
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
+  async function fetchBuyerById(id) {
+    try {
+      const response = await fetch(`/api/admin/user/buyers/${id}`)
+      if (!response.ok) throw new Error('Failed to fetch buyer')
+      return await response.json()
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
+  async function fetchSellerById(id) {
+    try {
+      const response = await fetch(`/api/admin/user/sellers/${id}`)
+      if (!response.ok) throw new Error('Failed to fetch seller')
+      return await response.json()
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+  
+  async function searchSellers(name) {
+    try {
+        const url = name 
+            ? `/api/admin/user/sellers?name=${encodeURIComponent(name)}`
+            : '/api/admin/user/sellers'
+        const response = await fetch(url)
+        if (!response.ok) throw new Error('Failed to search sellers')
+        return await response.json()
+    } catch (error) {
+        console.error(error)
+        throw error
+    }
   }
 
   return {
     isLoggedIn,
     userInfo,
     role,
+    currentUserId,
     login,
     register,
     logout,
     fetchUserInfo,
-    changePassword
+    fetchBuyerProfile,
+    updateBuyerProfile,
+    updateSellerProfile,
+    fetchAllUsers,
+    fetchUserById,
+    adminCreateUser,
+    adminUpdateUser,
+    deleteUser,
+    fetchBuyerById,
+    fetchSellerById,
+    searchSellers
   }
 })
