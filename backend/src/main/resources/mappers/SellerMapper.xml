@@ -1,13 +1,34 @@
+<<<<<<< HEAD
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zgqf.house.mapper.SellerMapper">
+
+    <!-- 根据ID查询卖家信息 -->
+    <select id="selectById" parameterType="int" resultType="com.zgqf.house.entity.Seller">
+=======
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zgqf.house.mapper.SellerMapper">
 
     <!-- 根据卖家ID获取卖家信息 -->
     <select id="getSellerById" parameterType="int" resultType="com.zgqf.house.entity.Seller">
+>>>>>>> master
         SELECT * FROM seller WHERE s_id = #{sellerId}
     </select>
 
     <!-- 更新卖家信息 -->
+<<<<<<< HEAD
+    <update id="update" parameterType="com.zgqf.house.entity.Seller">
+        UPDATE seller
+        SET s_name = #{sName},
+            s_describe = #{sDescribe},
+            s_phone = #{sPhone},
+            s_email = #{sEmail},
+            s_website = #{sWebsite}
+        WHERE s_id = #{sId}
+    </update>
+
+=======
     <update id="updateSeller" parameterType="com.zgqf.house.entity.Seller">
         UPDATE seller 
         SET s_name=#{s_name}, 
@@ -24,4 +45,5 @@
         VALUES (#{s_id}, #{s_name}, #{s_describe}, #{s_phone}, #{s_email}, #{s_website})
     </insert>
 
+>>>>>>> master
 </mapper>

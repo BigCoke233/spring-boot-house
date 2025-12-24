@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zgqf.house.mapper.HouseMapper">
+
+    <!-- 查询结果映射 -->
+    <resultMap id="HouseResultMap" type="com.zgqf.house.entity.House">
+        <id property="id" column="h_id" />
+        <result property="sellerId" column="h_seller_id" />
+        <result property="name" column="h_name" />
+        <result property="description" column="h_describe" />
+        <result property="address" column="h_address" />
+        <result property="detailAddress" column="h_detail_address" />
+        <result property="price" column="h_price" />
+        <result property="longitude" column="h_longitude" />
+        <result property="latitude" column="h_latitude" />
+        <result property="square" column="h_square" />
+        <result property="checked" column="h_checked" />
+        <result property="sellerName" column="s_name" />
+        <result property="sellerPhone" column="s_phone" />
+        <result property="sellerEmail" column="s_email" />
+        <result property="totalPrice" column="total_price" />
+    </resultMap>
+
+    <!-- 查询房源列表的SQL片段 -->
+    <sql id="selectHouseColumns">
+        SELECT
+            h.h_id,
+            h.h_seller_id,
+            h.h_name,
+            h.h_describe,
+            h.h_address,
+            h.h_detail_address,
+            h.h_price,
+            h.h_longitude,
+            h.h_latitude,
+            h.h_square,
+            h.h_checked,
+            s.s_name,
+            s.s_phone,
+            s.s_email,
+            (h.h_price * h.h_square) as total_price
+        FROM house h
+                 LEFT JOIN seller s ON h.h_seller_id = s.s_id
+                 LEFT JOIN house_tag ht ON h.h_id = ht.ht_house_id
+                 LEFT JOIN tag t ON ht.ht_tag_id = t.t_id
+    </sql>
+
+    <!-- 查询条件片段 -->
+    <sql id="selectHouseWhere">
+        WHERE 1=1
+        <!-- 审核状态 -->
+        <if test="checked != null">
+            AND h.h_checked = #{checked}
+        </if>
+        <if test="checked == null">
+            AND h.h_checked = 1  <!-- 默认只查询已审核的 -->
+        </if>
+
+        <!-- 房源名称模糊查询 -->
+        <if test="name != null and name != ''">
+            AND h.h_name LIKE CONCAT('%', #{name}, '%')
+        </if>
+
+        <!-- 地址模糊查询 -->
+        <if test="address != null and address != ''">
+            AND h.h_address LIKE CONCAT('%', #{address}, '%')
+        </if>
+
+        <!-- 单价范围 -->
+        <if test="minPrice != null">
+            AND h.h_price >= #{minPrice}
+        </if>
+        <if test="maxPrice != null">
+            AND h.h_price &lt;= #{maxPrice}
+        </if>
+
+        <!-- 面积范围 -->
+        <if test="minSquare != null">
+            AND h.h_square >= #{minSquare}
+        </if>
+        <if test="maxSquare != null">
+            AND h.h_square &lt;= #{maxSquare}
+        </if>
+
+        <!-- 总价范围 -->
+        <if test="minTotalPrice != null">
+            AND (h.h_price * h.h_square) >= #{minTotalPrice}
+        </if>
+        <if test="maxTotalPrice != null">
+            AND (h.h_price * h.h_square) &lt;= #{maxTotalPrice}
+        </if>
+
+        <!-- 卖方信息 -->
+        <if test="sellerId != null">
+            AND h.h_seller_id = #{sellerId}
+        </if>
+        <if test="sellerName != null and sellerName != ''">
+            AND s.s_name LIKE CONCAT('%', #{sellerName}, '%')
+        </if>
+
+        <!-- 标签类型查询（如：decorated） -->
+        <if test="type != null and type != ''">
+            AND t.t_type = #{type}
+        </if>
+
+        <!-- 具体标签名查询 -->
+        <if test="tag != null and tag != ''">
+            AND t.t_name = #{tag}
+        </if>
+    </sql>
+
+    <!-- 查询房源列表 -->
+    <select id="selectHouseList" parameterType="com.zgqf.house.dto.HouseQueryDTO"
+            resultMap="HouseResultMap">
+        <include refid="selectHouseColumns" />
+        <include refid="selectHouseWhere" />
+        GROUP BY h.h_id
+        <!-- 排序 -->
+        <choose>
+            <when test="sortBy != null and sortBy != ''">
+                ORDER BY ${sortBy} ${sortOrder}
+            </when>
+            <otherwise>
+                ORDER BY h.h_id DESC
+            </otherwise>
+        </choose>
+        <!-- 分页 -->
+        <if test="pageSize != null and pageSize > 0">
+            LIMIT #{pageSize}
+            <if test="pageNum != null and pageNum > 0">
+                OFFSET ${(pageNum - 1) * pageSize}
+            </if>
+        </if>
+    </select>
+
+    <!-- 查询房源总数 -->
+    <select id="countHouseList" parameterType="com.zgqf.house.dto.HouseQueryDTO"
+            resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT h.h_id)
+        FROM house h
+        LEFT JOIN seller s ON h.h_seller_id = s.s_id
+        LEFT JOIN house_tag ht ON h.h_id = ht.ht_house_id
+        LEFT JOIN tag t ON ht.ht_tag_id = t.t_id
+        <include refid="selectHouseWhere" />
+    </select>
+
+    <!-- 根据ID查询房源详情 -->
+    <select id="selectHouseById" resultMap="HouseResultMap">
+        <include refid="selectHouseColumns" />
+        WHERE h.h_id = #{id} AND h.h_checked = 1
+        LIMIT 1
+    </select>
+
+    <!-- 根据房源ID查询标签 -->
+    <select id="selectTagsByHouseId" resultType="java.lang.String">
+        SELECT t.t_name
+        FROM house_tag ht
+                 JOIN tag t ON ht.ht_tag_id = t.t_id
+        WHERE ht.ht_house_id = #{houseId}
+        ORDER BY t.t_id
+    </select>
+
+    <!-- 根据房源ID查询图片 -->
+    <select id="selectPicturesByHouseId" resultType="java.lang.String">
+        SELECT hp_picture_path
+        FROM house_picture
+        WHERE hp_house_id = #{houseId}
+        ORDER BY hp_picture_number
+    </select>
+
+    <!-- 根据标签类型查询房源 -->
+    <select id="selectHousesByTagType" resultMap="HouseResultMap">
+        SELECT DISTINCT h.*, s.s_name, s.s_phone, s.s_email
+        FROM house h
+                 JOIN seller s ON h.h_seller_id = s.s_id
+                 JOIN house_tag ht ON h.h_id = ht.ht_house_id
+                 JOIN tag t ON ht.ht_tag_id = t.t_id
+        WHERE t.t_type = #{tagType} AND h.h_checked = 1
+        ORDER BY h.h_id DESC
+    </select>
+
+    <!-- 根据标签名查询房源 -->
+    <select id="selectHousesByTagName" resultMap="HouseResultMap">
+        SELECT DISTINCT h.*, s.s_name, s.s_phone, s.s_email
+        FROM house h
+                 JOIN seller s ON h.h_seller_id = s.s_id
+                 JOIN house_tag ht ON h.h_id = ht.ht_house_id
+                 JOIN tag t ON ht.ht_tag_id = t.t_id
+        WHERE t.t_name = #{tagName} AND h.h_checked = 1
+        ORDER BY h.h_id DESC
+    </select>
+</mapper>

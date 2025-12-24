@@ -1,142 +1,86 @@
 package com.zgqf.house.controller;
 
-import com.zgqf.house.entity.Buyer;
+import com.zgqf.house.dto.ContractQueryDTO;
+import com.zgqf.house.dto.ContractCreateDTO;
+import com.zgqf.house.dto.ContractUpdateDTO;
 import com.zgqf.house.entity.Contract;
-import com.zgqf.house.entity.Seller;
-import com.zgqf.house.service.BuyerService;
 import com.zgqf.house.service.ContractService;
-
-import jakarta.servlet.http.HttpSession;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/contract")
+@RequestMapping("/api/admin")
+@RequiredArgsConstructor
 public class ContractController {
-    @Autowired
-    private ContractService contractService;
+    
+    private final ContractService contractService;
 
-    /*
-     *  查看自己的合同列表
-     *  函数名：getContrastsByUser
-     *  @param HttpSession session 浏览器中包含"Buyer"或"Seller"属性的session
-     *
-     *  @return List<Contrast> 搜索出来的合同列表
-     */
-    @GetMapping("/")
-    public List<Contract> getContrastsByUser(HttpSession session){
-        return contractService.getContractsByUser(session);
+    // 获取合同列表
+    @GetMapping("/contracts")
+    public ResponseEntity<Page<Contract>> getContracts(ContractQueryDTO queryDTO) {
+        return ResponseEntity.ok(contractService.getContracts(queryDTO));
     }
 
-    /*
-     *  查看合同详情
-     *  函数名：getContrastsById
-     *  @param Integer id 合同的c_id
-     *
-     *  @return Contrast 搜索出来的合同
-     */
-    @GetMapping("/{id}")
-    public Contract getContrastsById(@PathVariable("id") Integer id){
-        return contractService.getContractsById(id);
+    // 获取特定合同详情
+    @PostMapping("/contract/{id}")
+    public ResponseEntity<Contract> getContract(@PathVariable Integer id) {
+        // 注意：图片中是 POST 请求获取单个合同，这不太符合 RESTful 规范
+        // 但按照图片要求，这里改为 POST
+        return ResponseEntity.ok(contractService.getContractDetail(id));
     }
 
-    /*
-     *  查看对方的商家资料
-     *  函数名：signContrast
-     *  @param Integer id 合同的c_id,
-     *
-     *  @return Seller 搜索出来的商家
-     */
-    @GetMapping("/seller_profile/{id}")
-    public Seller getSellerByContrast(@PathVariable("id") Integer id){
-        return contractService.getSellerByContract(id);
+    // 创建合同
+    @PostMapping("/contract")
+    public ResponseEntity<Contract> createContract(@RequestBody ContractCreateDTO createDTO) {
+        return ResponseEntity.ok(contractService.createContract(createDTO));
     }
 
-    /*
-     *  查看对方的买家资料
-     *  函数名：signContrast
-     *  @param Integer id 合同的c_id,
-     *
-     *  @return Buyer 搜索出来的商家
-     */
-    @GetMapping("/buyer_profile/{id}")
-    public Buyer getBuyerByContrast(@PathVariable("id") Integer id){
-        return contractService.getBuyerByContract(id);
+    // 更新合同（图片中显示是通过 POST /contract/{id} 更新）
+    @PostMapping("/contract/{id}/update")
+    public ResponseEntity<Contract> updateContract(
+            @PathVariable Integer id,
+            @RequestBody ContractUpdateDTO updateDTO) {
+        return ResponseEntity.ok(contractService.updateContract(id, updateDTO));
     }
 
-    /*
-     *  买家创建新合同
-     *  函数名：creatContrast
-     *  @param Contrast contrast 包含"c_house_id"房源id,
-     *                              "c_pay_way"支付方式,
-     *                              "c_down_payment"首付金额（若为全款则为0或为空）
-     *                              "c_total_periods"总期数（若为全款则为0或为空）
-     *                              ,的json字符串,
-     *  @param HttpSession session 浏览器中包含"Buyer"属性的session
-     *
-     *  @return String 返回回执("ok","no")
-     */
-    @PostMapping("/")
-    public String creatContrast(@RequestBody Contract contract,HttpSession session){
-        return contractService.creatContract(contract,session);
+    // 删除合同
+    @DeleteMapping("/contract/{id}")
+    public ResponseEntity<Void> deleteContract(@PathVariable Integer id) {
+        contractService.deleteContract(id);
+        return ResponseEntity.ok().build();
     }
 
-    /*
-     *  签署或拒绝合同
-     *  函数名：signContrast
-     *  @param Integer id 合同的c_id,
-     *  @param Integer sign 同意(1)或拒绝(-1),
-     *  @param HttpSession session 浏览器中包含"Buyer"或"Seller"属性的session
-     *
-     *  @return String 返回回执("ok","no")
-     */
-    @PostMapping("/sign/{id}/{sign}")
-    public String signContrast(@PathVariable("id") Integer id,@PathVariable("sign") Integer sign,HttpSession session){
-        return contractService.signContract(id,sign,session);
+    // 买方同意/拒绝
+    @PostMapping("/contract/{id}/buyer-agree")
+    public ResponseEntity<Contract> updateBuyerAgree(
+            @PathVariable Integer id,
+            @RequestParam Integer agree) {
+        return ResponseEntity.ok(contractService.buyerAgree(id, agree));
     }
 
-    @Autowired
-    private BuyerService buyerService;
-
-    /**
-     * 买家付款接口（全款/首付）
-     * @param buyerId 买家ID
-     * @param contractId 合同ID
-     * @return 付款结果
-     */
-    @PostMapping("/pay/{contractId}")
-    public ResponseEntity<String> payContract(@RequestHeader("buyerId") Integer buyerId,
-                                             @PathVariable Integer contractId) {
-        try {
-            // 调用服务层处理付款逻辑
-            String result = buyerService.processPayment(buyerId, contractId);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("付款失败: " + e.getMessage());
-        }
+    // 卖方同意/拒绝
+    @PostMapping("/contract/{id}/seller-agree")
+    public ResponseEntity<Contract> updateSellerAgree(
+            @PathVariable Integer id,
+            @RequestParam Integer agree) {
+        return ResponseEntity.ok(contractService.sellerAgree(id, agree));
     }
 
-    /**
-     * 买家分期付款接口
-     * @param buyerId 买家ID
-     * @param contractId 合同ID
-     * @param period 付款期数
-     * @return 付款结果
-     */
-    @PostMapping("/installment/{contractId}")
-    public ResponseEntity<String> payInstallment(@RequestHeader("buyerId") Integer buyerId,
-                                               @PathVariable Integer contractId,
-                                               @RequestParam Integer period) {
-        try {
-            // 调用服务层处理分期付款逻辑
-            String result = buyerService.processInstallmentPayment(buyerId, contractId, period);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("分期付款失败: " + e.getMessage());
-        }
+    // 更新付款状态
+    @PostMapping("/contract/{id}/payment")
+    public ResponseEntity<Contract> updatePayment(
+            @PathVariable Integer id,
+            @RequestParam Integer paid) {
+        return ResponseEntity.ok(contractService.updatePayment(id, paid));
+    }
+
+    // 更新交房状态
+    @PostMapping("/contract/{id}/delivery")
+    public ResponseEntity<Contract> updateDelivery(
+            @PathVariable Integer id,
+            @RequestParam Integer delivered) {
+        return ResponseEntity.ok(contractService.updateDelivery(id, delivered));
     }
 }

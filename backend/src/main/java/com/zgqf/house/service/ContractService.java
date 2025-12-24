@@ -1,17 +1,34 @@
 package com.zgqf.house.service;
 
-import com.zgqf.house.entity.Buyer;
+import com.zgqf.house.dto.ContractQueryDTO;
+import com.zgqf.house.dto.ContractCreateDTO;
+import com.zgqf.house.dto.ContractUpdateDTO;
 import com.zgqf.house.entity.Contract;
-import com.zgqf.house.entity.Seller;
-import jakarta.servlet.http.HttpSession;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface ContractService {
-    public List<Contract> getContractsByUser(HttpSession session);
-    public Contract getContractsById(Integer id);
-    public Seller getSellerByContract(Integer id);
-    public Buyer getBuyerByContract(Integer id);
-    public String creatContract(Contract contract, HttpSession session);
-    public String signContract(Integer id,Integer sign,HttpSession session);
+
+    Page<Contract> getContracts(ContractQueryDTO queryDTO);
+
+    Contract getContractDetail(Integer id);
+
+    Contract createContract(ContractCreateDTO createDTO);
+
+    Contract updateContract(Integer id, ContractUpdateDTO updateDTO);
+
+    void deleteContract(Integer id);
+
+    // 合同状态操作
+    Contract buyerAgree(Integer id, Integer agree);
+
+    Contract sellerAgree(Integer id, Integer agree);
+
+    Contract updatePayment(Integer id, Integer paid);
+
+    Contract updateDelivery(Integer id, Integer delivered);
+
+    // 统计
+    Long countContractsByBuyer(Integer buyerId);
+
+    Long countContractsBySeller(Integer sellerId);
 }

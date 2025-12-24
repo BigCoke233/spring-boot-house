@@ -98,6 +98,12 @@ const router = createRouter({
       path: '/buyer/:id',
       name: 'public-buyer-profile',
       component: PublicBuyerProfileView,
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/AdminDashboard.vue'),
+      meta: { requiresAuth: true }
     }
   ],
 })

@@ -5,6 +5,7 @@ import com.zgqf.house.entity.Seller;
 import com.zgqf.house.entity.User;
 import com.zgqf.house.mapper.BuyerMapper;
 import com.zgqf.house.mapper.SellerMapper;
+import com.zgqf.house.service.AuthService;
 import com.zgqf.house.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    @Autowired
+    private AuthService authService;
 
     @Autowired
     private UserService userService;
@@ -80,7 +84,7 @@ public class AuthController {
             @SuppressWarnings("unchecked")
             Map<String, Object> additionalInfo = (Map<String, Object>) registerRequest.get("info");
 
-            User registeredUser = userService.register(user, additionalInfo);
+            User registeredUser = authService.register(user, additionalInfo);
             return ResponseEntity.ok(Map.of("message", "Registration successful", "userId", registeredUser.getU_id()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
