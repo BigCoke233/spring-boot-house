@@ -13,23 +13,94 @@
         u_id, u_type, u_username, u_password
     </sql>
 
-    <select id="findByUsername" resultMap="BaseResultMap">
+    <select id="selectSellerList" resultType="com.zgqf.house.entity.Seller">
+        SELECT s.*
+        FROM seller s
+        <if test="name != null and name != ''">
+            WHERE s.s_name LIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="selectUserByUsername" resultMap="BaseResultMap">
         SELECT 
         <include refid="Base_Column_List" />
         FROM user
         WHERE u_username = #{username}
     </select>
 
-    <insert id="insert" parameterType="com.zgqf.house.entity.User" useGeneratedKeys="true" keyProperty="u_id">
+    <insert id="insertUser" parameterType="com.zgqf.house.entity.User" useGeneratedKeys="true" keyProperty="u_id">
         INSERT INTO user (u_type, u_username, u_password)
         VALUES (#{u_type}, #{u_username}, #{u_password})
     </insert>
 
-    <select id="findById" resultMap="BaseResultMap">
+    <select id="selectUserById" resultMap="BaseResultMap">
         SELECT 
         <include refid="Base_Column_List" />
         FROM user
         WHERE u_id = #{id}
     </select>
+
+    <!-- Additional required methods based on UserMapper interface -->
+    <select id="selectUserList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user WHERE u_type = #{type}
+    </select>
+
+    <update id="updateUser">
+        UPDATE user SET u_username = #{u_username}, u_password = #{u_password} WHERE u_id = #{u_id}
+    </update>
+
+    <delete id="deleteUser">
+        DELETE FROM user WHERE u_id = #{id}
+    </delete>
+
+    <select id="selectAllUsers" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user
+    </select>
+
+    <select id="selectBuyerById" resultType="com.zgqf.house.entity.Buyer">
+        SELECT * FROM buyer WHERE b_id = #{id}
+    </select>
+    
+    <select id="selectBuyerWithUserById" resultType="com.zgqf.house.entity.Buyer">
+        SELECT * FROM buyer WHERE b_id = #{id}
+    </select>
+
+    <insert id="insertBuyer">
+        INSERT INTO buyer (b_id, b_name, b_phone, b_email, b_mobile_assets, b_fixed_assets, b_annual_income)
+        VALUES (#{b_id}, #{b_name}, #{b_phone}, #{b_email}, #{b_mobile_assets}, #{b_fixed_assets}, #{b_annual_income})
+    </insert>
+
+    <update id="updateBuyer">
+        UPDATE buyer SET b_name=#{b_name}, b_phone=#{b_phone}, b_email=#{b_email}, 
+        b_mobile_assets=#{b_mobile_assets}, b_fixed_assets=#{b_fixed_assets}, b_annual_income=#{b_annual_income}
+        WHERE b_id=#{b_id}
+    </update>
+
+    <delete id="deleteBuyer">
+        DELETE FROM buyer WHERE b_id = #{id}
+    </delete>
+
+    <select id="selectSellerById" resultType="com.zgqf.house.entity.Seller">
+        SELECT * FROM seller WHERE s_id = #{id}
+    </select>
+
+    <select id="selectSellerWithUserById" resultType="com.zgqf.house.entity.Seller">
+        SELECT * FROM seller WHERE s_id = #{id}
+    </select>
+
+    <insert id="insertSeller">
+        INSERT INTO seller (s_id, s_name, s_describe, s_phone, s_email, s_website)
+        VALUES (#{s_id}, #{s_name}, #{s_describe}, #{s_phone}, #{s_email}, #{s_website})
+    </insert>
+
+    <update id="updateSeller">
+        UPDATE seller SET s_name=#{s_name}, s_describe=#{s_describe}, s_phone=#{s_phone}, 
+        s_email=#{s_email}, s_website=#{s_website}
+        WHERE s_id=#{s_id}
+    </update>
+
+    <delete id="deleteSeller">
+        DELETE FROM seller WHERE s_id = #{id}
+    </delete>
 
 </mapper>

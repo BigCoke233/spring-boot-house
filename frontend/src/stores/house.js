@@ -141,11 +141,11 @@ export const useHouseStore = defineStore('house', () => {
         })
         if (!response.ok) throw new Error('Failed to update house')
         const data = await response.json()
-        
+
         const index = houseList.value.findIndex(h => h.h_id === id)
         if (index !== -1) houseList.value[index] = data
         if (currentHouse.value && currentHouse.value.h_id === id) currentHouse.value = data
-        
+
         return data
     } catch (err) {
         console.error('Update house error:', err)
@@ -164,11 +164,11 @@ export const useHouseStore = defineStore('house', () => {
             method: 'DELETE'
         })
         if (!response.ok) throw new Error('Failed to delete house')
-        
+
         const index = houseList.value.findIndex(h => h.h_id === id)
         if (index !== -1) houseList.value.splice(index, 1)
         if (currentHouse.value && currentHouse.value.h_id === id) currentHouse.value = null
-        
+
         return true
     } catch (err) {
         console.error('Delete house error:', err)
@@ -201,14 +201,14 @@ export const useHouseStore = defineStore('house', () => {
 
     const isFav = favorites.value.some(f => f.h_id === houseId)
     const method = isFav ? 'DELETE' : 'POST'
-    
+
     try {
         const response = await fetch(`/api/buyer/follows/${houseId}`, {
             method: method,
             headers: { 'buyerId': buyerId }
         })
         if (!response.ok) throw new Error('Failed to toggle favorite')
-        
+
         // Refresh favorites
         await fetchFavorites(buyerId)
     } catch (e) {
@@ -220,6 +220,37 @@ export const useHouseStore = defineStore('house', () => {
   async function fetchTags() {
     // Return mocks for now as no tag API endpoint was found in controller scan
     return MOCK_TAGS
+  }
+
+  async function fetchDevelopers() {
+    isLoading.value = true
+    try {
+        if (useMock.value) {
+            return [
+                { name: '万科地产', description: '专注高品质住宅开发' },
+                { name: '碧桂园', description: '给您一个五星级的家' }
+            ]
+        }
+
+        const response = await fetch('/api/public/sellers')
+        if (!response.ok) throw new Error('Failed to fetch developers')
+        const data = await response.json()
+
+        // Map backend fields to frontend expected format
+        return data.map(seller => ({
+            name: seller.s_name,
+            description: seller.s_describe,
+            phone: seller.s_phone,
+            email: seller.s_email,
+            website: seller.s_website
+        }))
+    } catch (err) {
+        console.error('Fetch developers error:', err)
+        // Return empty list on error to prevent UI crash
+        return []
+    } finally {
+        isLoading.value = false
+    }
   }
 
   return {
@@ -239,6 +270,7 @@ export const useHouseStore = defineStore('house', () => {
     fetchTags,
     toggleFavorite,
     fetchFavorites,
-    getHouseById
+    getHouseById,
+    fetchDevelopers
   }
 })
