@@ -18,7 +18,18 @@ export const useHouseStore = defineStore('house', () => {
     isLoading.value = true
     error.value = null
     try {
-      const query = new URLSearchParams(filters).toString()
+      const params = new URLSearchParams()
+      Object.keys(filters).forEach(key => {
+        const value = filters[key]
+        if (value !== null && value !== undefined && value !== '') {
+          if (key === 'keyword') {
+            params.append('name', value)
+          } else {
+            params.append(key, value)
+          }
+        }
+      })
+      const query = params.toString()
       const response = await fetch(`http://localhost:8080/api/public/houses?${query}`)
       if (!response.ok) throw new Error('Failed to fetch house list')
       const data = await response.json()

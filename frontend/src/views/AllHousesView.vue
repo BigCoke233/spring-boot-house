@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useHouseStore } from '@/stores/house.js'
 import HouseCard from '@/components/HouseCard.vue'
 import PageContainer from '@/layouts/PageContainer.vue'
@@ -20,21 +20,39 @@ const filters = reactive({
 const availableTags = ref([])
 
 onMounted(async () => {
-  availableTags.value = await houseStore.fetchTags()
   handleSearch()
 })
 
+watch(() => houseStore.houseList, (newVal) => {
+  const existingTags = new Set(availableTags.value.map(t => t.id))
+  newVal.forEach(house => {
+    if (house.tagNames) {
+      house.tagNames.forEach(tagName => {
+        if (!existingTags.has(tagName)) {
+           availableTags.value.push({ id: tagName, name: tagName })
+           existingTags.add(tagName)
+        }
+      })
+    }
+  })
+}, { deep: true })
+
 const handleSearch = () => {
-  houseStore.fetchHouseList(filters)
+  const payload = { ...filters }
+  if (payload.tagIds && payload.tagIds.length > 0) {
+    payload.tag = payload.tagIds[0]
+  }
+  delete payload.tagIds
+  houseStore.fetchHouseList(payload)
 }
 
 const toggleTag = (tagId) => {
-  const index = filters.tagIds.indexOf(tagId)
-  if (index === -1) {
-    filters.tagIds.push(tagId)
+  if (filters.tagIds.includes(tagId)) {
+    filters.tagIds = []
   } else {
-    filters.tagIds.splice(index, 1)
+    filters.tagIds = [tagId]
   }
+  handleSearch()
 }
 </script>
 
@@ -67,9 +85,9 @@ const toggleTag = (tagId) => {
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">价格范围 (元/m²)</label>
           <div class="flex items-center gap-2">
-            <input v-model.number="filters.minPrice" type="number" placeholder="最低" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-black">
+            <input v-model.number="filters.minPrice" @change="handleSearch" type="number" placeholder="最低" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-black">
             <span class="text-gray-400">-</span>
-            <input v-model.number="filters.maxPrice" type="number" placeholder="最高" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-black">
+            <input v-model.number="filters.maxPrice" @change="handleSearch" type="number" placeholder="最高" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-black">
           </div>
         </div>
 
@@ -77,9 +95,9 @@ const toggleTag = (tagId) => {
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">面积范围 (m²)</label>
           <div class="flex items-center gap-2">
-            <input v-model.number="filters.minSquare" type="number" placeholder="最小" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-black">
+            <input v-model.number="filters.minSquare" @change="handleSearch" type="number" placeholder="最小" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-black">
             <span class="text-gray-400">-</span>
-            <input v-model.number="filters.maxSquare" type="number" placeholder="最大" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-black">
+            <input v-model.number="filters.maxSquare" @change="handleSearch" type="number" placeholder="最大" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-black">
           </div>
         </div>
       </div>
@@ -103,9 +121,9 @@ const toggleTag = (tagId) => {
       </div>
 
       <!-- Apply Filters Button -->
-      <div class="mt-8 flex justify-end border-t border-gray-100 pt-6">
+      <!-- <div class="mt-8 flex justify-end border-t border-gray-100 pt-6">
         <AppButton variant="secondary" @click="handleSearch">应用筛选条件</AppButton>
-      </div>
+      </div> -->
     </div>
 
     <!-- Results -->
