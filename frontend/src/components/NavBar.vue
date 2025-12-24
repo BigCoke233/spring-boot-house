@@ -16,7 +16,7 @@ const showMenuButton = computed(() => {
 </script>
 
 <template>
-  <nav class="fixed top-0 left-0 right-0 py-4 px-6 bg-slate-1/20 backdrop-blur-md z-20 shadow-sm m-0">
+  <nav class="fixed top-0 left-0 right-0 py-4 px-6 bg-slate-1/20 backdrop-blur-md z-500 shadow-sm m-0">
     <div class="flex justify-between items-center">
       <a v-if="showMenuButton" class="cursor-pointer" @click="emit('toggle-sidebar')"><Menu /></a>
       <div v-else class="w-6 h-6"></div> <!-- Spacer to keep alignment if needed, or just remove -->
