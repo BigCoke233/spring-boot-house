@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useHouseStore } from '@/stores/house.js'
 import { useFavoriteStore } from '@/stores/favorite.js'
 import { useUserStore } from '@/stores/user.js'
@@ -8,6 +8,7 @@ import LeafletMap from '@/components/LeafletMap.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 
 const route = useRoute()
+const router = useRouter()
 const houseStore = useHouseStore()
 const favoriteStore = useFavoriteStore()
 const userStore = useUserStore()
@@ -17,6 +18,25 @@ const totalPrice = computed(() => {
   if (!detail.value.price || !detail.value.square) return 0
   return (detail.value.price * detail.value.square).toLocaleString()
 })
+
+async function handleFavorite() {
+  if (!userStore.isLoggedIn) {
+    router.push('/login')
+    return
+  }
+  if (userStore.role !== 'buyer') {
+    alert('只有买家可以收藏房源')
+    return
+  }
+  try {
+    await favoriteStore.toggleFavorite(detail.value.id, userStore.currentUserId)
+  } catch (error) {
+    console.error(error)
+    if (!userStore.isLoggedIn) {
+        router.push('/login')
+    }
+  }
+}
 
 onMounted(() => {
   const id = route.params.id
@@ -36,7 +56,7 @@ onMounted(() => {
     </div>
     <header v-else-if="houseStore.currentHouse" class="grid grid-cols-2 gap-4 md:gap-10">
       <!-- Leaflet 地图 -->
-      <LeafletMap :center="detail.coordinates || [47.41322, -1.219482]" />
+      <LeafletMap :center="[detail.latitude, detail.longitude]" />
       <div class>
         <!-- 房源基本信息 -->
         <header class="bg-neutral-200/20 p-4 md:p-6 rd-lg">
@@ -68,8 +88,8 @@ onMounted(() => {
         <!-- 按钮组 -->
         <section class="my-4 flex gap-4">
           <button class="p-6 py-2 text-xl bg-black shadow rd text-white hover:opacity-90 transition">咨询购买</button>
-          <button @click="favoriteStore.toggleFavorite(detail.h_id, userStore.currentUserId)" class="p-6 py-2 text-xl bg-neutral-300/50 rd hover:bg-neutral-400/50 transition">
-            {{ favoriteStore.isFavorite(detail.h_id) ? '取消收藏' : '加入收藏' }}
+          <button @click="handleFavorite" class="p-6 py-2 text-xl bg-neutral-300/50 rd hover:bg-neutral-400/50 transition">
+            {{ favoriteStore.isFavorite(detail.id) ? '取消收藏' : '加入收藏' }}
           </button>
         </section>
       </div>

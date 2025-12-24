@@ -35,7 +35,9 @@ export const useSellerStore = defineStore('seller', () => {
   async function fetchSellerHouses() {
     isLoading.value = true
     try {
-      const response = await fetch('http://localhost:8080/api/seller/houses')
+      const response = await fetch('http://localhost:8080/api/seller/houses', {
+        credentials: 'include'
+      })
       if (!response.ok) throw new Error('Failed to fetch seller houses')
       const data = await response.json()
       houses.value = data
@@ -55,6 +57,7 @@ export const useSellerStore = defineStore('seller', () => {
       const response = await fetch('http://localhost:8080/api/seller/house', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(houseData)
       })
       if (!response.ok) throw new Error('Failed to create house')
@@ -77,6 +80,7 @@ export const useSellerStore = defineStore('seller', () => {
       const response = await fetch(`http://localhost:8080/api/seller/house/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(houseData)
       })
       if (!response.ok) throw new Error('Failed to update house')
@@ -84,7 +88,7 @@ export const useSellerStore = defineStore('seller', () => {
 
       const index = houses.value.findIndex(h => h.h_id === id)
       if (index !== -1) houses.value[index] = data
-      
+
       return data
     } catch (err) {
       console.error('Update house error:', err)
@@ -100,7 +104,8 @@ export const useSellerStore = defineStore('seller', () => {
     error.value = null
     try {
       const response = await fetch(`http://localhost:8080/api/seller/house/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       })
       if (!response.ok) throw new Error('Failed to delete house')
 

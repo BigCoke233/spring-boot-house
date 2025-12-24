@@ -25,9 +25,14 @@ const link = computed(() =>
   `/house/${props.data.h_id || props.data.id}`
 )
 
-const totalPrice = computed(() =>
-  (props.data.square * props.data.price).toLocaleString()
-)
+const displayName = computed(() => props.data.name || props.data.h_name || '')
+const displaySquare = computed(() => props.data.square ?? props.data.h_square ?? 0)
+const displayPrice = computed(() => props.data.price ?? props.data.h_price ?? 0)
+const totalPrice = computed(() => {
+  const square = Number(displaySquare.value) || 0
+  const price = Number(displayPrice.value) || 0
+  return (square * price).toLocaleString()
+})
 
 // Use h_id or id depending on object structure
 const houseId = computed(() => props.data.h_id || props.data.id)
@@ -44,7 +49,7 @@ function handleFavorite(e) {
   <router-link :to="link" class="bg-white shadow rd overflow-hidden
     transition hover:shadow-md hover:-translate-y-1 block text-neutral-900 no-underline">
     <div class="relative bg-neutral-100 flex items-center justify-center h-40 bg-cover bg-center"
-      :style="{ backgroundImage: props.data.image ? `url(${props.data.image})` : 'none' }"> 
+      :style="{ backgroundImage: props.data.image ? `url(${props.data.image})` : 'none' }">
       <p v-if="!props.data.image" class="text-neutral">暂无图片</p>
       <button @click="handleFavorite" class="absolute top-2 right-2 b-none outline-none
         rd-full w-8 h-8 inline-flex items-center justify-center
@@ -55,11 +60,11 @@ function handleFavorite(e) {
       </button>
     </div>
     <div class="p-4">
-      <h3 class="font-light text-sm m-0 truncate">{{ props.data.name }}</h3>
+      <h3 class="font-light text-sm m-0 truncate">{{ displayName }}</h3>
       <p class="m-0 text-lg mt-1">
         <span class="font-bold text-red-6">¥{{ totalPrice }}</span>
         <span class="text-neutral-400 mx-1">/</span>
-        <span class="text-neutral-500 font-light text-sm">{{ props.data.square }} m<sup>2</sup></span>
+        <span class="text-neutral-500 font-light text-sm">{{ displaySquare }} m<sup>2</sup></span>
       </p>
     </div>
   </router-link>

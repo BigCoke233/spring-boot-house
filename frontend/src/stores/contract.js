@@ -49,7 +49,9 @@ export const useContractStore = defineStore('contract', () => {
       const query = new URLSearchParams(filters).toString()
       // Supports /api/contract or /api/admin/contracts depending on usage,
       // but Controller maps both to same method. We use /api/contract for simplicity.
-      const response = await fetch(`http://localhost:8080/api/contract?${query}`)
+      const response = await fetch(`http://localhost:8080/api/contract?${query}`, {
+        credentials: 'include'
+      })
       if (!response.ok) throw new Error('Failed to fetch contract list')
       const data = await response.json()
       // API returns Page<Contract>, we need content
@@ -78,7 +80,8 @@ export const useContractStore = defineStore('contract', () => {
 
       // Backend requires POST for detail per Controller: @PostMapping("/contract/{id}")
       const response = await fetch(`http://localhost:8080/api/contract/${id}`, {
-          method: 'POST'
+          method: 'POST',
+          credentials: 'include'
       })
       if (!response.ok) throw new Error('Failed to fetch contract details')
       const data = await response.json()
@@ -102,10 +105,11 @@ export const useContractStore = defineStore('contract', () => {
               return contractData
           }
           const response = await fetch('http://localhost:8080/api/contract', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(contractData)
-          })
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(contractData)
+      })
           if (!response.ok) throw new Error('Failed to create contract')
           return await response.json()
       } catch (err) {
@@ -122,6 +126,7 @@ export const useContractStore = defineStore('contract', () => {
           const response = await fetch(`http://localhost:8080/api/contract/${id}/update`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify(updateData)
           })
           if (!response.ok) throw new Error('Failed to update contract')
@@ -138,7 +143,8 @@ export const useContractStore = defineStore('contract', () => {
       isLoading.value = true
       try {
           const response = await fetch(`http://localhost:8080/api/contract/${id}`, {
-              method: 'DELETE'
+              method: 'DELETE',
+              credentials: 'include'
           })
           if (!response.ok) throw new Error('Failed to delete contract')
           return true

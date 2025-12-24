@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { useUserStore } from './user'
 
 export const useFavoriteStore = defineStore('favorite', () => {
   const favorites = ref([])
@@ -15,9 +16,16 @@ export const useFavoriteStore = defineStore('favorite', () => {
     isLoading.value = true
     try {
       const response = await fetch('http://localhost:8080/api/buyer/follows', {
-        headers: { 'buyerId': buyerId }
+        headers: { 'buyerId': buyerId },
+        credentials: 'include'
       })
-      if (!response.ok) throw new Error('Failed to fetch favorites')
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+            const userStore = useUserStore()
+            userStore.clearState()
+        }
+        throw new Error('Failed to fetch favorites')
+      }
       const data = await response.json()
       favorites.value = data
     } catch (err) {
@@ -37,9 +45,16 @@ export const useFavoriteStore = defineStore('favorite', () => {
     try {
       const response = await fetch(`http://localhost:8080/api/buyer/follows/${houseId}`, {
         method: method,
-        headers: { 'buyerId': buyerId }
+        headers: { 'buyerId': buyerId },
+        credentials: 'include'
       })
-      if (!response.ok) throw new Error('Failed to toggle favorite')
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+            const userStore = useUserStore()
+            userStore.clearState()
+        }
+        throw new Error('Failed to toggle favorite')
+      }
 
       // Refresh favorites
       await fetchFavorites(buyerId)

@@ -39,6 +39,7 @@ export const useUserStore = defineStore('user', () => {
       const response = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password })
       })
 
@@ -84,7 +85,10 @@ export const useUserStore = defineStore('user', () => {
 
   async function logout() {
     try {
-      await fetch('http://localhost:8080/api/auth/logout', { method: 'POST' })
+      await fetch('http://localhost:8080/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      })
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
@@ -96,7 +100,8 @@ export const useUserStore = defineStore('user', () => {
   async function fetchUserInfo() {
     try {
       const response = await fetch('http://localhost:8080/api/auth/current', {
-        method: 'GET'
+        method: 'GET',
+        credentials: 'include'
       })
 
       const data = await response.json()
@@ -125,7 +130,8 @@ export const useUserStore = defineStore('user', () => {
   async function fetchBuyerProfile(buyerId) {
       try {
           const response = await fetch('http://localhost:8080/api/buyer/profile', {
-              headers: { 'buyerId': buyerId }
+              headers: { 'buyerId': buyerId },
+              credentials: 'include'
           })
           if (!response.ok) throw new Error('Failed to fetch profile')
           const data = await response.json()
@@ -145,6 +151,7 @@ export const useUserStore = defineStore('user', () => {
                   'Content-Type': 'application/json',
                   'buyerId': buyerId
               },
+              credentials: 'include',
               body: JSON.stringify(profileData)
           })
           if (!response.ok) throw new Error('Failed to update profile')
@@ -163,6 +170,7 @@ export const useUserStore = defineStore('user', () => {
           const response = await fetch('http://localhost:8080/api/seller/profile', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify(profileData)
           })
           if (!response.ok) throw new Error('Failed to update seller profile')
@@ -178,7 +186,9 @@ export const useUserStore = defineStore('user', () => {
   // Admin Management
   async function fetchAllUsers() {
     try {
-      const response = await fetch('http://localhost:8080/api/admin/users')
+      const response = await fetch('http://localhost:8080/api/users', {
+        credentials: 'include'
+      })
       if (!response.ok) throw new Error('Failed to fetch users')
       return await response.json()
     } catch (error) {
@@ -189,7 +199,9 @@ export const useUserStore = defineStore('user', () => {
 
   async function fetchUserById(id) {
     try {
-      const response = await fetch(`http://localhost:8080/api/admin/user/${id}`)
+      const response = await fetch(`http://localhost:8080/api/admin/user/${id}`, {
+        credentials: 'include'
+      })
       if (!response.ok) throw new Error('Failed to fetch user')
       return await response.json()
     } catch (error) {
@@ -281,6 +293,7 @@ export const useUserStore = defineStore('user', () => {
     userInfo,
     role,
     currentUserId,
+    clearState,
     login,
     register,
     logout,
