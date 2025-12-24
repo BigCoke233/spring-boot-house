@@ -7,14 +7,14 @@ const houseStore = useHouseStore()
 const sellers = ref([])
 
 onMounted(async () => {
-  sellers.value = await houseStore.fetchDevelopers()
+  sellers.value = await houseStore.fetchSellers()
 })
 </script>
 
 <template>
   <div class="bg-neutral-100/50 my-20 py-10">
     <PageContainer>
-      <h2 class="text-3xl mb-6 font-extrabold font-serif">精选地产商</h2>
+      <h2 class="text-3xl mb-6 font-extrabold font-serif">精选卖家</h2>
       <div class="grid grid-cols-2 gap-4 md:gap-8">
         <div v-for="seller in sellers" :key="seller.name"
           class="bg-white shadow-md rd-lg p-6">

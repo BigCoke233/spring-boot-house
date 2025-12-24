@@ -222,7 +222,7 @@ export const useHouseStore = defineStore('house', () => {
     return MOCK_TAGS
   }
 
-  async function fetchDevelopers() {
+  async function fetchSellers() {
     isLoading.value = true
     try {
         if (useMock.value) {
@@ -232,7 +232,7 @@ export const useHouseStore = defineStore('house', () => {
             ]
         }
 
-        const response = await fetch('/api/public/sellers')
+        const response = await fetch('http://localhost:8080/api/public/sellers')
         if (!response.ok) throw new Error('Failed to fetch developers')
         const data = await response.json()
 
@@ -271,6 +271,6 @@ export const useHouseStore = defineStore('house', () => {
     toggleFavorite,
     fetchFavorites,
     getHouseById,
-    fetchDevelopers
+    fetchSellers
   }
 })
