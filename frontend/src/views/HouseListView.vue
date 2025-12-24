@@ -9,7 +9,7 @@ import HouseListBySeller from '@/components/HouseListBySeller.vue';
 <template>
   <div class="my-20">
     <HouseListBanner />
-    <HouseListAll />
+    <HouseListAll :limit="6" />
     <HouseListBySeller />
   </div>
 </template>
