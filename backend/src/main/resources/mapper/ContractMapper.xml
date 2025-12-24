@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zgqf.house.mapper.ContrastMapper">
+<mapper namespace="com.zgqf.house.mapper.ContractMapper">
 
     <!-- 合同详情映射（包含买方和房源信息） -->
-    <resultMap id="ContrastDetailMap" type="com.zgqf.house.entity.Contrast">
+    <resultMap id="ContractDetailMap" type="com.zgqf.house.entity.Contract">
         <id column="c_id" property="id"/>
         <result column="c_buyer_id" property="buyerId"/>
         <result column="c_house_id" property="houseId"/>
@@ -36,10 +36,12 @@
         </association>
     </resultMap>
 
+    <!-- === 新增方法实现 === -->
+
     <!-- 查询合同列表 -->
-    <select id="selectContrastList" resultMap="ContrastDetailMap">
+    <select id="selectContractList" resultMap="ContractDetailMap">
         SELECT c.*, b.*, h.*
-        FROM contrast c
+        FROM contract c
         LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
         LEFT JOIN house h ON c.c_house_id = h.h_id
         WHERE 1=1
@@ -75,9 +77,9 @@
     </select>
 
     <!-- 统计合同数量 -->
-    <select id="countContrastList" resultType="java.lang.Long">
+    <select id="countContractList" resultType="java.lang.Long">
         SELECT COUNT(*)
-        FROM contrast c
+        FROM contract c
         LEFT JOIN house h ON c.c_house_id = h.h_id
         WHERE 1=1
         <if test="buyerId != null">
@@ -86,7 +88,6 @@
         <if test="sellerId != null">
             AND h.h_seller_id = #{sellerId}
         </if>
-        <!-- 其他条件与selectContrastList保持一致 -->
         <if test="houseId != null">
             AND c.c_house_id = #{houseId}
         </if>
@@ -111,17 +112,17 @@
     </select>
 
     <!-- 查询合同详情 -->
-    <select id="selectContrastDetailById" resultMap="ContrastDetailMap">
+    <select id="selectContractDetailById" resultMap="ContractDetailMap">
         SELECT c.*, b.*, h.*
-        FROM contrast c
+        FROM contract c
                  LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
                  LEFT JOIN house h ON c.c_house_id = h.h_id
         WHERE c.c_id = #{id}
     </select>
 
     <!-- 插入合同 -->
-    <insert id="insertContrast" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO contrast(
+    <insert id="insertContract" useGeneratedKeys="true" keyProperty="c_id">
+        INSERT INTO contract(
             c_buyer_id, c_house_id, c_total_price, c_pay_way,
             c_paytime_ending, c_delivery_ending,
             c_buyer_agree, c_seller_agree, c_paid, c_delivered
@@ -133,8 +134,8 @@
     </insert>
 
     <!-- 更新合同 -->
-    <update id="updateContrast">
-        UPDATE contrast
+    <update id="updateContract">
+        UPDATE contract
         <set>
             <if test="buyerAgree != null">c_buyer_agree = #{buyerAgree},</if>
             <if test="sellerAgree != null">c_seller_agree = #{sellerAgree},</if>
@@ -143,6 +144,115 @@
             <if test="paid != null">c_paid = #{paid},</if>
             <if test="delivered != null">c_delivered = #{delivered}</if>
         </set>
+        WHERE c_id = #{id}
+    </update>
+
+    <!-- 删除合同 -->
+    <delete id="deleteContract">
+        DELETE FROM contract WHERE c_id = #{id}
+    </delete>
+
+    <!-- 更新买方同意状态 -->
+    <update id="updateBuyerAgree">
+        UPDATE contract SET c_buyer_agree = #{agree} WHERE c_id = #{id}
+    </update>
+
+    <!-- 更新卖方同意状态 -->
+    <update id="updateSellerAgree">
+        UPDATE contract SET c_seller_agree = #{agree} WHERE c_id = #{id}
+    </update>
+
+    <!-- 更新付款状态 -->
+    <update id="updatePaymentStatus">
+        UPDATE contract SET c_paid = #{paid} WHERE c_id = #{id}
+    </update>
+
+    <!-- 更新交房状态 -->
+    <update id="updateDeliveryStatus">
+        UPDATE contract SET c_delivered = #{delivered} WHERE c_id = #{id}
+    </update>
+
+    <!-- 统计买家合同数量 -->
+    <select id="countContractByBuyerId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM contract WHERE c_buyer_id = #{buyerId}
+    </select>
+
+    <!-- 统计卖家合同数量 -->
+    <select id="countContractBySellerId" resultType="java.lang.Long">
+        SELECT COUNT(*) 
+        FROM contract c 
+        LEFT JOIN house h ON c.c_house_id = h.h_id 
+        WHERE h.h_seller_id = #{sellerId}
+    </select>
+
+    <!-- === 原始方法实现 (兼容旧接口) === -->
+
+    <select id="getContractsBySeller" resultMap="ContractDetailMap">
+        SELECT c.*, b.*, h.*
+        FROM contract c
+        LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
+        LEFT JOIN house h ON c.c_house_id = h.h_id
+        WHERE h.h_seller_id = #{s_id}
+    </select>
+
+    <select id="getContractsByBuyer" resultMap="ContractDetailMap">
+        SELECT c.*, b.*, h.*
+        FROM contract c
+        LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
+        LEFT JOIN house h ON c.c_house_id = h.h_id
+        WHERE c.c_buyer_id = #{b_id}
+    </select>
+
+    <select id="getContractsById" resultMap="ContractDetailMap">
+        SELECT c.*, b.*, h.*
+        FROM contract c
+        LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
+        LEFT JOIN house h ON c.c_house_id = h.h_id
+        WHERE c.c_id = #{c_id}
+    </select>
+
+    <select id="getSellerByContract" resultType="com.zgqf.house.entity.Seller">
+        SELECT s.* 
+        FROM seller s 
+        JOIN house h ON s.s_id = h.h_seller_id 
+        JOIN contract c ON h.h_id = c.c_house_id 
+        WHERE c.c_id = #{c_id}
+    </select>
+
+    <select id="getBuyerByContract" resultType="com.zgqf.house.entity.Buyer">
+        SELECT b.* 
+        FROM buyer b 
+        JOIN contract c ON b.b_id = c.c_buyer_id 
+        WHERE c.c_id = #{c_id}
+    </select>
+
+    <update id="signContract">
+        UPDATE contract
+        <set>
+            <if test="buyerAgree != null">c_buyer_agree = #{buyerAgree},</if>
+            <if test="sellerAgree != null">c_seller_agree = #{sellerAgree},</if>
+        </set>
+        WHERE c_id = #{id}
+    </update>
+
+    <select id="houseUsable" resultMap="ContractDetailMap">
+        SELECT * FROM contract 
+        WHERE c_house_id = #{h_id} 
+        AND c_buyer_agree != -1 
+        AND c_seller_agree != -1
+    </select>
+
+    <select id="getLastInsertContract" resultMap="ContractDetailMap">
+        SELECT * FROM contract 
+        WHERE c_buyer_id = #{buyerId} 
+        AND c_house_id = #{houseId} 
+        ORDER BY c_id DESC 
+        LIMIT 1
+    </select>
+
+    <update id="addPayTimeEnding">
+        UPDATE contract 
+        SET c_paytime_ending = #{paytimeEnding} 
         WHERE c_id = #{id}
     </update>
 

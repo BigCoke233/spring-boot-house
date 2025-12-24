@@ -11,14 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ContractController {
     
     private final ContractService contractService;
 
-    // 获取合同列表
-    @GetMapping("/contracts")
+    // 获取合同列表 (兼容 Admin 和 User 路径)
+    @GetMapping({"/admin/contracts", "/contract"})
     public ResponseEntity<Page<Contract>> getContracts(ContractQueryDTO queryDTO) {
         return ResponseEntity.ok(contractService.getContracts(queryDTO));
     }
