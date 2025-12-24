@@ -2,22 +2,28 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 import NavBar from './components/NavBar.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import SidebarLayout from './layouts/SidebarLayout.vue'
 
 const route = useRoute()
-const collapsed = ref(false)
+const userStore = useUserStore()
+const collapsed = ref(true)
 
-// Hide sidebar on login/register pages
-watch(() => route.path, (path) => {
-  if (path === '/login' || path === '/register') {
-    collapsed.value = true
-  } else {
-    collapsed.value = false
-  }
-})
+// Hide sidebar on login/register pages or when not logged in
+watch(
+  [() => route.path, () => userStore.isLoggedIn],
+  ([path, isLoggedIn]) => {
+    if (!isLoggedIn || ['/login', '/register'].includes(path)) {
+      collapsed.value = true
+    } else {
+      collapsed.value = false
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

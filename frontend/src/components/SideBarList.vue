@@ -1,13 +1,31 @@
 <script setup>
-import { House, ReceiptText, FolderHeart, Warehouse } from 'lucide-vue-next'
+import { House, ReceiptText, FolderHeart, Warehouse, PlusCircle, List } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { computed } from 'vue'
 
-const nav = [
+const userStore = useUserStore()
+
+const buyerNav = [
   { name: "首页", icon: House, link: '/' },
   { name: "房源", icon: Warehouse, link: '/houses' },
   { name: "收藏", icon: FolderHeart, link: '/favorites' },
   { name: "合同", icon: ReceiptText, link: '/contract' }
 ]
+
+const sellerNav = [
+  { name: "首页", icon: House, link: '/' },
+  { name: "新建房源", icon: PlusCircle, link: '/seller/house/create' },
+  { name: "我的房源", icon: List, link: '/seller/houses' },
+  { name: "合同", icon: ReceiptText, link: '/contract' }
+]
+
+const nav = computed(() => {
+  if (userStore.role === 'seller') {
+    return sellerNav
+  }
+  return buyerNav
+})
 </script>
 
 <template>

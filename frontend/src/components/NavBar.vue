@@ -11,12 +11,12 @@ const { isLoggedIn } = storeToRefs(userStore);
 const route = useRoute();
 
 const showMenuButton = computed(() => {
-  return !['/login', '/register'].includes(route.path);
+  return isLoggedIn.value && !['/login', '/register'].includes(route.path);
 });
 </script>
 
 <template>
-  <nav class="fixed top-0 left-0 right-0 py-4 px-6 bg-slate-1/20 backdrop-blur-md z-10 shadow-sm m-0">
+  <nav class="fixed top-0 left-0 right-0 py-4 px-6 bg-slate-1/20 backdrop-blur-md z-20 shadow-sm m-0">
     <div class="flex justify-between items-center">
       <a v-if="showMenuButton" class="cursor-pointer" @click="emit('toggle-sidebar')"><Menu /></a>
       <div v-else class="w-6 h-6"></div> <!-- Spacer to keep alignment if needed, or just remove -->
