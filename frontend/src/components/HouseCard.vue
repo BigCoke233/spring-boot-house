@@ -1,7 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { Heart, HeartOff } from 'lucide-vue-next'
-import { useHouseStore } from '@/stores/house.js'
+import { useFavoriteStore } from '@/stores/favorite.js'
+import { useUserStore } from '@/stores/user.js'
 
 const props = defineProps({
   data: {
@@ -17,21 +18,25 @@ const props = defineProps({
   }
 })
 
-const houseStore = useHouseStore()
+const favoriteStore = useFavoriteStore()
+const userStore = useUserStore()
 
 const link = computed(() =>
-  `/house/${props.data.id}`
+  `/house/${props.data.h_id || props.data.id}`
 )
 
 const totalPrice = computed(() =>
   (props.data.square * props.data.price).toLocaleString()
 )
 
-const isFav = computed(() => houseStore.isFavorite(props.data.id))
+// Use h_id or id depending on object structure
+const houseId = computed(() => props.data.h_id || props.data.id)
+
+const isFav = computed(() => favoriteStore.isFavorite(houseId.value))
 
 function handleFavorite(e) {
   e.preventDefault() // Prevent navigation
-  houseStore.toggleFavorite(props.data)
+  favoriteStore.toggleFavorite(houseId.value, userStore.currentUserId)
 }
 </script>
 

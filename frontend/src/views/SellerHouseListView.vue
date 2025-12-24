@@ -1,22 +1,14 @@
 <script setup>
 import { onMounted, computed } from 'vue'
 import PageContainer from '@/layouts/PageContainer.vue'
-import { useHouseStore } from '@/stores/house.js'
-import { useUserStore } from '@/stores/user.js'
+import { useSellerStore } from '@/stores/seller.js'
 import AppButton from '@/components/AppButton.vue'
 import { useRouter } from 'vue-router'
 
-const houseStore = useHouseStore()
-const userStore = useUserStore()
+const sellerStore = useSellerStore()
 const router = useRouter()
 
-// Assume sellerId is part of user info. 
-// For mock purposes, if no ID, default to 1 (or handle appropriately).
-const sellerId = computed(() => userStore.userInfo?.id || 1)
-
-const myHouses = computed(() => {
-  return houseStore.houseList.filter(h => h.sellerId === sellerId.value)
-})
+const myHouses = computed(() => sellerStore.houses)
 
 function getStatusLabel(status) {
   switch(status) {
@@ -29,9 +21,9 @@ function getStatusLabel(status) {
 
 async function handleDelete(id) {
     if (!confirm('确定要删除这个房源吗？此操作无法撤销。')) return
-    
+
     try {
-        await houseStore.deleteHouse(id)
+        await sellerStore.deleteHouse(id)
         alert('删除成功')
     } catch (e) {
         alert('删除失败: ' + e.message)
@@ -39,7 +31,7 @@ async function handleDelete(id) {
 }
 
 onMounted(() => {
-    houseStore.fetchHouseList()
+    sellerStore.fetchSellerHouses()
 })
 </script>
 
@@ -50,10 +42,10 @@ onMounted(() => {
       <AppButton variant="primary" @click="router.push('/seller/house/create')">发布新房源</AppButton>
     </header>
 
-    <div v-if="houseStore.isLoading" class="text-center py-10 text-neutral-500">
+    <div v-if="sellerStore.isLoading" class="text-center py-10 text-neutral-500">
       加载中...
     </div>
-    
+
     <div v-else-if="myHouses.length === 0" class="text-center py-10 bg-neutral-100 rd-lg text-neutral-500">
       暂无发布的房源
     </div>
@@ -80,7 +72,7 @@ onMounted(() => {
                     <span>{{ house.square }}m²</span>
                 </div>
             </div>
-            
+
             <div class="flex justify-end gap-3 mt-4 md:mt-0">
                 <AppButton size="sm" variant="secondary" :to="`/house/${house.id}`">查看</AppButton>
                 <AppButton size="sm" @click="router.push(`/seller/house/${house.id}/edit`)">编辑</AppButton>

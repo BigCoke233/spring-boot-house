@@ -2,11 +2,15 @@
 import { onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHouseStore } from '@/stores/house.js'
+import { useFavoriteStore } from '@/stores/favorite.js'
+import { useUserStore } from '@/stores/user.js'
 import LeafletMap from '@/components/LeafletMap.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 
 const route = useRoute()
 const houseStore = useHouseStore()
+const favoriteStore = useFavoriteStore()
+const userStore = useUserStore()
 
 const detail = computed(() => houseStore.currentHouse || {})
 const totalPrice = computed(() => {
@@ -64,7 +68,9 @@ onMounted(() => {
         <!-- 按钮组 -->
         <section class="my-4 flex gap-4">
           <button class="p-6 py-2 text-xl bg-black shadow rd text-white hover:opacity-90 transition">咨询购买</button>
-          <button class="p-6 py-2 text-xl bg-neutral-300/50 rd hover:bg-neutral-400/50 transition">加入收藏</button>
+          <button @click="favoriteStore.toggleFavorite(detail.h_id, userStore.currentUserId)" class="p-6 py-2 text-xl bg-neutral-300/50 rd hover:bg-neutral-400/50 transition">
+            {{ favoriteStore.isFavorite(detail.h_id) ? '取消收藏' : '加入收藏' }}
+          </button>
         </section>
       </div>
     </header>

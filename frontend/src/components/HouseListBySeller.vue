@@ -1,13 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import PageContainer from '@/layouts/PageContainer.vue';
-import { useHouseStore } from '@/stores/house.js'
+import { useSellerStore } from '@/stores/seller.js'
 
-const houseStore = useHouseStore()
+const sellerStore = useSellerStore()
 const sellers = ref([])
 
 onMounted(async () => {
-  sellers.value = await houseStore.fetchSellers()
+  sellers.value = await sellerStore.fetchSellers()
 })
 </script>
 

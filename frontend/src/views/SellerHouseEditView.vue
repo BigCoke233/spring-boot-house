@@ -6,10 +6,12 @@ import { useHouseStore } from '@/stores/house.js'
 import { useUserStore } from '@/stores/user.js'
 import AppButton from '@/components/AppButton.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
+import { useSellerStore } from '@/stores/seller'
 
 const route = useRoute()
 const router = useRouter()
 const houseStore = useHouseStore()
+const sellerStore = useSellerStore()
 const userStore = useUserStore()
 
 const form = ref({
@@ -80,11 +82,11 @@ async function handleSave() {
         }
         
         if (isEditMode.value) {
-            await houseStore.updateHouse(saveData)
+            await sellerStore.updateHouse(saveData.h_id || saveData.id, saveData)
             alert('保存成功')
         } else {
             saveData.sellerId = userStore.userInfo?.id || 1
-            await houseStore.createHouse(saveData)
+            await sellerStore.createHouse(saveData)
             alert('发布成功')
         }
         
