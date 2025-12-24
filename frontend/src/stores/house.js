@@ -52,7 +52,7 @@ export const useHouseStore = defineStore('house', () => {
       }
 
       const query = new URLSearchParams(filters).toString()
-      const response = await fetch(`/api/public/houses?${query}`)
+      const response = await fetch(`http://localhost:8080/api/public/houses?${query}`)
       if (!response.ok) throw new Error('Failed to fetch house list')
       const data = await response.json()
       houseList.value = data.content || data // Handle Page<House>
@@ -78,7 +78,7 @@ export const useHouseStore = defineStore('house', () => {
         return house
       }
 
-      const response = await fetch(`/api/public/houses/${id}`)
+      const response = await fetch(`http://localhost:8080/api/public/houses/${id}`)
       if (!response.ok) throw new Error('Failed to fetch house details')
       const data = await response.json()
       currentHouse.value = data
@@ -95,7 +95,7 @@ export const useHouseStore = defineStore('house', () => {
   async function fetchSellerHouses() {
       isLoading.value = true
       try {
-          const response = await fetch('/api/seller/houses')
+          const response = await fetch('http://localhost:8080/api/seller/houses')
           if (!response.ok) throw new Error('Failed to fetch seller houses')
           const data = await response.json()
           houseList.value = data
@@ -112,7 +112,7 @@ export const useHouseStore = defineStore('house', () => {
     isLoading.value = true
     error.value = null
     try {
-        const response = await fetch('/api/seller/house', {
+        const response = await fetch('http://localhost:8080/api/seller/house', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(houseData)
@@ -134,7 +134,7 @@ export const useHouseStore = defineStore('house', () => {
     isLoading.value = true
     error.value = null
     try {
-        const response = await fetch(`/api/seller/house/${id}`, {
+        const response = await fetch(`http://localhost:8080/api/seller/house/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(houseData)
@@ -160,7 +160,7 @@ export const useHouseStore = defineStore('house', () => {
     isLoading.value = true
     error.value = null
     try {
-        const response = await fetch(`/api/seller/house/${id}`, {
+        const response = await fetch(`http://localhost:8080/api/seller/house/${id}`, {
             method: 'DELETE'
         })
         if (!response.ok) throw new Error('Failed to delete house')
@@ -183,7 +183,7 @@ export const useHouseStore = defineStore('house', () => {
       if (!buyerId) return
       isLoading.value = true
       try {
-          const response = await fetch('/api/buyer/follows', {
+          const response = await fetch('http://localhost:8080/api/buyer/follows', {
               headers: { 'buyerId': buyerId }
           })
           if (!response.ok) throw new Error('Failed to fetch favorites')

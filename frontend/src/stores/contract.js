@@ -47,9 +47,9 @@ export const useContractStore = defineStore('contract', () => {
       }
 
       const query = new URLSearchParams(filters).toString()
-      // Supports /api/contract or /api/admin/contracts depending on usage, 
+      // Supports /api/contract or /api/admin/contracts depending on usage,
       // but Controller maps both to same method. We use /api/contract for simplicity.
-      const response = await fetch(`/api/contract?${query}`)
+      const response = await fetch(`http://localhost:8080/api/contract?${query}`)
       if (!response.ok) throw new Error('Failed to fetch contract list')
       const data = await response.json()
       // API returns Page<Contract>, we need content
@@ -77,7 +77,7 @@ export const useContractStore = defineStore('contract', () => {
       }
 
       // Backend requires POST for detail per Controller: @PostMapping("/contract/{id}")
-      const response = await fetch(`/api/contract/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/contract/${id}`, {
           method: 'POST'
       })
       if (!response.ok) throw new Error('Failed to fetch contract details')
@@ -101,7 +101,7 @@ export const useContractStore = defineStore('contract', () => {
               // Mock creation
               return contractData
           }
-          const response = await fetch('/api/contract', {
+          const response = await fetch('http://localhost:8080/api/contract', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(contractData)
@@ -119,7 +119,7 @@ export const useContractStore = defineStore('contract', () => {
   async function updateContract(id, updateData) {
       isLoading.value = true
       try {
-          const response = await fetch(`/api/contract/${id}/update`, {
+          const response = await fetch(`http://localhost:8080/api/contract/${id}/update`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(updateData)
@@ -137,7 +137,7 @@ export const useContractStore = defineStore('contract', () => {
   async function deleteContract(id) {
       isLoading.value = true
       try {
-          const response = await fetch(`/api/contract/${id}`, {
+          const response = await fetch(`http://localhost:8080/api/contract/${id}`, {
               method: 'DELETE'
           })
           if (!response.ok) throw new Error('Failed to delete contract')
@@ -154,15 +154,15 @@ export const useContractStore = defineStore('contract', () => {
       // role: 'buyer' or 'seller'
       // agree: -1 (reject), 1 (agree)
       try {
-          const endpoint = role === 'buyer' 
+          const endpoint = role === 'buyer'
               ? `/api/contract/${contractId}/buyer-agree?agree=${agree}`
               : `/api/contract/${contractId}/seller-agree?agree=${agree}`
-          
+
           const response = await fetch(endpoint, {
               method: 'POST'
           })
           if (!response.ok) throw new Error('Sign failed')
-          
+
           // Refresh data
           const updatedContract = await response.json()
           if (currentContract.value && currentContract.value.c_id == contractId) {
@@ -177,7 +177,7 @@ export const useContractStore = defineStore('contract', () => {
 
   async function updatePayment(contractId, paid) {
       try {
-        const response = await fetch(`/api/contract/${contractId}/payment?paid=${paid}`, {
+        const response = await fetch(`http://localhost:8080/api/contract/${contractId}/payment?paid=${paid}`, {
             method: 'POST'
         })
         if (!response.ok) throw new Error('Payment update failed')

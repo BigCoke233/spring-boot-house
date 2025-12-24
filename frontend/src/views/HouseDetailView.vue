@@ -54,11 +54,11 @@ onMounted(() => {
         <!--  开发商信息 -->
         <section class="flex items-center gap-6 bg-neutral-200/20 p-4 md:p-6 rd-lg my-4">
           <div class="h-15 w-15 bg-neutral-300 rd-full flex items-center justify-center text-xl font-bold text-white">
-            {{ detail.developer ? detail.developer[0] : 'D' }}
+            {{ detail.sellerName ? detail.sellerName[0] : 'S' }}
           </div>
           <div>
-            <h3 class="font-bold">{{ detail.developer || '未知开发商' }}</h3>
-            <p class="text-sm text-neutral-500">信誉良好，品质保证</p>
+            <h3 class="font-bold">{{ detail.sellerName || '未知卖家' }}</h3>
+            <p class="text-sm text-neutral-500">{{ detail.sellerPhone || detail.sellerEmail }}</p>
           </div>
         </section>
         <!-- 按钮组 -->

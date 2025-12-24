@@ -36,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
   // Actions
   async function login({ username, password }) {
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -63,7 +63,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function register(registerData) {
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registerData)
@@ -84,7 +84,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function logout() {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      await fetch('http://localhost:8080/api/auth/logout', { method: 'POST' })
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
@@ -95,7 +95,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function fetchUserInfo() {
     try {
-      const response = await fetch('/api/auth/current', {
+      const response = await fetch('http://localhost:8080/api/auth/current', {
         method: 'GET'
       })
 
@@ -124,7 +124,7 @@ export const useUserStore = defineStore('user', () => {
   // Buyer Profile Management
   async function fetchBuyerProfile(buyerId) {
       try {
-          const response = await fetch('/api/buyer/profile', {
+          const response = await fetch('http://localhost:8080/api/buyer/profile', {
               headers: { 'buyerId': buyerId }
           })
           if (!response.ok) throw new Error('Failed to fetch profile')
@@ -139,16 +139,16 @@ export const useUserStore = defineStore('user', () => {
 
   async function updateBuyerProfile(buyerId, profileData) {
       try {
-          const response = await fetch('/api/buyer/profile', {
+          const response = await fetch('http://localhost:8080/api/buyer/profile', {
               method: 'POST',
-              headers: { 
+              headers: {
                   'Content-Type': 'application/json',
                   'buyerId': buyerId
               },
               body: JSON.stringify(profileData)
           })
           if (!response.ok) throw new Error('Failed to update profile')
-          
+
           // Refresh info
           await fetchBuyerProfile(buyerId)
       } catch (error) {
@@ -160,15 +160,15 @@ export const useUserStore = defineStore('user', () => {
   // Seller Profile Management
   async function updateSellerProfile(profileData) {
       try {
-          const response = await fetch('/api/seller/profile', {
+          const response = await fetch('http://localhost:8080/api/seller/profile', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(profileData)
           })
           if (!response.ok) throw new Error('Failed to update seller profile')
-          
+
           // Refresh info if needed, though we don't have explicit getSellerProfile endpoint other than current
-          await fetchUserInfo() 
+          await fetchUserInfo()
       } catch (error) {
           console.error(error)
           throw error
@@ -178,7 +178,7 @@ export const useUserStore = defineStore('user', () => {
   // Admin Management
   async function fetchAllUsers() {
     try {
-      const response = await fetch('/api/admin/users')
+      const response = await fetch('http://localhost:8080/api/admin/users')
       if (!response.ok) throw new Error('Failed to fetch users')
       return await response.json()
     } catch (error) {
@@ -189,7 +189,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function fetchUserById(id) {
     try {
-      const response = await fetch(`/api/admin/user/${id}`)
+      const response = await fetch(`http://localhost:8080/api/admin/user/${id}`)
       if (!response.ok) throw new Error('Failed to fetch user')
       return await response.json()
     } catch (error) {
@@ -200,7 +200,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function adminCreateUser(userData) {
     try {
-      const response = await fetch('/api/admin/user', {
+      const response = await fetch('http://localhost:8080/api/admin/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
@@ -215,7 +215,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function adminUpdateUser(id, userData) {
     try {
-      const response = await fetch(`/api/admin/user/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/admin/user/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
@@ -230,7 +230,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function deleteUser(id) {
     try {
-      const response = await fetch(`/api/admin/user/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/admin/user/${id}`, {
         method: 'DELETE'
       })
       if (!response.ok) throw new Error('Failed to delete user')
@@ -253,7 +253,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function fetchSellerById(id) {
     try {
-      const response = await fetch(`/api/admin/user/sellers/${id}`)
+      const response = await fetch(`http://localhost:8080/api/admin/user/sellers/${id}`)
       if (!response.ok) throw new Error('Failed to fetch seller')
       return await response.json()
     } catch (error) {
@@ -261,10 +261,10 @@ export const useUserStore = defineStore('user', () => {
       throw error
     }
   }
-  
+
   async function searchSellers(name) {
     try {
-        const url = name 
+        const url = name
             ? `/api/admin/user/sellers?name=${encodeURIComponent(name)}`
             : '/api/admin/user/sellers'
         const response = await fetch(url)
