@@ -89,9 +89,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 条件查询合同列表 -->
     <select id="selectContractList" resultType="com.zgqf.house.entity.Contract">
-        SELECT c.*
+        SELECT c.*, i.i_down_payment as c_down_payment, i.i_total_periods as c_total_periods
         FROM contract c
         LEFT JOIN house h ON c.c_house_id = h.h_id
+        LEFT JOIN installment i ON c.c_id = i.i_contract_id
         <include refid="Contract_Where_Clause"/>
         ORDER BY ${sortBy} ${sortOrder}
         <if test="offset != null and pageSize != null">

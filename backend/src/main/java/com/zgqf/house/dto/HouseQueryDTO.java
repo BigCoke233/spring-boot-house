@@ -23,4 +23,11 @@ public class HouseQueryDTO {
     private Integer pageSize = 10; // 每页大小
     private String sortBy = "h_id"; // 排序字段
     private String sortOrder = "DESC"; // 排序方式
+
+    public Integer getOffset() {
+        if (pageNum != null && pageSize != null) {
+            return (pageNum - 1) * pageSize;
+        }
+        return 0;
+    }
 }
