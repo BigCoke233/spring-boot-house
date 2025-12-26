@@ -25,7 +25,7 @@ const handleSave = () => {
 <template>
   <AccountLayout>
     <PageContainer>
-      <h1 class="text-xl font-bold mb-6">编辑资料 (卖方)</h1>
+      <h1 class="text-xl font-bold mb-6">编辑资料</h1>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
          <div class="flex flex-col gap-2">
             <label class="text-sm font-bold text-neutral-600">公司名称</label>
