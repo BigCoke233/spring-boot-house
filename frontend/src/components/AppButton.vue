@@ -44,7 +44,11 @@ const classes = computed(() => [base, variantClass.value, sizeClass.value, disab
 const emit = defineEmits(['click'])
 
 function handleClick(e) {
-  if (props.disabled) return
+  e.stopPropagation()
+  if (props.disabled) {
+    e.preventDefault()
+    return
+  }
   if (typeof props.onClick === 'function') props.onClick(e)
   emit('click', e)
 }

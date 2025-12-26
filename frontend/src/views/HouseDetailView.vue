@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useHouseStore } from '@/stores/house.js'
 import { useFavoriteStore } from '@/stores/favorite.js'
@@ -7,6 +7,7 @@ import { useUserStore } from '@/stores/user.js'
 import { useContractStore } from '@/stores/contract.js'
 import LeafletMap from '@/components/LeafletMap.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
+import AppButton from '@/components/AppButton.vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -23,6 +24,10 @@ const totalPrice = computed(() => {
   return (price * square).toLocaleString()
 })
 
+const showPaymentDialog = ref(false)
+const selectedPayWay = ref('full')
+const selectedPeriods = ref(12)
+
 async function handleBuy() {
   if (!userStore.isLoggedIn) {
     router.push('/login')
@@ -32,11 +37,10 @@ async function handleBuy() {
     alert('只有买家可以购买房源')
     return
   }
+  showPaymentDialog.value = true
+}
 
-  if (!confirm(`确定要发起购买申请吗？\n房源：${detail.value.name || detail.value.h_name}\n总价：¥${totalPrice.value}`)) {
-    return
-  }
-
+async function confirmBuy() {
   try {
     const price = detail.value.price || detail.value.h_price || 0
     const square = detail.value.square || detail.value.h_square || 0
@@ -45,7 +49,8 @@ async function handleBuy() {
       buyerId: userStore.currentUserId,
       houseId: detail.value.id || detail.value.h_id,
       totalPrice: Number(price) * Number(square),
-      payWay: 'full', // 'full' or 'installment'
+      payWay: selectedPayWay.value,
+      totalPeriods: selectedPayWay.value === 'installment' ? selectedPeriods.value : 0,
       paytimeEnding: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Default 7 days later
       deliveryEnding: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // Default 30 days later
     }
@@ -56,6 +61,8 @@ async function handleBuy() {
   } catch (error) {
     console.error('Failed to create contract:', error)
     alert('提交购买申请失败：' + (error.message || '未知错误'))
+  } finally {
+    showPaymentDialog.value = false
   }
 }
 
@@ -136,6 +143,45 @@ onMounted(() => {
     </header>
     <div v-else class="text-center py-20">
       未找到房源信息
+    </div>
+
+    <!-- Payment Method Dialog -->
+    <div v-if="showPaymentDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-1000">
+      <div class="bg-white p-8 rd-lg shadow-xl w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">确认购买</h3>
+        <p class="mb-4 text-neutral-600">房源：{{ detail.name || detail.h_name }}</p>
+        <p class="mb-6 text-xl font-bold text-red-6">总价：¥{{ totalPrice }}</p>
+
+        <div class="mb-6">
+          <label class="block font-bold mb-2">选择付款方式</label>
+          <div class="space-y-2">
+            <label class="flex items-center gap-2 p-3 border rounded cursor-pointer hover:bg-neutral-50"
+                   :class="{'border-black bg-neutral-50': selectedPayWay === 'full'}">
+              <input type="radio" v-model="selectedPayWay" value="full">
+              <span>全款支付</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 border rounded cursor-pointer hover:bg-neutral-50"
+                   :class="{'border-black bg-neutral-50': selectedPayWay === 'installment'}">
+              <input type="radio" v-model="selectedPayWay" value="installment">
+              <span>分期付款 (首付 + 分期)</span>
+            </label>
+          </div>
+        </div>
+
+        <div v-if="selectedPayWay === 'installment'" class="mb-6">
+          <label class="block font-bold mb-2">分期期数 (月)</label>
+          <select v-model="selectedPeriods" class="w-full p-2 border rounded">
+            <option :value="12">12期 (1年)</option>
+            <option :value="24">24期 (2年)</option>
+            <option :value="36">36期 (3年)</option>
+          </select>
+        </div>
+
+        <div class="flex gap-4 justify-end">
+          <AppButton variant="secondary" @click="showPaymentDialog = false">取消</AppButton>
+          <AppButton @click="confirmBuy">确认提交</AppButton>
+        </div>
+      </div>
     </div>
   </PageContainer>
 </template>

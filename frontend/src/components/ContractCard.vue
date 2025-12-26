@@ -70,8 +70,10 @@ const installmentPercent = computed(() => {
 
 const stepStatuses = computed(() => {
   const created = true
-  const anyAgree = !!(props.data.buyerAgree || props.data.sellerAgree)
-  const bothAgree = !!(props.data.buyerAgree && props.data.sellerAgree)
+  const bAgree = Number(props.data.buyerAgree) === 1
+  const sAgree = Number(props.data.sellerAgree) === 1
+  const anyAgree = bAgree || sAgree
+  const bothAgree = bAgree && sAgree
   const total = Number(props.data.totalPeriods || 0)
   const paidCount = Number(props.data.paidCount || 0)
   const fullPaid = !!(props.data.paymentStatus || props.data.paid)
@@ -130,7 +132,7 @@ async function handlePay() {
     if (!confirm('确认支付？')) return
     loading.value = true
     try {
-        const msg = await contractStore.payContract(props.data.contractId, userStore.user.id)
+        const msg = await contractStore.payContract(props.data.contractId, userStore.currentUserId)
         alert(msg)
     } catch (e) {
         alert(e.message)
@@ -144,7 +146,7 @@ async function handlePayInstallment() {
     loading.value = true
     try {
         const nextPeriod = (props.data.paidCount || 0) + 1
-        const msg = await contractStore.payInstallment(props.data.contractId, userStore.user.id, nextPeriod)
+        const msg = await contractStore.payInstallment(props.data.contractId, userStore.currentUserId, nextPeriod)
         alert(msg)
     } catch (e) {
         alert(e.message)
@@ -194,8 +196,8 @@ async function handlePayInstallment() {
             <!-- 双方进度跟踪 -->
             <section class="px-6 pb-6 pt-4 lg:pt-6">
                 <div class="grid grid-rows-2 gap-4">
-                    <StatusLabel title="买方" :status="props.data.buyerAgree ? '已同意' : '未同意'" />
-                    <StatusLabel title="卖方" :status="props.data.sellerAgree ? '已同意' : '未同意'" />
+                    <StatusLabel title="买方" :status="Number(props.data.buyerAgree) === 1 ? '已同意' : '未同意'" />
+                    <StatusLabel title="卖方" :status="Number(props.data.sellerAgree) === 1 ? '已同意' : '未同意'" />
                 </div>
             </section>
             <!-- 操作按钮 -->
