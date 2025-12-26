@@ -55,7 +55,64 @@ export const useContractStore = defineStore('contract', () => {
       const data = await response.json()
       // Handle Page<Contract>
       const list = data.content || data
-      contractList.value = list.map(mapContract)
+      const mappedList = list.map(mapContract)
+
+      // Fetch additional info for each contract in the list
+      await Promise.all(mappedList.map(async (contract) => {
+        // Fetch House Info
+        if (contract.houseId) {
+          try {
+            const houseRes = await fetch(`http://localhost:8080/api/public/houses/${contract.houseId}`)
+            if (houseRes.ok) {
+              const house = await houseRes.json()
+              contract.house = house
+              // Fetch Seller Info
+              const sellerId = house.h_seller_id || house.sellerId || house.s_id || house.seller_id
+              if (sellerId) {
+                const sellerRes = await fetch(`http://localhost:8080/api/admin/user/sellers/${sellerId}`, { credentials: 'include' })
+                if (sellerRes.ok) {
+                  const seller = await sellerRes.json()
+                  contract.seller = {
+                    id: seller.s_id || seller.id || seller.sellerId,
+                    name: seller.s_name || seller.name || seller.sellerName || '未知卖家',
+                    idCard: seller.s_id_card || seller.idCard || seller.id_card,
+                    phone: seller.s_phone || seller.phone || seller.phoneNumber
+                  }
+                }
+              } else if (house.sellerName) {
+                  contract.seller = {
+                      id: null,
+                      name: house.sellerName,
+                      idCard: '—',
+                      phone: house.sellerPhone || '—'
+                  }
+              }
+            }
+          } catch (e) {
+            console.warn(`Failed to fetch details for contract ${contract.id}`, e)
+          }
+        }
+
+        // Fetch Buyer Info
+        if (contract.buyerId) {
+            try {
+                const buyerRes = await fetch(`http://localhost:8080/api/admin/user/buyers/${contract.buyerId}`, { credentials: 'include' })
+                if (buyerRes.ok) {
+                    const buyer = await buyerRes.json()
+                    contract.buyer = {
+                        id: buyer.b_id || buyer.id || buyer.buyerId,
+                        name: buyer.b_name || buyer.name || buyer.buyerName || '未知买家',
+                        idCard: buyer.b_id_card || buyer.idCard || buyer.id_card,
+                        phone: buyer.b_phone || buyer.phone || buyer.phoneNumber
+                    }
+                }
+            } catch (e) {
+                console.warn(`Failed to fetch buyer for contract ${contract.id}`, e)
+            }
+        }
+      }))
+
+      contractList.value = mappedList
       return contractList.value
     } catch (err) {
       console.error('Fetch contracts error:', err)
@@ -89,13 +146,14 @@ export const useContractStore = defineStore('contract', () => {
             fetch(`http://localhost:8080/api/admin/user/buyers/${contract.buyerId}`, { credentials: 'include' })
                 .then(res => res.ok ? res.json() : null)
                 .then(buyer => {
+                    console.log('Fetched buyer:', buyer)
                     // Map buyer fields if necessary (Buyer entity -> {name, idCard, phone})
                     if (buyer) {
                         contract.buyer = {
-                            id: buyer.b_id,
-                            name: buyer.b_name,
-                            idCard: buyer.b_id_card,
-                            phone: buyer.b_phone
+                            id: buyer.b_id || buyer.id || buyer.buyerId,
+                            name: buyer.b_name || buyer.name || buyer.buyerName || '未知买家',
+                            idCard: buyer.b_id_card || buyer.idCard || buyer.id_card,
+                            phone: buyer.b_phone || buyer.phone || buyer.phoneNumber
                         }
                     }
                 })
@@ -112,18 +170,31 @@ export const useContractStore = defineStore('contract', () => {
                     if (house) {
                         contract.house = house
                         // Fetch Seller Info if house exists
-                        const sellerId = house.s_id || house.sellerId
+                        // Try multiple fields for sellerId
+                        const sellerId = house.h_seller_id || house.sellerId || house.s_id || house.seller_id
+                        console.log('House:', house, 'Seller ID:', sellerId)
+
                         if (sellerId) {
                              const sellerRes = await fetch(`http://localhost:8080/api/admin/user/sellers/${sellerId}`, { credentials: 'include' })
                              if (sellerRes.ok) {
                                  const seller = await sellerRes.json()
+                                 console.log('Fetched seller:', seller)
                                  contract.seller = {
-                                     id: seller.s_id,
-                                     name: seller.s_name,
-                                     idCard: seller.s_id_card,
-                                     phone: seller.s_phone
+                                     id: seller.s_id || seller.id || seller.sellerId,
+                                     name: seller.s_name || seller.name || seller.sellerName || '未知卖家',
+                                     idCard: seller.s_id_card || seller.idCard || seller.id_card,
+                                     phone: seller.s_phone || seller.phone || seller.phoneNumber
                                  }
                              }
+                        } else if (house.sellerName) {
+                            // Fallback if sellerId is missing but seller info is embedded in house
+                            console.log('Using embedded seller info from house:', house.sellerName)
+                            contract.seller = {
+                                id: null,
+                                name: house.sellerName,
+                                idCard: '—', // Not available in house info
+                                phone: house.sellerPhone || '—'
+                            }
                         }
                     }
                 })

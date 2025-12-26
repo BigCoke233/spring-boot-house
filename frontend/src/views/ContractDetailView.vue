@@ -65,9 +65,9 @@ async function handlePayInstallment() {
 const partyA = computed(() => {
     if (!contract.value) return {}
     return {
-        name: contract.value.buyer?.name || '未知',
-        id: contract.value.buyer?.idCard || '—',
-        phone: contract.value.buyer?.phone || '—',
+        name: contract.value.seller?.name || '未知',
+        id: contract.value.seller?.idCard || '—',
+        phone: contract.value.seller?.phone || '—',
         address: '—', // Address not in mock currently
     }
 })
@@ -75,9 +75,9 @@ const partyA = computed(() => {
 const partyB = computed(() => {
     if (!contract.value) return {}
     return {
-        name: contract.value.seller?.name || '未知',
-        id: contract.value.seller?.idCard || '—',
-        phone: contract.value.seller?.phone || '—',
+        name: contract.value.buyer?.name || '未知',
+        id: contract.value.buyer?.idCard || '—',
+        phone: contract.value.buyer?.phone || '—',
         address: '—', // Address not in mock currently
     }
 })

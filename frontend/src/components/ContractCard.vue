@@ -21,8 +21,10 @@ const loading = ref(false)
 
 // Use computed to reactively get house data
 const houseData = computed(() => {
-    // If house data is not loaded yet, houseStore.houses might be empty
-    // But getHouseById handles finding it if it exists
+    // Priority: Props data.house > Store house > Default
+    if (props.data.house) {
+        return props.data.house
+    }
     const house = houseStore.getHouseById(props.data.houseId)
     return house || {
         id: props.data.houseId,
