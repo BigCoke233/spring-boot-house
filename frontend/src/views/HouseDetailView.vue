@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useHouseStore } from '@/stores/house.js'
 import { useFavoriteStore } from '@/stores/favorite.js'
 import { useUserStore } from '@/stores/user.js'
+import { useContractStore } from '@/stores/contract.js'
 import LeafletMap from '@/components/LeafletMap.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 
@@ -12,12 +13,51 @@ const router = useRouter()
 const houseStore = useHouseStore()
 const favoriteStore = useFavoriteStore()
 const userStore = useUserStore()
+const contractStore = useContractStore()
 
 const detail = computed(() => houseStore.currentHouse || {})
 const totalPrice = computed(() => {
-  if (!detail.value.price || !detail.value.square) return 0
-  return (detail.value.price * detail.value.square).toLocaleString()
+  const price = detail.value.price || detail.value.h_price || 0
+  const square = detail.value.square || detail.value.h_square || 0
+  if (!price || !square) return 0
+  return (price * square).toLocaleString()
 })
+
+async function handleBuy() {
+  if (!userStore.isLoggedIn) {
+    router.push('/login')
+    return
+  }
+  if (userStore.role !== 'buyer') {
+    alert('只有买家可以购买房源')
+    return
+  }
+
+  if (!confirm(`确定要发起购买申请吗？\n房源：${detail.value.name || detail.value.h_name}\n总价：¥${totalPrice.value}`)) {
+    return
+  }
+
+  try {
+    const price = detail.value.price || detail.value.h_price || 0
+    const square = detail.value.square || detail.value.h_square || 0
+
+    const contractData = {
+      buyerId: userStore.currentUserId,
+      houseId: detail.value.id || detail.value.h_id,
+      totalPrice: Number(price) * Number(square),
+      payWay: 'full', // 'full' or 'installment'
+      paytimeEnding: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Default 7 days later
+      deliveryEnding: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // Default 30 days later
+    }
+
+    await contractStore.createContract(contractData)
+    alert('购买申请已提交，请等待卖家确认。')
+    router.push('/contract')
+  } catch (error) {
+    console.error('Failed to create contract:', error)
+    alert('提交购买申请失败：' + (error.message || '未知错误'))
+  }
+}
 
 async function handleFavorite() {
   if (!userStore.isLoggedIn) {
@@ -87,7 +127,7 @@ onMounted(() => {
         </section>
         <!-- 按钮组 -->
         <section class="my-4 flex gap-4">
-          <button class="p-6 py-2 text-xl bg-black shadow rd text-white hover:opacity-90 transition">咨询购买</button>
+          <button @click="handleBuy" class="p-6 py-2 text-xl bg-black shadow rd text-white hover:opacity-90 transition">咨询购买</button>
           <button @click="handleFavorite" class="p-6 py-2 text-xl bg-neutral-300/50 rd hover:bg-neutral-400/50 transition">
             {{ favoriteStore.isFavorite(detail.id) ? '取消收藏' : '加入收藏' }}
           </button>

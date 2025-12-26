@@ -2,17 +2,20 @@
 import { onMounted } from 'vue'
 import PageContainer from '@/layouts/PageContainer.vue'
 import ContractCard from '@/components/ContractCard.vue'
-import { useHouseStore } from '@/stores/house.js'
 import { useContractStore } from '@/stores/contract.js'
+import { useUserStore } from '@/stores/user.js'
 
-const houseStore = useHouseStore()
 const contractStore = useContractStore()
+const userStore = useUserStore()
 
 onMounted(async () => {
-  // Ensure house data is available for mapping
-  await houseStore.fetchHouses()
-  // Fetch contracts
-  await contractStore.fetchContractList()
+  const params = {}
+  if (userStore.role === 'buyer') {
+    params.buyerId = userStore.currentUserId
+  } else if (userStore.role === 'seller') {
+    params.sellerId = userStore.currentUserId
+  }
+  await contractStore.fetchContractList(params)
 })
 </script>
 
@@ -28,7 +31,7 @@ onMounted(async () => {
         {{ contractStore.error }}
     </div>
     <div v-else class="space-y-6">
-      <div v-if="contractStore.contractList.length === 0" class="text-center p-8 text-neutral-500">
+      <div v-if="!contractStore.contractList || contractStore.contractList.length === 0" class="text-center p-8 text-neutral-500">
           暂无合同
       </div>
       <div v-for="c in contractStore.contractList" :key="c.contractId" class="bg-neutral-100/20 p-6 rd">

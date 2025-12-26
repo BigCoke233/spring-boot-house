@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/buyer/**").hasRole("BUYER")
                 .requestMatchers("/api/seller/**").hasRole("SELLER")
+                .requestMatchers("/api/contract/**").hasAnyRole("BUYER", "SELLER")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             );

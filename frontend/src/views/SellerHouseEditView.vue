@@ -38,7 +38,7 @@ onMounted(async () => {
     if (id) {
         const house = await houseStore.fetchHouseById(id)
         if (house) {
-            form.value = { 
+            form.value = {
                 ...house,
                 images: house.images || (house.image ? [house.image] : [])
             }
@@ -80,7 +80,7 @@ async function handleSave() {
         if (saveData.images && saveData.images.length > 0) {
             saveData.image = saveData.images[0]
         }
-        
+
         if (isEditMode.value) {
             await sellerStore.updateHouse(saveData.h_id || saveData.id, saveData)
             alert('保存成功')
@@ -89,7 +89,7 @@ async function handleSave() {
             await sellerStore.createHouse(saveData)
             alert('发布成功')
         }
-        
+
         router.push('/seller/houses')
     } catch (e) {
         alert((isEditMode.value ? '保存' : '发布') + '失败: ' + e.message)
@@ -108,7 +108,7 @@ async function handleSave() {
     </div>
 
     <form v-else @submit.prevent="handleSave" class="bg-white p-8 rd-lg shadow-sm border border-neutral-200 max-w-2xl mx-auto space-y-6">
-        
+
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">房源名称</label>
             <input v-model="form.name" type="text" required class="w-full px-3 py-2 border border-gray-300 rd focus:outline-none focus:ring-2 focus:ring-black" />
@@ -144,8 +144,8 @@ async function handleSave() {
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">地理位置 (点击地图选择)</label>
             <div class="border border-gray-300 rd overflow-hidden">
-                 <LeafletMap 
-                    :center="form.coordinates || [39.9042, 116.4074]" 
+                 <LeafletMap
+                    :center="form.coordinates || [39.9042, 116.4074]"
                     :zoom="12"
                     :editable="true"
                     @update:center="handleMapUpdate"

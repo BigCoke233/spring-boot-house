@@ -7,22 +7,22 @@
         <div class="section-title">账号信息</div>
         <div class="form-group">
           <label for="username">用户名</label>
-          <input 
-            type="text" 
-            id="username" 
-            v-model="formData.username" 
-            required 
+          <input
+            type="text"
+            id="username"
+            v-model="formData.username"
+            required
             placeholder="请输入用户名"
           >
         </div>
-        
+
         <div class="form-group">
           <label for="password">密码</label>
-          <input 
-            type="password" 
-            id="password" 
-            v-model="formData.password" 
-            required 
+          <input
+            type="password"
+            id="password"
+            v-model="formData.password"
+            required
             placeholder="请输入密码"
           >
         </div>
@@ -91,9 +91,9 @@
           </div>
           <div class="form-group">
             <label for="seller-describe">公司简介</label>
-            <textarea 
-              id="seller-describe" 
-              v-model="sellerInfo.describe" 
+            <textarea
+              id="seller-describe"
+              v-model="sellerInfo.describe"
               rows="3"
             ></textarea>
           </div>
@@ -105,7 +105,7 @@
           {{ loading ? '注册中...' : '立即注册' }}
         </button>
       </form>
-      
+
       <div class="login-link">
         已有账号？ <router-link to="/login">立即登录</router-link>
       </div>
@@ -150,22 +150,22 @@ const sellerInfo = reactive({
 const handleRegister = async () => {
   loading.value = true
   error.value = ''
-  
+
   try {
     const info = formData.type === 'buyer' ? buyerInfo : sellerInfo
-    
+
     await userStore.register({
       username: formData.username,
       password: formData.password,
       type: formData.type,
       info: info
     })
-    
+
     await userStore.login({
       username: formData.username,
       password: formData.password
     })
-    
+
     router.push('/')
   } catch (err) {
     error.value = err.message || '注册失败，请重试'
