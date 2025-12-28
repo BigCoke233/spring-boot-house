@@ -24,6 +24,7 @@
             v-model="formData.password"
             required
             placeholder="请输入密码"
+            @keyup.enter="handleRegister"
           >
         </div>
 
@@ -75,19 +76,19 @@
           <div class="section-title">中介信息</div>
           <div class="form-group">
             <label for="seller-name">公司名称</label>
-            <input type="text" id="seller-name" v-model="sellerInfo.name" required>
+            <input type="text" id="seller-name" v-model="sellerInfo.name" required @keyup.enter="handleRegister">
           </div>
           <div class="form-group">
             <label for="seller-phone">联系电话</label>
-            <input type="tel" id="seller-phone" v-model="sellerInfo.phone" required>
+            <input type="tel" id="seller-phone" v-model="sellerInfo.phone" required @keyup.enter="handleRegister">
           </div>
           <div class="form-group">
             <label for="seller-email">联系邮箱</label>
-            <input type="email" id="seller-email" v-model="sellerInfo.email" required>
+            <input type="email" id="seller-email" v-model="sellerInfo.email" required @keyup.enter="handleRegister">
           </div>
           <div class="form-group">
             <label for="seller-website">公司网站</label>
-            <input type="url" id="seller-website" v-model="sellerInfo.website">
+            <input type="url" id="seller-website" v-model="sellerInfo.website" @keyup.enter="handleRegister">
           </div>
           <div class="form-group">
             <label for="seller-describe">公司简介</label>

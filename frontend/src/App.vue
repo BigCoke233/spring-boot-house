@@ -1,6 +1,6 @@
 <!-- src/App.vue -->
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
@@ -12,6 +12,8 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const collapsed = ref(true)
+
+const isAdminRoute = computed(() => route.path.startsWith('/admin'))
 
 onMounted(async () => {
   if (userStore.isLoggedIn) {
@@ -41,12 +43,17 @@ watch(
 </script>
 
 <template>
-  <NavBar @toggle-sidebar="collapsed = !collapsed" />
-  <SidebarLayout v-model="collapsed" :width="240" :fixed="true">
-    <template #sidebar></template>
-    <main>
-      <RouterView />
-    </main>
-    <SiteFooter />
-  </SidebarLayout>
+  <template v-if="isAdminRoute">
+    <RouterView />
+  </template>
+  <template v-else>
+    <NavBar @toggle-sidebar="collapsed = !collapsed" />
+    <SidebarLayout v-model="collapsed" :width="240" :fixed="true">
+      <template #sidebar></template>
+      <main>
+        <RouterView />
+      </main>
+      <SiteFooter />
+    </SidebarLayout>
+  </template>
 </template>

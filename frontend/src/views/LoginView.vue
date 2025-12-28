@@ -5,22 +5,23 @@
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="username">用户名</label>
-          <input 
-            type="text" 
-            id="username" 
-            v-model="username" 
-            required 
+          <input
+            type="text"
+            id="username"
+            v-model="username"
+            required
             placeholder="请输入用户名"
+            @keyup.enter="handleLogin"
           >
         </div>
-        
+
         <div class="form-group">
           <label for="password">密码</label>
-          <input 
-            type="password" 
-            id="password" 
-            v-model="password" 
-            required 
+          <input
+            type="password"
+            id="password"
+            v-model="password"
+            required
             placeholder="请输入密码"
           >
         </div>
@@ -31,7 +32,7 @@
           {{ loading ? '登录中...' : '登录' }}
         </button>
       </form>
-      
+
       <div class="register-link">
         还没有账号？ <router-link to="/register">立即注册</router-link>
       </div>
@@ -55,15 +56,17 @@ const error = ref('')
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
-  
+
   try {
     await userStore.login({
       username: username.value,
       password: password.value
     })
-    
+
     // Redirect based on role
-    if (userStore.role === 'seller') {
+    if (userStore.role === 'admin') {
+      router.push('/admin')
+    } else if (userStore.role === 'seller') {
       router.push('/seller/houses')
     } else {
       router.push('/')

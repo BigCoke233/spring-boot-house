@@ -43,7 +43,15 @@ export const useUserStore = defineStore('user', () => {
         body: JSON.stringify({ username, password })
       })
 
-      const data = await response.json()
+      const contentType = response.headers.get('content-type')
+      let data
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json()
+      } else {
+        // Handle non-JSON response (likely plain text error message)
+        const text = await response.text()
+        data = { message: text }
+      }
 
       if (!response.ok) {
         throw new Error(data.message || '登录失败')

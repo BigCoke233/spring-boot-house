@@ -124,9 +124,13 @@ router.beforeEach(async (to, from, next) => {
   if (userStore.isLoggedIn || !publicRoutes.includes(to.name)) {
     try {
       await userStore.fetchUserInfo()
-      // If verification succeeds and user was going to login/register, redirect to home
+      // If verification succeeds and user was going to login/register, redirect based on role
       if (['login', 'register'].includes(to.name)) {
-        next({ name: 'home' })
+        if (userStore.role === 'admin') {
+          next({ name: 'admin' })
+        } else {
+          next({ name: 'home' })
+        }
         return
       }
       next()
