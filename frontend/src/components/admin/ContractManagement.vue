@@ -125,17 +125,6 @@
       <div v-if="!loading && contracts.length === 0" class="empty-state">
         暂无合同数据
       </div>
-
-      <!-- 分页 -->
-      <div v-if="contracts.length > 0" class="pagination">
-        <button class="page-btn" :disabled="page === 1" @click="handlePrevPage">
-          ← 上一页
-        </button>
-        <span class="page-info">第 {{ page }} 页</span>
-        <button class="page-btn" @click="handleNextPage">
-          下一页 →
-        </button>
-      </div>
     </div>
 
     <!-- 合同对话框 -->
@@ -151,13 +140,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { contractApi } from '../../api/adminApi'
+import { useContractStore } from '@/stores/contract'
 import { useMessage } from '@/composables/useMessage'
 import ContractDialog from './ContractDialog.vue'
 
+const contractStore = useContractStore()
 const contracts = ref([])
 const loading = ref(false)
-const page = ref(1)
 const filters = ref({
   status: '',
   buyerName: '',
@@ -180,12 +169,20 @@ onMounted(() => {
 const fetchContracts = async () => {
   try {
     loading.value = true
+    // Request a large page size to disable pagination effectively
     const params = {
-      page: page.value,
-      ...filters.value
+      page: 0,
+      size: 1000
     }
-    const response = await contractApi.getContracts(params)
-    contracts.value = response?.content || response || []
+
+    // 只添加非空的筛选条件
+    if (filters.value.status) params.status = filters.value.status
+    if (filters.value.buyerName) params.buyerName = filters.value.buyerName
+    if (filters.value.houseName) params.houseName = filters.value.houseName
+
+    // Use store to fetch contracts (handles mapping and details)
+    const result = await contractStore.fetchContractList(params)
+    contracts.value = result
   } catch (error) {
     console.error('获取合同列表失败:', error)
     contracts.value = []
@@ -195,7 +192,6 @@ const fetchContracts = async () => {
 }
 
 const handleFilter = () => {
-  page.value = 1
   fetchContracts()
 }
 
@@ -205,19 +201,6 @@ const resetFilters = () => {
     buyerName: '',
     houseName: ''
   }
-  page.value = 1
-  fetchContracts()
-}
-
-const handlePrevPage = () => {
-  if (page.value > 1) {
-    page.value--
-    fetchContracts()
-  }
-}
-
-const handleNextPage = () => {
-  page.value++
   fetchContracts()
 }
 
@@ -234,7 +217,7 @@ const handleEdit = (contract) => {
 const handleDelete = async (id) => {
   try {
     await showConfirm('确定要删除这个合同吗？')
-    await contractApi.deleteContract(id)
+    await contractStore.deleteContract(id)
     await fetchContracts()
     showSuccess('删除成功')
   } catch (error) {
@@ -248,9 +231,9 @@ const handleDelete = async (id) => {
 const handleSaveContract = async (contractData) => {
   try {
     if (contractData.id) {
-      await contractApi.updateContract(contractData.id, contractData)
+      await contractStore.updateContract(contractData.id, contractData)
     } else {
-      await contractApi.createContract(contractData)
+      await contractStore.createContract(contractData)
     }
     await fetchContracts()
     closeDialog()
@@ -267,6 +250,7 @@ const closeDialog = () => {
   showViewDialog.value = false
   currentContract.value = null
 }
+
 
 // 工具函数
 const getAgreeClass = (agree) => {
@@ -430,6 +414,138 @@ const formatDate = (dateString) => {
 .status-badge.undelivered {
   background: #fdf6ec;
   color: #e6a23c;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: #f5f7fa;
+  padding: 12px;
+  text-align: left;
+  color: #303133;
+  font-weight: 500;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ebeef5;
+  color: #606266;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 4px 12px;
+  border: 1px solid #dcdfe6;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s;
+}
+
+.view-btn {
+  color: #909399;
+  border-color: #909399;
+}
+
+.view-btn:hover {
+  background: #f4f4f5;
+}
+
+.edit-btn {
+  color: #409eff;
+  border-color: #409eff;
+}
+
+.edit-btn:hover {
+  background: #ecf5ff;
+}
+
+.delete-btn {
+  color: #f56c6c;
+  border-color: #f56c6c;
+}
+
+.delete-btn:hover {
+  background: #fef0f0;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: #909399;
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #409eff;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #909399;
+}
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  border: 1px solid #dcdfe6;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-btn {
+  padding: 8px 16px;
+  background: #409eff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.add-btn:hover {
+  background: #66b1ff;
 }
 
 /* 响应式调整 */

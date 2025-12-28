@@ -4,26 +4,47 @@
     <div class="header-left">
       <h1 class="logo">🏢 房屋管理系统</h1>
       <div class="page-title">
-        <span class="breadcrumb">首页 /</span>
+        <span class="breadcrumb" @click="goHome" style="cursor: pointer">首页 /</span>
         <span class="current-page">管理员面板</span>
       </div>
     </div>
     
     <div class="header-right">
       <div class="admin-info">
-        <div class="admin-avatar">A</div>
+        <div class="admin-avatar">{{ userInitial }}</div>
         <div class="admin-details">
-          <div class="admin-name">超级管理员</div>
-          <div class="admin-role">系统管理员</div>
+          <div class="admin-name">{{ username }}</div>
+          <div class="admin-role">{{ roleText }}</div>
         </div>
-        <button class="logout-btn" @click="$emit('logout')">退出</button>
+        <button class="logout-btn" @click="handleLogout">退出</button>
       </div>
     </div>
   </header>
 </template>
 
 <script setup>
-defineEmits(['logout'])
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+
+const router = useRouter()
+const userStore = useUserStore()
+const emit = defineEmits(['logout'])
+
+const username = computed(() => userStore.userInfo?.username || userStore.userInfo?.u_username || '管理员')
+const userInitial = computed(() => (username.value ? username.value.charAt(0).toUpperCase() : 'A'))
+const roleText = computed(() => {
+  const role = userStore.userInfo?.role || 'admin'
+  return role === 'admin' ? '系统管理员' : role
+})
+
+const goHome = () => {
+  router.push('/')
+}
+
+const handleLogout = () => {
+  emit('logout')
+}
 </script>
 
 <style scoped>

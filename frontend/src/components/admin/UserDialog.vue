@@ -47,31 +47,6 @@
             </button>
           </div>
 
-          <div class="form-group">
-            <label>联系电话</label>
-            <input
-              v-model="formData.phone"
-              type="tel"
-              placeholder="请输入联系电话"
-              pattern="^1[3-9]\d{9}$"
-            />
-            <div v-if="formData.phone && !isValidPhone" class="error-tip">
-              请输入正确的手机号码
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>电子邮箱</label>
-            <input
-              v-model="formData.email"
-              type="email"
-              placeholder="请输入电子邮箱"
-            />
-            <div v-if="formData.email && !isValidEmail" class="error-tip">
-              请输入正确的邮箱格式
-            </div>
-          </div>
-
           <!-- 买方特定字段 -->
           <div v-if="formData.type === 'buyer'" class="buyer-fields">
             <div class="section-title">买方信息</div>
@@ -181,8 +156,6 @@ const formData = ref({
   type: '',
   username: '',
   password: '',
-  phone: '',
-  email: '',
   // 买方字段
   mobileAssets: 0,
   fixedAssets: 0,
@@ -195,17 +168,6 @@ const formData = ref({
 
 const showPassword = ref(false)
 const isSubmitting = ref(false)
-
-// 计算属性
-const isValidPhone = computed(() => {
-  const phoneRegex = /^1[3-9]\d{9}$/
-  return !formData.value.phone || phoneRegex.test(formData.value.phone)
-})
-
-const isValidEmail = computed(() => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return !formData.value.email || emailRegex.test(formData.value.email)
-})
 
 const isFormValid = computed(() => {
   const requiredFields = ['type', 'username']
@@ -221,7 +183,7 @@ const isFormValid = computed(() => {
     return false
   }
 
-  return isValidPhone.value && isValidEmail.value
+  return true
 })
 
 // 监听props变化
@@ -232,8 +194,6 @@ watch(() => props.user, (newUser) => {
       type: newUser.type || '',
       username: newUser.username || '',
       password: '', // 编辑时不显示密码
-      phone: newUser.phone || '',
-      email: newUser.email || '',
       mobileAssets: newUser.mobileAssets || 0,
       fixedAssets: newUser.fixedAssets || 0,
       annualIncome: newUser.annualIncome || 0,
@@ -266,8 +226,6 @@ const resetForm = () => {
     type: '',
     username: '',
     password: '',
-    phone: '',
-    email: '',
     mobileAssets: 0,
     fixedAssets: 0,
     annualIncome: 0,

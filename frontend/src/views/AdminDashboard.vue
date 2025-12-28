@@ -3,20 +3,20 @@
   <div class="admin-dashboard">
     <!-- 顶部导航 -->
     <AdminHeader @logout="handleLogout" />
-    
+
     <!-- 功能选项卡 -->
     <div class="function-tabs">
-      <button 
-        class="tab-btn" 
+      <button
+        class="tab-btn"
         :class="{ 'active': activeTab === 'users' }"
         @click="activeTab = 'users'"
       >
         <span class="tab-icon">👥</span>
         <span class="tab-text">用户管理</span>
       </button>
-      
-      <button 
-        class="tab-btn" 
+
+      <button
+        class="tab-btn"
         :class="{ 'active': activeTab === 'contracts' }"
         @click="activeTab = 'contracts'"
       >
@@ -36,16 +36,25 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AdminHeader from '../components/admin/AdminHeader.vue'  // 修复路径
-import UserManagement from '../components/admin/UserManagement.vue'  // 修复路径
-import ContractManagement from '../components/admin/ContractManagement.vue'  // 修复路径
+import { useUserStore } from '@/stores/user'
+import AdminHeader from '../components/admin/AdminHeader.vue'
+import UserManagement from '../components/admin/UserManagement.vue'
+import ContractManagement from '../components/admin/ContractManagement.vue'
 
 const router = useRouter()
+const userStore = useUserStore()
 const activeTab = ref('users')
 
-const handleLogout = () => {
-  localStorage.removeItem('admin_token')
-  router.push('/login')
+const handleLogout = async () => {
+  try {
+    await userStore.logout()
+  } catch (e) {
+    console.error('Logout failed', e)
+  } finally {
+    userStore.clearState()
+    localStorage.removeItem('admin_token')
+    router.push('/')
+  }
 }
 </script>
 

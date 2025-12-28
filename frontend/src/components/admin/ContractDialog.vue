@@ -9,20 +9,20 @@
       <div class="modal-body">
         <form @submit.prevent="handleSubmit" v-if="mode !== 'view'">
           <div class="form-group">
-            <label>买方</label>
-            <input v-model="formData.buyerName" type="text" placeholder="输入买方姓名" required />
+            <label>买方ID</label>
+            <input v-model.number="formData.buyerId" type="number" placeholder="输入买方ID" required />
           </div>
-          
+
           <div class="form-group">
-            <label>房屋信息</label>
-            <input v-model="formData.houseName" type="text" placeholder="输入房屋名称" required />
+            <label>房屋ID</label>
+            <input v-model.number="formData.houseId" type="number" placeholder="输入房屋ID" required />
           </div>
-          
+
           <div class="form-group">
             <label>总金额</label>
-            <input v-model="formData.totalPrice" type="number" placeholder="输入总金额" required />
+            <input v-model.number="formData.totalPrice" type="number" placeholder="输入总金额" required step="0.01" />
           </div>
-          
+
           <div class="form-group">
             <label>付款方式</label>
             <select v-model="formData.payWay" required>
@@ -30,7 +30,17 @@
               <option value="installment">分期</option>
             </select>
           </div>
-          
+
+          <div class="form-group">
+            <label>付款截止日期</label>
+            <input v-model="formData.paytimeEnding" type="date" required />
+          </div>
+
+          <div class="form-group">
+            <label>交房截止日期</label>
+            <input v-model="formData.deliveryEnding" type="date" required />
+          </div>
+
           <div class="form-actions">
             <button type="button" class="cancel-btn" @click="$emit('close')">
               取消
@@ -40,19 +50,27 @@
             </button>
           </div>
         </form>
-        
+
         <div v-else class="view-mode">
           <div class="info-item">
             <label>合同ID:</label>
             <span>{{ contract.id }}</span>
           </div>
           <div class="info-item">
-            <label>买方:</label>
-            <span>{{ contract.buyerName }}</span>
+            <label>买方ID:</label>
+            <span>{{ contract.buyerId || contract.buyer?.id }}</span>
           </div>
           <div class="info-item">
-            <label>房屋信息:</label>
-            <span>{{ contract.houseName }}</span>
+            <label>买方姓名:</label>
+            <span>{{ contract.buyerName || contract.buyer?.name }}</span>
+          </div>
+          <div class="info-item">
+            <label>房屋ID:</label>
+            <span>{{ contract.houseId || contract.house?.id }}</span>
+          </div>
+          <div class="info-item">
+            <label>房屋名称:</label>
+            <span>{{ contract.houseName || contract.house?.name }}</span>
           </div>
           <div class="info-item">
             <label>总金额:</label>
@@ -60,7 +78,15 @@
           </div>
           <div class="info-item">
             <label>付款方式:</label>
-            <span>{{ contract.payWay === 'full' ? '全款' : '分期' }}</span>
+            <span>{{ formatPayWay(contract.payWay) }}</span>
+          </div>
+          <div class="info-item">
+            <label>付款截止:</label>
+            <span>{{ formatDate(contract.paytimeEnding) }}</span>
+          </div>
+          <div class="info-item">
+            <label>交房截止:</label>
+            <span>{{ formatDate(contract.deliveryEnding) }}</span>
           </div>
         </div>
       </div>
@@ -85,16 +111,30 @@ const props = defineProps({
 const emit = defineEmits(['save', 'close'])
 
 const formData = ref({
-  buyerName: '',
-  houseName: '',
+  buyerId: '',
+  houseId: '',
   totalPrice: '',
-  payWay: 'full'
+  payWay: 'full',
+  paytimeEnding: '',
+  deliveryEnding: ''
 })
 
 // 监听props变化
 watch(() => props.contract, (newVal) => {
   if (newVal) {
-    formData.value = { ...newVal }
+    // Format dates for input[type="date"]
+    const formatDateForInput = (dateStr) => {
+      if (!dateStr) return ''
+      return new Date(dateStr).toISOString().split('T')[0]
+    }
+
+    formData.value = {
+      ...newVal,
+      buyerId: newVal.buyerId || newVal.buyer?.id,
+      houseId: newVal.houseId || newVal.house?.id,
+      paytimeEnding: formatDateForInput(newVal.paytimeEnding),
+      deliveryEnding: formatDateForInput(newVal.deliveryEnding)
+    }
   }
 }, { immediate: true })
 
@@ -105,6 +145,19 @@ const handleSubmit = () => {
 const formatNumber = (num) => {
   if (!num) return '0'
   return num.toLocaleString('zh-CN')
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return '--'
+  return new Date(dateString).toLocaleDateString('zh-CN')
+}
+
+const formatPayWay = (way) => {
+  const map = {
+    full: '全款',
+    installment: '分期'
+  }
+  return map[way] || way
 }
 </script>
 

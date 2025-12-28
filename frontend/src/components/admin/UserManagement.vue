@@ -7,7 +7,7 @@
         <input
           v-model="searchKeyword"
           type="text"
-          placeholder="搜索用户名、电话、邮箱..."
+          placeholder="搜索用户名..."
           class="search-input"
           @keyup.enter="handleSearch"
         />
@@ -29,9 +29,6 @@
             <th>ID</th>
             <th>用户名</th>
             <th>用户类型</th>
-            <th>电话</th>
-            <th>邮箱</th>
-            <th>状态</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -43,11 +40,6 @@
               <span class="user-type" :class="user.type">
                 {{ formatUserType(user.type) }}
               </span>
-            </td>
-            <td>{{ user.phone || '--' }}</td>
-            <td>{{ user.email || '--' }}</td>
-            <td>
-              <span class="status-badge active">正常</span>
             </td>
             <td>
               <div class="action-buttons">
@@ -74,16 +66,7 @@
         暂无用户数据
       </div>
 
-      <!-- 分页 -->
-      <div v-if="users.length > 0" class="pagination">
-        <button class="page-btn" :disabled="page === 1" @click="handlePrevPage">
-          ← 上一页
-        </button>
-        <span class="page-info">第 {{ page }} 页</span>
-        <button class="page-btn" @click="handleNextPage">
-          下一页 →
-        </button>
-      </div>
+
     </div>
 
     <!-- 添加/编辑对话框 -->
@@ -106,8 +89,6 @@ import UserDialog from './UserDialog.vue'
 const users = ref([])
 const loading = ref(false)
 const searchKeyword = ref('')
-const page = ref(1)
-// const pageSize = 10
 
 const showAddDialog = ref(false)
 const showEditDialog = ref(false)
@@ -124,8 +105,28 @@ onMounted(() => {
 const fetchUsers = async () => {
   try {
     loading.value = true
-    const response = await userApi.getUsers()
-    users.value = response || []
+    // Note: Backend currently ignores params and returns a List<User>, not Page
+    const response = await userApi.getUsers({})
+
+    // Handle List response and map fields
+    const rawList = Array.isArray(response) ? response : (response?.content || [])
+    const mappedList = rawList.map(u => ({
+      id: u.u_id || u.id,
+      username: u.u_username || u.username,
+      type: u.u_type || u.type
+    }))
+
+    // Client-side pagination/search since backend doesn't support it yet
+    let filtered = mappedList
+    if (searchKeyword.value) {
+      const kw = searchKeyword.value.toLowerCase()
+      filtered = filtered.filter(u =>
+        u.username?.toLowerCase().includes(kw)
+      )
+    }
+
+    users.value = filtered
+
   } catch (error) {
     console.error('获取用户列表失败:', error)
     users.value = []
@@ -135,19 +136,6 @@ const fetchUsers = async () => {
 }
 
 const handleSearch = () => {
-  page.value = 1
-  fetchUsers()
-}
-
-const handlePrevPage = () => {
-  if (page.value > 1) {
-    page.value--
-    fetchUsers()
-  }
-}
-
-const handleNextPage = () => {
-  page.value++
   fetchUsers()
 }
 
@@ -172,8 +160,9 @@ const handleDelete = async (id) => {
 
 const handleSaveUser = async (userData) => {
   try {
-    if (userData.id) {
-      await userApi.updateUser(userData.id, userData)
+    if (userData.id || userData.u_id) {
+      const id = userData.id || userData.u_id
+      await userApi.updateUser(id, userData)
     } else {
       await userApi.createUser(userData)
     }
@@ -374,32 +363,5 @@ const formatUserType = (type) => {
   padding: 40px;
   text-align: center;
   color: #909399;
-}
-
-.pagination {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-}
-
-.page-btn {
-  padding: 6px 12px;
-  border: 1px solid #dcdfe6;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.page-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.page-info {
-  color: #606266;
-  font-size: 14px;
 }
 </style>
