@@ -186,6 +186,22 @@ const isFormValid = computed(() => {
   return true
 })
 
+const resetForm = () => {
+  formData.value = {
+    type: '',
+    username: '',
+    password: '',
+    mobileAssets: 0,
+    fixedAssets: 0,
+    annualIncome: 0,
+    name: '',
+    description: '',
+    website: ''
+  }
+  showPassword.value = false
+  isSubmitting.value = false
+}
+
 // 监听props变化
 watch(() => props.user, (newUser) => {
   if (newUser) {
@@ -219,22 +235,6 @@ const handleTypeChange = () => {
     formData.value.fixedAssets = 0
     formData.value.annualIncome = 0
   }
-}
-
-const resetForm = () => {
-  formData.value = {
-    type: '',
-    username: '',
-    password: '',
-    mobileAssets: 0,
-    fixedAssets: 0,
-    annualIncome: 0,
-    name: '',
-    description: '',
-    website: ''
-  }
-  showPassword.value = false
-  isSubmitting.value = false
 }
 
 const handleClose = () => {
