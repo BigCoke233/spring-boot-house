@@ -1,19 +1,25 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useMessage } from '@/composables/useMessage'
 
 const router = useRouter()
 const userStore = useUserStore()
+const { showConfirm, showSuccess } = useMessage()
 
 const nav = [
   { name: "基本设置", link: "/account" },
   { name: "个人资料", link: "/account/profile" },
 ]
 
-const handleLogout = () => {
-  if (confirm('确定要退出登录吗？')) {
+const handleLogout = async () => {
+  try {
+    await showConfirm('确定要退出登录吗？')
     userStore.logout()
+    showSuccess('已退出登录')
     router.push('/')
+  } catch {
+    // 用户取消退出
   }
 }
 </script>

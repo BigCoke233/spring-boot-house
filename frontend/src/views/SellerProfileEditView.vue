@@ -2,12 +2,14 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useMessage } from '@/composables/useMessage'
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 import AppButton from '@/components/AppButton.vue';
 
 const router = useRouter()
 const userStore = useUserStore()
+const { showSuccess, showError } = useMessage()
 
 const profile = ref({
   name: "",
@@ -43,10 +45,10 @@ const handleSave = async () => {
           s_website: profile.value.website
       }
       await userStore.updateSellerProfile(updateData)
-      alert('保存成功')
+      showSuccess('保存成功')
       router.push('/account/profile')
   } catch (e) {
-      alert('保存失败: ' + e.message)
+      showError('保存失败: ' + e.message)
   }
 }
 </script>

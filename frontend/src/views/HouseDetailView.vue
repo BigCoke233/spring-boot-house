@@ -5,6 +5,7 @@ import { useHouseStore } from '@/stores/house.js'
 import { useFavoriteStore } from '@/stores/favorite.js'
 import { useUserStore } from '@/stores/user.js'
 import { useContractStore } from '@/stores/contract.js'
+import { useMessage } from '@/composables/useMessage'
 import LeafletMap from '@/components/LeafletMap.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 import AppButton from '@/components/AppButton.vue';
@@ -15,6 +16,7 @@ const houseStore = useHouseStore()
 const favoriteStore = useFavoriteStore()
 const userStore = useUserStore()
 const contractStore = useContractStore()
+const { showSuccess, showError, showWarning } = useMessage()
 
 const detail = computed(() => houseStore.currentHouse || {})
 const totalPrice = computed(() => {
@@ -34,7 +36,7 @@ async function handleBuy() {
     return
   }
   if (userStore.role !== 'buyer') {
-    alert('只有买家可以购买房源')
+    showWarning('只有买家可以购买房源')
     return
   }
   showPaymentDialog.value = true
@@ -61,11 +63,11 @@ async function confirmBuy() {
     }
 
     await contractStore.createContract(contractData)
-    alert('购买申请已提交，请等待卖家确认。')
+    showSuccess('购买申请已提交，请等待卖家确认。')
     router.push('/contract')
   } catch (error) {
     console.error('Failed to create contract:', error)
-    alert('提交购买申请失败：' + (error.message || '未知错误'))
+    showError('提交购买申请失败：' + (error.message || '未知错误'))
   } finally {
     isSubmitting.value = false
     showPaymentDialog.value = false
@@ -78,7 +80,7 @@ async function handleFavorite() {
     return
   }
   if (userStore.role !== 'buyer') {
-    alert('只有买家可以收藏房源')
+    showWarning('只有买家可以收藏房源')
     return
   }
   try {

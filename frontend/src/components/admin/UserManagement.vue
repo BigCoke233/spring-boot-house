@@ -4,10 +4,10 @@
     <!-- 搜索和操作栏 -->
     <div class="toolbar">
       <div class="search-box">
-        <input 
-          v-model="searchKeyword" 
-          type="text" 
-          placeholder="搜索用户名、电话、邮箱..." 
+        <input
+          v-model="searchKeyword"
+          type="text"
+          placeholder="搜索用户名、电话、邮箱..."
           class="search-input"
           @keyup.enter="handleSearch"
         />
@@ -15,7 +15,7 @@
           🔍
         </button>
       </div>
-      
+
       <button class="add-btn" @click="showAddDialog = true">
         <span>+</span> 添加用户
       </button>
@@ -62,18 +62,18 @@
           </tr>
         </tbody>
       </table>
-      
+
       <!-- 加载状态 -->
       <div v-if="loading" class="loading">
         <div class="spinner"></div>
         加载中...
       </div>
-      
+
       <!-- 空状态 -->
       <div v-if="!loading && users.length === 0" class="empty-state">
         暂无用户数据
       </div>
-      
+
       <!-- 分页 -->
       <div v-if="users.length > 0" class="pagination">
         <button class="page-btn" :disabled="page === 1" @click="handlePrevPage">
@@ -87,7 +87,7 @@
     </div>
 
     <!-- 添加/编辑对话框 -->
-    <UserDialog 
+    <UserDialog
       v-if="showAddDialog || showEditDialog"
       :user="editingUser"
       :mode="showEditDialog ? 'edit' : 'add'"
@@ -100,17 +100,20 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { userApi } from '../../api/adminApi'
+import { useMessage } from '@/composables/useMessage'
 import UserDialog from './UserDialog.vue'
 
 const users = ref([])
 const loading = ref(false)
 const searchKeyword = ref('')
 const page = ref(1)
-const pageSize = 10
+// const pageSize = 10
 
 const showAddDialog = ref(false)
 const showEditDialog = ref(false)
 const editingUser = ref(null)
+
+const { showSuccess, showError, showConfirm } = useMessage()
 
 // 生命周期
 onMounted(() => {
@@ -154,14 +157,16 @@ const handleEdit = (user) => {
 }
 
 const handleDelete = async (id) => {
-  if (!confirm('确定要删除这个用户吗？')) return
-  
   try {
+    await showConfirm('确定要删除这个用户吗？')
     await userApi.deleteUser(id)
     await fetchUsers()
+    showSuccess('删除成功')
   } catch (error) {
-    console.error('删除用户失败:', error)
-    alert('删除失败')
+    if (error !== 'cancel') {
+      console.error('删除用户失败:', error)
+      showError('删除失败')
+    }
   }
 }
 
@@ -174,9 +179,10 @@ const handleSaveUser = async (userData) => {
     }
     await fetchUsers()
     closeDialog()
+    showSuccess('保存成功')
   } catch (error) {
     console.error('保存用户失败:', error)
-    alert('保存失败')
+    showError('保存失败')
   }
 }
 

@@ -17,41 +17,41 @@
               <option value="admin">管理员</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>用户名 <span class="required">*</span></label>
-            <input 
-              v-model="formData.username" 
-              type="text" 
-              placeholder="请输入用户名" 
+            <input
+              v-model="formData.username"
+              type="text"
+              placeholder="请输入用户名"
               required
               :maxlength="20"
             />
           </div>
-          
+
           <div class="form-group">
             <label>密码 <span v-if="mode === 'add'" class="required">*</span></label>
-            <input 
-              v-model="formData.password" 
-              :type="showPassword ? 'text' : 'password'" 
+            <input
+              v-model="formData.password"
+              :type="showPassword ? 'text' : 'password'"
               :placeholder="mode === 'add' ? '请输入密码' : '留空则不修改密码'"
               :required="mode === 'add'"
               :minlength="6"
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               class="toggle-password"
               @click="showPassword = !showPassword"
             >
               {{ showPassword ? '👁️' : '👁️‍🗨️' }}
             </button>
           </div>
-          
+
           <div class="form-group">
             <label>联系电话</label>
-            <input 
-              v-model="formData.phone" 
-              type="tel" 
+            <input
+              v-model="formData.phone"
+              type="tel"
               placeholder="请输入联系电话"
               pattern="^1[3-9]\d{9}$"
             />
@@ -59,87 +59,87 @@
               请输入正确的手机号码
             </div>
           </div>
-          
+
           <div class="form-group">
             <label>电子邮箱</label>
-            <input 
-              v-model="formData.email" 
-              type="email" 
+            <input
+              v-model="formData.email"
+              type="email"
               placeholder="请输入电子邮箱"
             />
             <div v-if="formData.email && !isValidEmail" class="error-tip">
               请输入正确的邮箱格式
             </div>
           </div>
-          
+
           <!-- 买方特定字段 -->
           <div v-if="formData.type === 'buyer'" class="buyer-fields">
             <div class="section-title">买方信息</div>
             <div class="form-group">
               <label>流动资产（元）</label>
-              <input 
-                v-model="formData.mobileAssets" 
-                type="number" 
+              <input
+                v-model="formData.mobileAssets"
+                type="number"
                 placeholder="流动资产金额"
                 min="0"
                 step="1000"
               />
             </div>
-            
+
             <div class="form-group">
               <label>固定资产（元）</label>
-              <input 
-                v-model="formData.fixedAssets" 
-                type="number" 
+              <input
+                v-model="formData.fixedAssets"
+                type="number"
                 placeholder="固定资产金额"
                 min="0"
                 step="1000"
               />
             </div>
-            
+
             <div class="form-group">
               <label>年收入（元）</label>
-              <input 
-                v-model="formData.annualIncome" 
-                type="number" 
+              <input
+                v-model="formData.annualIncome"
+                type="number"
                 placeholder="年收入金额"
                 min="0"
                 step="1000"
               />
             </div>
           </div>
-          
+
           <!-- 卖方特定字段 -->
           <div v-else-if="formData.type === 'seller'" class="seller-fields">
             <div class="section-title">卖方信息</div>
             <div class="form-group">
               <label>公司/个人名称</label>
-              <input 
-                v-model="formData.name" 
-                type="text" 
+              <input
+                v-model="formData.name"
+                type="text"
                 placeholder="请输入公司或个人名称"
               />
             </div>
-            
+
             <div class="form-group">
               <label>公司描述</label>
-              <textarea 
-                v-model="formData.description" 
+              <textarea
+                v-model="formData.description"
                 placeholder="请输入公司或个人描述"
                 rows="3"
               ></textarea>
             </div>
-            
+
             <div class="form-group">
               <label>官方网站</label>
-              <input 
-                v-model="formData.website" 
-                type="url" 
+              <input
+                v-model="formData.website"
+                type="url"
                 placeholder="请输入官方网站地址"
               />
             </div>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="cancel-btn" @click="handleClose">
               取消
@@ -156,7 +156,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useMessage } from '@/composables/useMessage'
 
 const props = defineProps({
   // 用户数据（编辑时传入）
@@ -173,6 +174,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['save', 'close'])
+const { showWarning } = useMessage()
 
 // 表单数据
 const formData = ref({
@@ -207,18 +209,18 @@ const isValidEmail = computed(() => {
 
 const isFormValid = computed(() => {
   const requiredFields = ['type', 'username']
-  
+
   for (const field of requiredFields) {
     if (!formData.value[field]?.trim()) {
       return false
     }
   }
-  
+
   // 添加用户时密码必填
   if (props.mode === 'add' && !formData.value.password.trim()) {
     return false
   }
-  
+
   return isValidPhone.value && isValidEmail.value
 })
 
@@ -283,44 +285,44 @@ const handleClose = () => {
 
 const handleSubmit = async () => {
   if (!isFormValid.value) {
-    alert('请填写完整的表单信息')
+    showWarning('请填写完整的表单信息')
     return
   }
-  
+
   try {
     isSubmitting.value = true
-    
+
     // 准备要提交的数据
     const submitData = { ...formData.value }
-    
+
     // 如果是编辑模式且密码为空，则移除密码字段
     if (props.mode === 'edit' && !submitData.password.trim()) {
       delete submitData.password
     }
-    
+
     // 格式化数字字段
     if (submitData.type === 'buyer') {
       submitData.mobileAssets = parseFloat(submitData.mobileAssets) || 0
       submitData.fixedAssets = parseFloat(submitData.fixedAssets) || 0
       submitData.annualIncome = parseFloat(submitData.annualIncome) || 0
     }
-    
+
     // 移除不需要的字段
     if (submitData.type !== 'buyer') {
       delete submitData.mobileAssets
       delete submitData.fixedAssets
       delete submitData.annualIncome
     }
-    
+
     if (submitData.type !== 'seller') {
       delete submitData.name
       delete submitData.description
       delete submitData.website
     }
-    
+
     // 发送保存事件
     emit('save', submitData)
-    
+
   } catch (error) {
     console.error('表单提交错误:', error)
   } finally {
@@ -328,11 +330,6 @@ const handleSubmit = async () => {
   }
 }
 
-// 格式化金额显示
-const formatCurrency = (value) => {
-  if (!value) return '0'
-  return parseFloat(value).toLocaleString('zh-CN')
-}
 </script>
 
 <style scoped>
@@ -367,11 +364,11 @@ const formatCurrency = (value) => {
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -582,11 +579,11 @@ const formatCurrency = (value) => {
     width: 95vw;
     max-height: 90vh;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .cancel-btn,
   .save-btn {
     width: 100%;

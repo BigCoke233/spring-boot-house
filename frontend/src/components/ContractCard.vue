@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useHouseStore } from '@/stores/house.js'
 import { useUserStore } from '@/stores/user.js'
 import { useContractStore } from '@/stores/contract.js'
+import { useMessage } from '@/composables/useMessage'
 import StatusLabel from '@/components/AgreeStatusLabel.vue'
 import AppButton from '@/components/AppButton.vue'
 
@@ -16,6 +17,7 @@ const props = defineProps({
 const houseStore = useHouseStore()
 const userStore = useUserStore()
 const contractStore = useContractStore()
+const { showSuccess, showError, showConfirm } = useMessage()
 
 const loading = ref(false)
 
@@ -129,27 +131,27 @@ const fullPaid = computed(() => {
 })
 
 async function handlePay() {
-    if (!confirm('确认支付？')) return
-    loading.value = true
     try {
+        await showConfirm('确认支付？')
+        loading.value = true
         const msg = await contractStore.payContract(props.data.contractId, userStore.currentUserId)
-        alert(msg)
+        showSuccess(msg)
     } catch (e) {
-        alert(e.message)
+        if (e !== 'cancel') showError(e.message || e)
     } finally {
         loading.value = false
     }
 }
 
 async function handlePayInstallment() {
-    if (!confirm('确认支付下一期？')) return
-    loading.value = true
     try {
+        await showConfirm('确认支付下一期？')
+        loading.value = true
         const nextPeriod = (props.data.paidCount || 0) + 1
         const msg = await contractStore.payInstallment(props.data.contractId, userStore.currentUserId, nextPeriod)
-        alert(msg)
+        showSuccess(msg)
     } catch (e) {
-        alert(e.message)
+        if (e !== 'cancel') showError(e.message || e)
     } finally {
         loading.value = false
     }

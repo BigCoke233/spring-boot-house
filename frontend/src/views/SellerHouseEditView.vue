@@ -4,15 +4,17 @@ import { useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/layouts/PageContainer.vue'
 import { useHouseStore } from '@/stores/house.js'
 import { useUserStore } from '@/stores/user.js'
+import { useSellerStore } from '@/stores/seller'
+import { useMessage } from '@/composables/useMessage'
 import AppButton from '@/components/AppButton.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
-import { useSellerStore } from '@/stores/seller'
 
 const route = useRoute()
 const router = useRouter()
 const houseStore = useHouseStore()
 const sellerStore = useSellerStore()
 const userStore = useUserStore()
+const { showSuccess, showError } = useMessage()
 
 const form = ref({
     id: null,
@@ -83,16 +85,16 @@ async function handleSave() {
 
         if (isEditMode.value) {
             await sellerStore.updateHouse(saveData.h_id || saveData.id, saveData)
-            alert('保存成功')
+            showSuccess('保存成功')
         } else {
             saveData.sellerId = userStore.userInfo?.id || 1
             await sellerStore.createHouse(saveData)
-            alert('发布成功')
+            showSuccess('发布成功')
         }
 
         router.push('/seller/houses')
     } catch (e) {
-        alert((isEditMode.value ? '保存' : '发布') + '失败: ' + e.message)
+        showError((isEditMode.value ? '保存' : '发布') + '失败: ' + e.message)
     }
 }
 </script>

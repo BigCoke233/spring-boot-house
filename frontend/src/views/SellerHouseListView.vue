@@ -2,11 +2,13 @@
 import { onMounted, computed } from 'vue'
 import PageContainer from '@/layouts/PageContainer.vue'
 import { useSellerStore } from '@/stores/seller.js'
+import { useMessage } from '@/composables/useMessage'
 import AppButton from '@/components/AppButton.vue'
 import { useRouter } from 'vue-router'
 
 const sellerStore = useSellerStore()
 const router = useRouter()
+const { showSuccess, showError, showConfirm } = useMessage()
 
 const myHouses = computed(() => sellerStore.houses)
 
@@ -20,13 +22,14 @@ function getStatusLabel(status) {
 }
 
 async function handleDelete(id) {
-    if (!confirm('确定要删除这个房源吗？此操作无法撤销。')) return
-
     try {
+        await showConfirm('确定要删除这个房源吗？此操作无法撤销。')
         await sellerStore.deleteHouse(id)
-        alert('删除成功')
+        showSuccess('删除成功')
     } catch (e) {
-        alert('删除失败: ' + e.message)
+        if (e !== 'cancel') {
+             showError('删除失败: ' + (e.message || e))
+        }
     }
 }
 

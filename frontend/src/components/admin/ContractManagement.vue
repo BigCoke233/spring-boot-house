@@ -11,21 +11,21 @@
           <option value="rejected">已拒绝</option>
           <option value="completed">已完成</option>
         </select>
-        
-        <input 
-          v-model="filters.buyerName" 
-          type="text" 
-          placeholder="买方名称" 
+
+        <input
+          v-model="filters.buyerName"
+          type="text"
+          placeholder="买方名称"
           class="filter-input"
         />
-        
-        <input 
-          v-model="filters.houseName" 
-          type="text" 
-          placeholder="房屋名称" 
+
+        <input
+          v-model="filters.houseName"
+          type="text"
+          placeholder="房屋名称"
           class="filter-input"
         />
-        
+
         <button class="filter-btn" @click="handleFilter">
           筛选
         </button>
@@ -33,7 +33,7 @@
           重置
         </button>
       </div>
-      
+
       <button class="add-btn" @click="showAddDialog = true">
         <span>+</span> 新建合同
       </button>
@@ -114,18 +114,18 @@
           </tr>
         </tbody>
       </table>
-      
+
       <!-- 加载状态 -->
       <div v-if="loading" class="loading">
         <div class="spinner"></div>
         加载中...
       </div>
-      
+
       <!-- 空状态 -->
       <div v-if="!loading && contracts.length === 0" class="empty-state">
         暂无合同数据
       </div>
-      
+
       <!-- 分页 -->
       <div v-if="contracts.length > 0" class="pagination">
         <button class="page-btn" :disabled="page === 1" @click="handlePrevPage">
@@ -139,7 +139,7 @@
     </div>
 
     <!-- 合同对话框 -->
-    <ContractDialog 
+    <ContractDialog
       v-if="showAddDialog || showEditDialog || showViewDialog"
       :contract="currentContract"
       :mode="showViewDialog ? 'view' : (showEditDialog ? 'edit' : 'add')"
@@ -152,6 +152,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { contractApi } from '../../api/adminApi'
+import { useMessage } from '@/composables/useMessage'
 import ContractDialog from './ContractDialog.vue'
 
 const contracts = ref([])
@@ -167,6 +168,8 @@ const showAddDialog = ref(false)
 const showEditDialog = ref(false)
 const showViewDialog = ref(false)
 const currentContract = ref(null)
+
+const { showSuccess, showError, showConfirm } = useMessage()
 
 // 生命周期
 onMounted(() => {
@@ -229,14 +232,16 @@ const handleEdit = (contract) => {
 }
 
 const handleDelete = async (id) => {
-  if (!confirm('确定要删除这个合同吗？')) return
-  
   try {
+    await showConfirm('确定要删除这个合同吗？')
     await contractApi.deleteContract(id)
     await fetchContracts()
+    showSuccess('删除成功')
   } catch (error) {
-    console.error('删除合同失败:', error)
-    alert('删除失败')
+    if (error !== 'cancel') {
+      console.error('删除合同失败:', error)
+      showError('删除失败')
+    }
   }
 }
 
@@ -249,9 +254,10 @@ const handleSaveContract = async (contractData) => {
     }
     await fetchContracts()
     closeDialog()
+    showSuccess('保存成功')
   } catch (error) {
     console.error('保存合同失败:', error)
-    alert('保存失败')
+    showError('保存失败')
   }
 }
 
@@ -431,7 +437,7 @@ const formatDate = (dateString) => {
   .data-table {
     min-width: 1200px;
   }
-  
+
   .table-container {
     overflow-x: auto;
   }
