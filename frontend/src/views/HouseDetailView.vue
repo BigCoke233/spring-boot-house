@@ -99,6 +99,10 @@ onMounted(() => {
     houseStore.fetchHouseById(id)
   }
 })
+
+const handleImageError = (e) => {
+  e.target.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22%23f3f4f6%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22Arial%22%20font-size%3D%2216%22%20fill%3D%22%239ca3af%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E%E6%9A%82%E6%97%A0%E5%9B%BE%E7%89%87%3C%2Ftext%3E%3C%2Fsvg%3E'
+}
 </script>
 
 <template>
@@ -109,7 +113,8 @@ onMounted(() => {
     <div v-else-if="houseStore.error" class="text-center py-20 text-red-500">
       {{ houseStore.error }}
     </div>
-    <header v-else-if="houseStore.currentHouse" class="grid grid-cols-2 gap-4 md:gap-10">
+    <template v-else-if="houseStore.currentHouse">
+      <header class="grid grid-cols-2 gap-4 md:gap-10">
       <!-- Leaflet 地图 -->
       <LeafletMap :center="[detail.latitude, detail.longitude]" />
       <div class>
@@ -149,6 +154,25 @@ onMounted(() => {
         </section>
       </div>
     </header>
+
+    <section v-if="detail.picturePaths && detail.picturePaths.length > 0" class="mt-10">
+      <h2 class="text-2xl font-bold mb-6">房源图片</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          v-for="(url, index) in detail.picturePaths"
+          :key="index"
+          class="aspect-[4/3] bg-neutral-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+        >
+          <img
+            :src="url"
+            :alt="`${detail.name} 图片 ${index + 1}`"
+            class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+            @error="handleImageError"
+          />
+        </div>
+      </div>
+    </section>
+    </template>
     <div v-else class="text-center py-20">
       未找到房源信息
     </div>
