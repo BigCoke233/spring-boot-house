@@ -51,6 +51,36 @@
           <div v-if="formData.type === 'buyer'" class="buyer-fields">
             <div class="section-title">买方信息</div>
             <div class="form-group">
+              <label>真实姓名 <span class="required">*</span></label>
+              <input
+                v-model="formData.name"
+                type="text"
+                placeholder="请输入真实姓名"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>电话号码 <span class="required">*</span></label>
+              <input
+                v-model="formData.phone"
+                type="tel"
+                placeholder="请输入电话号码"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>电子邮箱 <span class="required">*</span></label>
+              <input
+                v-model="formData.email"
+                type="email"
+                placeholder="请输入电子邮箱"
+                required
+              />
+            </div>
+
+            <div class="form-group">
               <label>流动资产（元）</label>
               <input
                 v-model="formData.mobileAssets"
@@ -88,18 +118,39 @@
           <div v-else-if="formData.type === 'seller'" class="seller-fields">
             <div class="section-title">卖方信息</div>
             <div class="form-group">
-              <label>公司/个人名称</label>
+              <label>公司/个人名称 <span class="required">*</span></label>
               <input
                 v-model="formData.name"
                 type="text"
                 placeholder="请输入公司或个人名称"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>电话号码 <span class="required">*</span></label>
+              <input
+                v-model="formData.phone"
+                type="tel"
+                placeholder="请输入电话号码"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>电子邮箱 <span class="required">*</span></label>
+              <input
+                v-model="formData.email"
+                type="email"
+                placeholder="请输入电子邮箱"
+                required
               />
             </div>
 
             <div class="form-group">
               <label>公司描述</label>
               <textarea
-                v-model="formData.description"
+                v-model="formData.describe"
                 placeholder="请输入公司或个人描述"
                 rows="3"
               ></textarea>
@@ -156,13 +207,15 @@ const formData = ref({
   type: '',
   username: '',
   password: '',
+  phone: '',
+  email: '',
   // 买方字段
   mobileAssets: 0,
   fixedAssets: 0,
   annualIncome: 0,
   // 卖方字段
   name: '',
-  description: '',
+  describe: '',
   website: ''
 })
 
@@ -183,6 +236,17 @@ const isFormValid = computed(() => {
     return false
   }
 
+  // 根据类型校验必填字段
+  if (formData.value.type === 'buyer') {
+    if (!formData.value.name?.trim() || !formData.value.phone?.trim() || !formData.value.email?.trim()) {
+      return false
+    }
+  } else if (formData.value.type === 'seller') {
+    if (!formData.value.name?.trim() || !formData.value.phone?.trim() || !formData.value.email?.trim()) {
+      return false
+    }
+  }
+
   return true
 })
 
@@ -191,11 +255,13 @@ const resetForm = () => {
     type: '',
     username: '',
     password: '',
+    phone: '',
+    email: '',
     mobileAssets: 0,
     fixedAssets: 0,
     annualIncome: 0,
     name: '',
-    description: '',
+    describe: '',
     website: ''
   }
   showPassword.value = false
@@ -210,11 +276,13 @@ watch(() => props.user, (newUser) => {
       type: newUser.type || '',
       username: newUser.username || '',
       password: '', // 编辑时不显示密码
+      phone: newUser.phone || '',
+      email: newUser.email || '',
       mobileAssets: newUser.mobileAssets || 0,
       fixedAssets: newUser.fixedAssets || 0,
       annualIncome: newUser.annualIncome || 0,
       name: newUser.name || '',
-      description: newUser.description || '',
+      describe: newUser.describe || '',
       website: newUser.website || ''
     }
   } else {
@@ -252,6 +320,24 @@ const handleSubmit = async () => {
 
     // 准备要提交的数据
     const submitData = { ...formData.value }
+
+    // Map fields to match backend expected keys (optional but good for consistency)
+    if (submitData.type === 'buyer') {
+      submitData.b_name = submitData.name
+      submitData.b_phone = submitData.phone
+      submitData.b_email = submitData.email
+      submitData.b_mobile_assets = submitData.mobileAssets
+      submitData.b_fixed_assets = submitData.fixedAssets
+      submitData.b_annual_income = submitData.annualIncome
+
+      // Clean up generic keys if desired, or keep them as fallback
+    } else if (submitData.type === 'seller') {
+      submitData.s_name = submitData.name
+      submitData.s_phone = submitData.phone
+      submitData.s_email = submitData.email
+      submitData.s_describe = submitData.describe
+      submitData.s_website = submitData.website
+    }
 
     // 如果是编辑模式且密码为空，则移除密码字段
     if (props.mode === 'edit' && !submitData.password.trim()) {

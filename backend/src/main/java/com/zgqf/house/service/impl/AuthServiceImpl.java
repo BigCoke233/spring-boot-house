@@ -56,28 +56,62 @@ public class AuthServiceImpl implements AuthService {
         if ("buyer".equalsIgnoreCase(user.getU_type())) {
             Buyer buyer = new Buyer();
             buyer.setB_id(userId);
-            buyer.setB_name((String) additionalInfo.get("name"));
-            buyer.setB_phone((String) additionalInfo.get("phone"));
-            buyer.setB_email((String) additionalInfo.get("email"));
+            // Try to get from mapped keys first, then fallback to generic keys
+            String name = (String) additionalInfo.get("b_name");
+            if (name == null) name = (String) additionalInfo.get("name");
+            buyer.setB_name(name);
+
+            String phone = (String) additionalInfo.get("b_phone");
+            if (phone == null) phone = (String) additionalInfo.get("phone");
+            buyer.setB_phone(phone);
+
+            String email = (String) additionalInfo.get("b_email");
+            if (email == null) email = (String) additionalInfo.get("email");
+            buyer.setB_email(email);
+
             // Handle optional fields or defaults
             if (additionalInfo.get("mobileAssets") != null) {
                 buyer.setB_mobile_assets(Double.valueOf(additionalInfo.get("mobileAssets").toString()));
+            } else if (additionalInfo.get("b_mobile_assets") != null) {
+                buyer.setB_mobile_assets(Double.valueOf(additionalInfo.get("b_mobile_assets").toString()));
             }
+            
             if (additionalInfo.get("fixedAssets") != null) {
                 buyer.setB_fixed_assets(Double.valueOf(additionalInfo.get("fixedAssets").toString()));
+            } else if (additionalInfo.get("b_fixed_assets") != null) {
+                buyer.setB_fixed_assets(Double.valueOf(additionalInfo.get("b_fixed_assets").toString()));
             }
+
             if (additionalInfo.get("annualIncome") != null) {
                 buyer.setB_annual_income(Double.valueOf(additionalInfo.get("annualIncome").toString()));
+            } else if (additionalInfo.get("b_annual_income") != null) {
+                buyer.setB_annual_income(Double.valueOf(additionalInfo.get("b_annual_income").toString()));
             }
             buyerMapper.insert(buyer);
         } else if ("seller".equalsIgnoreCase(user.getU_type())) {
             Seller seller = new Seller();
             seller.setS_id(userId);
-            seller.setS_name((String) additionalInfo.get("name")); // Company name
-            seller.setS_phone((String) additionalInfo.get("phone"));
-            seller.setS_email((String) additionalInfo.get("email"));
-            seller.setS_describe((String) additionalInfo.get("describe"));
-            seller.setS_website((String) additionalInfo.get("website"));
+            
+            String name = (String) additionalInfo.get("s_name");
+            if (name == null) name = (String) additionalInfo.get("name");
+            seller.setS_name(name); 
+
+            String phone = (String) additionalInfo.get("s_phone");
+            if (phone == null) phone = (String) additionalInfo.get("phone");
+            seller.setS_phone(phone);
+
+            String email = (String) additionalInfo.get("s_email");
+            if (email == null) email = (String) additionalInfo.get("email");
+            seller.setS_email(email);
+
+            String describe = (String) additionalInfo.get("s_describe");
+            if (describe == null) describe = (String) additionalInfo.get("describe");
+            seller.setS_describe(describe);
+
+            String website = (String) additionalInfo.get("s_website");
+            if (website == null) website = (String) additionalInfo.get("website");
+            seller.setS_website(website);
+            
             sellerMapper.insert(seller);
         } else if ("admin".equalsIgnoreCase(user.getU_type())) {
             // admin 没有对应的表，只有类型字段

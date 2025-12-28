@@ -4,6 +4,7 @@ package com.zgqf.house.controller;
 import com.zgqf.house.entity.User;
 import com.zgqf.house.entity.Buyer;
 import com.zgqf.house.entity.Seller;
+import com.zgqf.house.service.AuthService;
 import com.zgqf.house.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -18,6 +20,9 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AuthService authService;
 
     // 用户管理 - 获取所有用户
     @GetMapping("/users")
@@ -34,8 +39,13 @@ public class UserController {
 
     // 用户管理 - 创建用户
     @PostMapping("/user")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<User> createUser(@RequestBody Map<String, Object> payload) {
+        User user = new User();
+        user.setU_username((String) payload.get("username"));
+        user.setU_password((String) payload.get("password"));
+        user.setU_type((String) payload.get("type"));
+        
+        return ResponseEntity.ok(authService.register(user, payload));
     }
 
     // 用户管理 - 更新用户
