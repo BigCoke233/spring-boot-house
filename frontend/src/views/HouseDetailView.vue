@@ -40,7 +40,12 @@ async function handleBuy() {
   showPaymentDialog.value = true
 }
 
+const isSubmitting = ref(false)
+
 async function confirmBuy() {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+
   try {
     const price = detail.value.price || detail.value.h_price || 0
     const square = detail.value.square || detail.value.h_square || 0
@@ -62,6 +67,7 @@ async function confirmBuy() {
     console.error('Failed to create contract:', error)
     alert('提交购买申请失败：' + (error.message || '未知错误'))
   } finally {
+    isSubmitting.value = false
     showPaymentDialog.value = false
   }
 }
@@ -178,8 +184,8 @@ onMounted(() => {
         </div>
 
         <div class="flex gap-4 justify-end">
-          <AppButton variant="secondary" @click="showPaymentDialog = false">取消</AppButton>
-          <AppButton @click="confirmBuy">确认提交</AppButton>
+          <AppButton variant="secondary" @click="showPaymentDialog = false" :disabled="isSubmitting">取消</AppButton>
+          <AppButton @click="confirmBuy" :disabled="isSubmitting">{{ isSubmitting ? '提交中...' : '确认提交' }}</AppButton>
         </div>
       </div>
     </div>

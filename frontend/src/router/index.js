@@ -108,4 +108,41 @@ const router = createRouter({
   ],
 })
 
+import { useUserStore } from '@/stores/user'
+
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore()
+
+  // Skip check for public routes if not logged in locally
+  const publicRoutes = ['login', 'register', 'home', 'houses', 'house-detail']
+  if (publicRoutes.includes(to.name) && !userStore.isLoggedIn) {
+    next()
+    return
+  }
+
+  // If local state says logged in, or route requires auth, verify with backend
+  if (userStore.isLoggedIn || !publicRoutes.includes(to.name)) {
+    try {
+      await userStore.fetchUserInfo()
+      // If verification succeeds and user was going to login/register, redirect to home
+      if (['login', 'register'].includes(to.name)) {
+        next({ name: 'home' })
+        return
+      }
+      next()
+    } catch (error) {
+      console.error('Session verification failed:', error)
+      // If verification fails (session expired/invalid)
+      if (!publicRoutes.includes(to.name)) {
+        next({ name: 'login', query: { redirect: to.fullPath } })
+      } else {
+        // If public route but verification failed, just proceed as guest
+        next()
+      }
+    }
+  } else {
+    next()
+  }
+})
+
 export default router
