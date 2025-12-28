@@ -1,24 +1,53 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 import AppButton from '@/components/AppButton.vue';
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const profile = ref({
-  name: "宏达地产",
-  description: "一家专注于高端商业地产开发的领军企业，致力于为客户提供优质的房产资源和服务。",
-  phone: "021-88888888",
-  email: "contact@hongda.com",
-  website: "www.hongda.com",
+  name: "",
+  description: "",
+  phone: "",
+  email: "",
+  website: "",
 })
 
-const handleSave = () => {
-  // Logic to save profile
-  console.log('Saved seller profile', profile.value)
-  router.push('/account/profile')
+onMounted(async () => {
+  if (!userStore.isLoggedIn) {
+      await userStore.fetchUserInfo()
+  }
+  const user = userStore.userInfo
+  // Map backend fields to form (Seller entity: s_name, s_describe, etc.)
+  profile.value = {
+      name: user.s_name || user.name || '',
+      description: user.s_describe || user.description || '',
+      phone: user.s_phone || user.phone || '',
+      email: user.s_email || user.email || '',
+      website: user.s_website || user.website || '',
+  }
+})
+
+const handleSave = async () => {
+  try {
+      const updateData = {
+          s_id: userStore.currentUserId,
+          s_name: profile.value.name,
+          s_describe: profile.value.description,
+          s_phone: profile.value.phone,
+          s_email: profile.value.email,
+          s_website: profile.value.website
+      }
+      await userStore.updateSellerProfile(updateData)
+      alert('保存成功')
+      router.push('/account/profile')
+  } catch (e) {
+      alert('保存失败: ' + e.message)
+  }
 }
 </script>
 

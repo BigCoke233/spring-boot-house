@@ -1,25 +1,56 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 import AppButton from '@/components/AppButton.vue';
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const profile = ref({
-  name: "张三",
-  telephone: "13800138000",
-  email: "zhangsan@example.com",
-  workingCapital: 1000000,
-  fixedCapital: 500000,
-  annualIncome: 500000,
+  name: "",
+  telephone: "",
+  email: "",
+  workingCapital: 0,
+  fixedCapital: 0,
+  annualIncome: 0,
 })
 
-const handleSave = () => {
-  // Logic to save profile
-  console.log('Saved', profile.value)
-  router.push('/account/profile')
+onMounted(async () => {
+  if (!userStore.isLoggedIn) {
+      await userStore.fetchUserInfo()
+  }
+  const user = userStore.userInfo
+  // Map backend fields to form
+  profile.value = {
+      name: user.b_name || user.name || '',
+      telephone: user.b_phone || user.phone || '',
+      email: user.b_email || user.email || '',
+      workingCapital: user.b_mobile_assets || user.b_working_capital || user.workingCapital || 0,
+      fixedCapital: user.b_fixed_assets || user.b_fixed_capital || user.fixedCapital || 0,
+      annualIncome: user.b_annual_income || user.annualIncome || 0
+  }
+})
+
+const handleSave = async () => {
+  try {
+      // Map form to backend fields
+      const updateData = {
+          b_name: profile.value.name,
+          b_phone: profile.value.telephone,
+          b_email: profile.value.email,
+          b_mobile_assets: profile.value.workingCapital,
+          b_fixed_assets: profile.value.fixedCapital,
+          b_annual_income: profile.value.annualIncome
+      }
+      await userStore.updateBuyerProfile(userStore.currentUserId, updateData)
+      alert('保存成功')
+      router.push('/account/profile')
+  } catch (e) {
+      alert('保存失败: ' + e.message)
+  }
 }
 </script>
 

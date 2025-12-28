@@ -1,7 +1,11 @@
 <script setup>
+import { computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 import { UserRound, PhoneCall, Mail, DollarSign, Home } from 'lucide-vue-next'
+
+const userStore = useUserStore()
 
 const profileStructure = [
   { label: "姓名", icon: UserRound, name: "name" },
@@ -12,14 +16,23 @@ const profileStructure = [
   { label: "年收入", icon: DollarSign, name: "annualIncome" },
 ]
 
-const profile = {
-  name: "张三",
-  telephone: "13800138000",
-  email: "zhangsan@example.com",
-  workingCapital: 1000000,
-  fixedCapital: 500000,
-  annualIncome: 500000,
-}
+onMounted(async () => {
+    if (!userStore.isLoggedIn || !userStore.userInfo?.b_id) {
+        await userStore.fetchUserInfo()
+    }
+})
+
+const profile = computed(() => {
+  const info = userStore.userInfo || {}
+  return {
+    name: info.b_name || info.name || "未填写",
+    telephone: info.b_phone || info.phone || "未填写",
+    email: info.b_email || info.email || "未填写",
+    workingCapital: (info.b_mobile_assets || info.workingCapital || 0).toLocaleString(),
+    fixedCapital: (info.b_fixed_assets || info.fixedCapital || 0).toLocaleString(),
+    annualIncome: (info.b_annual_income || info.annualIncome || 0).toLocaleString(),
+  }
+})
 </script>
 
 <template>

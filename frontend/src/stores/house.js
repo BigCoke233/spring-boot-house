@@ -62,6 +62,24 @@ export const useHouseStore = defineStore('house', () => {
     }
   }
 
+  async function fetchHousesByTag(tagName, pageNum = 1, pageSize = 10) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await fetch(`http://localhost:8080/api/public/houses/by-tag-name?tag=${encodeURIComponent(tagName)}&pageNum=${pageNum}&pageSize=${pageSize}`)
+      if (!response.ok) throw new Error('Failed to fetch houses by tag')
+      const data = await response.json()
+      houseList.value = data.content || data
+      return houseList.value
+    } catch (err) {
+      console.error('Fetch houses by tag error:', err)
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function fetchTags() {
     // API endpoint not yet implemented, returning empty for now
     return []
@@ -74,6 +92,7 @@ export const useHouseStore = defineStore('house', () => {
     error,
     fetchHouseList,
     fetchHouseById,
+    fetchHousesByTag,
     getHouseById,
     fetchTags
   }

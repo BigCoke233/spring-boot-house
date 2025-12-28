@@ -1,7 +1,11 @@
 <script setup>
+import { computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
 import AccountLayout from '@/layouts/AccountLayout.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 import { PhoneCall, Mail, Building, Globe } from 'lucide-vue-next'
+
+const userStore = useUserStore()
 
 const profileStructure = [
   { label: "公司名称", icon: Building, name: "name" },
@@ -10,13 +14,22 @@ const profileStructure = [
   { label: "官网", icon: Globe, name: "website" },
 ]
 
-const profile = {
-  name: "宏达地产",
-  description: "一家专注于高端商业地产开发的领军企业，致力于为客户提供优质的房产资源和服务。",
-  phone: "021-88888888",
-  email: "contact@hongda.com",
-  website: "www.hongda.com",
-}
+onMounted(async () => {
+    if (!userStore.isLoggedIn || !userStore.userInfo?.s_id) {
+        await userStore.fetchUserInfo()
+    }
+})
+
+const profile = computed(() => {
+  const info = userStore.userInfo || {}
+  return {
+    name: info.s_name || info.name || "未填写",
+    description: info.s_describe || info.description || "暂无描述",
+    phone: info.s_phone || info.phone || "未填写",
+    email: info.s_email || info.email || "未填写",
+    website: info.s_website || info.website || "未填写",
+  }
+})
 </script>
 
 <template>

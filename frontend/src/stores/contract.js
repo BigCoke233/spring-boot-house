@@ -303,6 +303,97 @@ export const useContractStore = defineStore('contract', () => {
       return `第 ${period} 期支付成功 (模拟)`
   }
 
+  async function updateContract(id, updateData) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await fetch(`http://localhost:8080/api/contract/${id}/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(updateData)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update contract')
+      }
+
+      const updatedContract = await response.json()
+      if (currentContract.value && currentContract.value.id == id) {
+          const mapped = mapContract(updatedContract)
+          currentContract.value = { ...currentContract.value, ...mapped }
+      }
+      return mapContract(updatedContract)
+    } catch (err) {
+      console.error('Update contract error:', err)
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function deleteContract(id) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await fetch(`http://localhost:8080/api/contract/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete contract')
+      }
+
+      // Remove from list
+      const index = contractList.value.findIndex(c => c.id == id)
+      if (index !== -1) {
+        contractList.value.splice(index, 1)
+      }
+      if (currentContract.value && currentContract.value.id == id) {
+        currentContract.value = null
+      }
+      return true
+    } catch (err) {
+      console.error('Delete contract error:', err)
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function updateDelivery(id, delivered) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await fetch(`http://localhost:8080/api/contract/${id}/delivery?delivered=${delivered}`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update delivery status')
+      }
+
+      const updatedContract = await response.json()
+      if (currentContract.value && currentContract.value.id == id) {
+          const mapped = mapContract(updatedContract)
+          currentContract.value = { ...currentContract.value, ...mapped }
+      }
+      return mapContract(updatedContract)
+    } catch (err) {
+      console.error('Update delivery error:', err)
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     contractList,
     currentContract,
@@ -311,8 +402,11 @@ export const useContractStore = defineStore('contract', () => {
     fetchContractList,
     fetchContractById,
     createContract,
+    updateContract,
+    deleteContract,
     signContract,
     payContract,
-    payInstallment
+    payInstallment,
+    updateDelivery
   }
 })
