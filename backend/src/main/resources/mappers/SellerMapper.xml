@@ -9,11 +9,11 @@
 
     <!-- 更新卖家信息 -->
     <update id="updateSeller" parameterType="com.zgqf.house.entity.Seller">
-        UPDATE seller 
-        SET s_name=#{s_name}, 
-            s_describe=#{s_describe}, 
-            s_phone=#{s_phone}, 
-            s_email=#{s_email}, 
+        UPDATE seller
+        SET s_name=#{s_name},
+            s_describe=#{s_describe},
+            s_phone=#{s_phone},
+            s_email=#{s_email},
             s_website=#{s_website}
         WHERE s_id=#{s_id}
     </update>
