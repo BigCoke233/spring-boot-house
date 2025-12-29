@@ -1,6 +1,6 @@
 <script setup>
-import { computed } from 'vue'
-import { Heart, HeartOff } from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
+import { Heart } from 'lucide-vue-next'
 import { useFavoriteStore } from '@/stores/favorite.js'
 import { useUserStore } from '@/stores/user.js'
 
@@ -37,7 +37,44 @@ const totalPrice = computed(() => {
 // Use h_id or id depending on object structure
 const houseId = computed(() => props.data.h_id || props.data.id)
 
+// Track which image from the array we are currently showing
+const currentImageIndex = ref(0)
+// State to track if all images failed to load
+const imageError = ref(false)
+
+// Reset state when data changes
+watch(() => props.data.id, () => {
+  currentImageIndex.value = 0
+  imageError.value = false
+})
+
+const mainImage = computed(() => {
+  if (props.data.picturePaths && Array.isArray(props.data.picturePaths) && props.data.picturePaths.length > 0) {
+    // Try to find a valid image, currently we just return the one at current index
+    if (currentImageIndex.value < props.data.picturePaths.length) {
+      return props.data.picturePaths[currentImageIndex.value]
+    }
+  }
+  return props.data.image || ''
+})
+
 const isFav = computed(() => favoriteStore.isFavorite(houseId.value))
+
+function handleImageError() {
+  const paths = props.data.picturePaths
+  if (paths && Array.isArray(paths) && paths.length > 0) {
+    if (currentImageIndex.value < paths.length - 1) {
+      // Try next image
+      currentImageIndex.value++
+    } else {
+      // No more images to try
+      imageError.value = true
+    }
+  } else {
+    // Legacy image failed
+    imageError.value = true
+  }
+}
 
 function handleFavorite(e) {
   e.preventDefault() // Prevent navigation
@@ -48,9 +85,19 @@ function handleFavorite(e) {
 <template>
   <router-link :to="link" class="bg-white shadow rd overflow-hidden
     transition hover:shadow-md hover:-translate-y-1 block text-neutral-900 no-underline">
-    <div class="relative bg-neutral-100 flex items-center justify-center h-40 bg-cover bg-center"
-      :style="{ backgroundImage: props.data.image ? `url(${props.data.image})` : 'none' }">
-      <p v-if="!props.data.image" class="text-neutral">暂无图片</p>
+    <div class="relative bg-neutral-100 flex items-center justify-center h-40 overflow-hidden">
+       <!-- Use img tag for better error handling -->
+       <img
+        v-if="mainImage && !imageError"
+        :src="mainImage"
+        alt="House Image"
+        class="w-full h-full object-cover"
+        @error="handleImageError"
+      />
+      <div v-else class="flex flex-col items-center justify-center text-neutral-400">
+         <p class="text-sm">暂无图片</p>
+      </div>
+
       <button @click="handleFavorite" class="absolute top-2 right-2 b-none outline-none
         rd-full w-8 h-8 inline-flex items-center justify-center
         cursor-pointer transition shadow-sm"
