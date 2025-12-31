@@ -35,6 +35,9 @@ public class HouseServiceImpl implements HouseService {
 
     @Override
     public House createHouse(House house) {
+        if (house.getH_seller_id() == null) {
+            house.setH_seller_id(getCurrentSellerId());
+        }
         houseMapper.insert(house);
         return house;
     }

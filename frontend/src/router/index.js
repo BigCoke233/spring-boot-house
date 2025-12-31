@@ -135,6 +135,8 @@ router.beforeEach(async (to, from, next) => {
       if (['login', 'register'].includes(to.name)) {
         if (userStore.role === 'admin') {
           next({ name: 'admin' })
+        } else if (userStore.role === 'seller') {
+          next({ name: 'seller-houses' })
         } else {
           next({ name: 'home' })
         }

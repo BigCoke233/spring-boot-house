@@ -167,7 +167,11 @@ const handleRegister = async () => {
       password: formData.password
     })
 
-    router.push('/')
+    if (formData.type === 'seller') {
+      router.push('/seller/houses')
+    } else {
+      router.push('/')
+    }
   } catch (err) {
     error.value = err.message || '注册失败，请重试'
   } finally {

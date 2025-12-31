@@ -14,7 +14,6 @@ const buyerNav = [
 ]
 
 const sellerNav = [
-  { name: "首页", icon: House, link: '/' },
   { name: "新建房源", icon: PlusCircle, link: '/seller/house/create' },
   { name: "我的房源", icon: List, link: '/seller/houses' },
   { name: "合同", icon: ReceiptText, link: '/contract' }
