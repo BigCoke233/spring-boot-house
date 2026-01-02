@@ -112,12 +112,14 @@ export const useUserStore = defineStore('user', () => {
         credentials: 'include'
       })
 
+      if (response.status === 401) {
+        clearState()
+        throw new Error('Session expired')
+      }
+
       const data = await response.json()
 
       if (!response.ok) {
-        if (response.status === 401) {
-            clearState()
-        }
         throw new Error(data.message || '获取用户信息失败')
       }
 
