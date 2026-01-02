@@ -5,21 +5,17 @@
 
     <!-- 查询结果映射 -->
     <resultMap id="HouseResultMap" type="com.zgqf.house.entity.House">
-        <id property="id" column="h_id" />
-        <result property="sellerId" column="h_seller_id" />
-        <result property="name" column="h_name" />
-        <result property="description" column="h_describe" />
-        <result property="address" column="h_address" />
-        <result property="detailAddress" column="h_detail_address" />
-        <result property="price" column="h_price" />
-        <result property="longitude" column="h_longitude" />
-        <result property="latitude" column="h_latitude" />
-        <result property="square" column="h_square" />
-        <result property="checked" column="h_checked" />
-        <result property="sellerName" column="s_name" />
-        <result property="sellerPhone" column="s_phone" />
-        <result property="sellerEmail" column="s_email" />
-        <result property="totalPrice" column="total_price" />
+        <id property="h_id" column="h_id" />
+        <result property="h_seller_id" column="h_seller_id" />
+        <result property="h_name" column="h_name" />
+        <result property="h_describe" column="h_describe" />
+        <result property="h_address" column="h_address" />
+        <result property="h_detail_address" column="h_detail_address" />
+        <result property="h_price" column="h_price" />
+        <result property="h_longitude" column="h_longitude" />
+        <result property="h_latitude" column="h_latitude" />
+        <result property="h_square" column="h_square" />
+        <result property="h_checked" column="h_checked" />
     </resultMap>
 
     <!-- 查询房源列表的SQL片段 -->
@@ -35,11 +31,7 @@
             h.h_longitude,
             h.h_latitude,
             h.h_square,
-            h.h_checked,
-            s.s_name,
-            s.s_phone,
-            s.s_email,
-            (h.h_price * h.h_square) as total_price
+            h.h_checked
         FROM house h
                  LEFT JOIN seller s ON h.h_seller_id = s.s_id
                  LEFT JOIN house_tag ht ON h.h_id = ht.ht_house_id
@@ -109,6 +101,50 @@
             AND t.t_name = #{tag}
         </if>
     </sql>
+
+    <!-- 插入新房源 -->
+    <insert id="insert" parameterType="com.zgqf.house.entity.House" useGeneratedKeys="true" keyProperty="h_id" keyColumn="h_id">
+        INSERT INTO house (
+            h_seller_id, h_name, h_describe, h_address, h_detail_address,
+            h_price, h_longitude, h_latitude, h_square, h_checked
+        ) VALUES (
+            #{h_seller_id}, #{h_name}, #{h_describe}, #{h_address}, #{h_detail_address},
+            #{h_price}, #{h_longitude}, #{h_latitude}, #{h_square}, #{h_checked}
+        )
+    </insert>
+
+    <!-- 更新房源信息 -->
+    <update id="update" parameterType="com.zgqf.house.entity.House">
+        UPDATE house
+        <set>
+            <if test="h_name != null">h_name = #{h_name},</if>
+            <if test="h_describe != null">h_describe = #{h_describe},</if>
+            <if test="h_address != null">h_address = #{h_address},</if>
+            <if test="h_detail_address != null">h_detail_address = #{h_detail_address},</if>
+            <if test="h_price != null">h_price = #{h_price},</if>
+            <if test="h_longitude != null">h_longitude = #{h_longitude},</if>
+            <if test="h_latitude != null">h_latitude = #{h_latitude},</if>
+            <if test="h_square != null">h_square = #{h_square},</if>
+            <if test="h_checked != null">h_checked = #{h_checked},</if>
+        </set>
+        WHERE h_id = #{h_id}
+    </update>
+
+    <!-- 根据ID删除房源 -->
+    <delete id="deleteById">
+        DELETE FROM house WHERE h_id = #{houseId}
+    </delete>
+
+    <!-- 插入房源图片 -->
+    <insert id="insertPicture">
+        INSERT INTO house_picture (hp_house_id, hp_picture_path, hp_picture_number)
+        VALUES (#{houseId}, #{picturePath}, #{order})
+    </insert>
+
+    <!-- 删除房源的所有图片 -->
+    <delete id="deletePicturesByHouseId">
+        DELETE FROM house_picture WHERE hp_house_id = #{houseId}
+    </delete>
 
     <!-- 查询房源列表 -->
     <select id="selectHouseList" parameterType="com.zgqf.house.dto.HouseQueryDTO"

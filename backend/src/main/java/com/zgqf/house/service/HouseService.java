@@ -43,7 +43,17 @@ public interface HouseService {
     Page<HouseResultDTO> getHousesByTagName(String tagName, int pageNum, int pageSize);
 
     /**
+     * 根据标签名查询 (不分页)
+     */
+    List<HouseResultDTO> getHousesByTagName(String tagName);
+
+    /**
      * 将House实体转换为HouseResultDTO
      */
     HouseResultDTO convertToResultDTO(House house);
+
+    /**
+     * 保存房源图片
+     */
+    void savePictures(Integer houseId, List<String> picturePaths);
 }

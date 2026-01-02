@@ -34,6 +34,27 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
+    public void savePictures(Integer houseId, List<String> picturePaths) {
+        // First delete existing pictures
+        houseMapper.deletePicturesByHouseId(houseId);
+        
+        // Then insert new ones
+        if (picturePaths != null && !picturePaths.isEmpty()) {
+            for (int i = 0; i < picturePaths.size(); i++) {
+                houseMapper.insertPicture(houseId, picturePaths.get(i), i);
+            }
+        }
+    }
+
+    @Override
+    public List<HouseResultDTO> getHousesByTagName(String tagName) {
+        List<House> houses = houseMapper.selectHousesByTagName(tagName);
+         return houses.stream()
+                .map(this::convertToResultDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public House createHouse(House house) {
         if (house.getH_seller_id() == null) {
             house.setH_seller_id(getCurrentSellerId());

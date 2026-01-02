@@ -63,4 +63,14 @@ public interface HouseMapper {
      * 根据标签名查询房源
      */
     List<House> selectHousesByTagName(@Param("tagName") String tagName);
+
+    /**
+     * 插入房源图片
+     */
+    int insertPicture(@Param("houseId") Integer houseId, @Param("picturePath") String picturePath, @Param("order") Integer order);
+
+    /**
+     * 删除房源的所有图片
+     */
+    int deletePicturesByHouseId(@Param("houseId") Integer houseId);
 }

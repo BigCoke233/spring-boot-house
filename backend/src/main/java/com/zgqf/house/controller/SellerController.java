@@ -1,5 +1,6 @@
 package com.zgqf.house.controller;
 
+import com.zgqf.house.dto.HouseFormDTO;
 import com.zgqf.house.entity.House;
 import com.zgqf.house.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,9 @@ public class SellerController {
      * POST /api/seller/house/
      */
     @PostMapping("/house")
-    public ResponseEntity<House> createHouse(@RequestBody House house) {
-        House createdHouse = houseService.createHouse(house);
+    public ResponseEntity<House> createHouse(@RequestBody HouseFormDTO houseDto) {
+        House createdHouse = houseService.createHouse(houseDto);
+        houseService.savePictures(createdHouse.getH_id(), houseDto.getPicturePaths());
         return ResponseEntity.ok(createdHouse);
     }
 
@@ -46,8 +48,10 @@ public class SellerController {
      * PUT /api/seller/house/{id}
      */
     @PutMapping("/house/{id}")
-    public ResponseEntity<House> updateHouse(@PathVariable("id") Integer id, @RequestBody House house) {
-        House updatedHouse = houseService.updateHouse(id, house);
+    public ResponseEntity<House> updateHouse(@PathVariable("id") Integer id, @RequestBody HouseFormDTO houseDto) {
+        houseDto.setH_id(id);
+        House updatedHouse = houseService.updateHouse(houseDto);
+        houseService.savePictures(id, houseDto.getPicturePaths());
         return ResponseEntity.ok(updatedHouse);
     }
 
