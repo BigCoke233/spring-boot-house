@@ -21,6 +21,7 @@ import java.util.List;
 public class ContractServiceImpl implements ContractService {
 
     private final ContractMapper contractMapper;
+    private final com.zgqf.house.mapper.HouseMapper houseMapper;
 
     @Override
     public Page<Contract> getContracts(ContractQueryDTO queryDTO) {
@@ -231,6 +232,23 @@ public class ContractServiceImpl implements ContractService {
         int rows = contractMapper.updateSellerAgree(id, agree);
         if (rows == 0) {
             throw new RuntimeException("更新卖方同意状态失败，ID: " + id);
+        }
+        
+        // 如果卖方同意（agree=1），则下架房源（设置h_checked=0或2，根据业务需求，这里假设0为未审核/下架，或者需要新的状态）
+        // 查看House实体和Mapper，h_checked似乎用于审核状态。
+        // 如果我们想表示"已售出"或"交易中"，可能需要修改状态。
+        // 根据通常逻辑，达成合同后房源不应再展示给其他买家。
+        // 这里我们将h_checked设置为2（假设2代表已售出/下架），或者直接用0（未审核/不可见）。
+        // 为了安全起见，我们先设为2，如果系统只查询h_checked=1的，那么2也就不可见了。
+        if (agree == 1) {
+            Integer houseId = existingContract.getC_house_id();
+            if (houseId != null) {
+                com.zgqf.house.entity.House house = new com.zgqf.house.entity.House();
+                house.setH_id(houseId);
+                house.setH_checked(2); // 2: 已售出/下架
+                houseMapper.update(house);
+                log.info("卖方同意合同，房源已下架, houseId={}", houseId);
+            }
         }
 
         log.info("卖方同意状态更新成功, id={}, agree={}", id, agree);

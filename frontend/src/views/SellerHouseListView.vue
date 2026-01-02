@@ -13,9 +13,16 @@ const { showSuccess, showError, showConfirm } = useMessage()
 const myHouses = computed(() => sellerStore.houses)
 
 function getStatusLabel(status) {
+  // h_checked values: 0-Unchecked, 1-Passed, 2-Sold/Delisted
+  if (status === 2 || status === 'sold') return { text: '已售出/下架', class: 'bg-gray-200 text-gray-700' }
+  
   switch(status) {
-    case 'approved': return { text: '已审核', class: 'bg-green-100 text-green-700' }
-    case 'pending': return { text: '审核中', class: 'bg-yellow-100 text-yellow-700' }
+    case 'approved': 
+    case 1:
+        return { text: '已审核', class: 'bg-green-100 text-green-700' }
+    case 'pending': 
+    case 0:
+        return { text: '审核中', class: 'bg-yellow-100 text-yellow-700' }
     case 'rejected': return { text: '未通过', class: 'bg-red-100 text-red-700' }
     default: return { text: '未知', class: 'bg-gray-100 text-gray-700' }
   }

@@ -40,7 +40,16 @@ export const useSellerStore = defineStore('seller', () => {
       })
       if (!response.ok) throw new Error('Failed to fetch seller houses')
       const data = await response.json()
-      houses.value = data
+      // Map h_checked to auditStatus
+      houses.value = data.map(h => ({
+        ...h,
+        id: h.h_id,
+        name: h.h_name,
+        price: h.h_price,
+        square: h.h_square,
+        address: h.h_address,
+        auditStatus: h.h_checked // Pass through h_checked directly as status
+      }))
       return data
     } catch (err) {
       error.value = err.message
