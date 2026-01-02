@@ -18,15 +18,17 @@
     <!-- 更新房源信息 -->
     <update id="update" parameterType="com.zgqf.house.entity.House">
         UPDATE house
-        SET h_name = #{h_name},
-            h_describe = #{h_describe},
-            h_address = #{h_address},
-            h_detail_address = #{h_detail_address},
-            h_price = #{h_price},
-            h_longitude = #{h_longitude},
-            h_latitude = #{h_latitude},
-            h_square = #{h_square},
-            h_checked = #{h_checked}
+        <set>
+            <if test="h_name != null">h_name = #{h_name},</if>
+            <if test="h_describe != null">h_describe = #{h_describe},</if>
+            <if test="h_address != null">h_address = #{h_address},</if>
+            <if test="h_detail_address != null">h_detail_address = #{h_detail_address},</if>
+            <if test="h_price != null">h_price = #{h_price},</if>
+            <if test="h_longitude != null">h_longitude = #{h_longitude},</if>
+            <if test="h_latitude != null">h_latitude = #{h_latitude},</if>
+            <if test="h_square != null">h_square = #{h_square},</if>
+            <if test="h_checked != null">h_checked = #{h_checked},</if>
+        </set>
         WHERE h_id = #{h_id}
     </update>
 

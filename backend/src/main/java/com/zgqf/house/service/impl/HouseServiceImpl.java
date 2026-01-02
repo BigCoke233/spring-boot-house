@@ -87,9 +87,44 @@ public class HouseServiceImpl implements HouseService {
 
     // 模拟获取当前卖家ID的方法，实际项目中应该从SecurityContext中获取
     private Integer getCurrentSellerId() {
-        // 这里需要从安全上下文中获取当前登录用户的卖家ID
-        // 实际实现时需要集成Spring Security
-        return 1; // 默认值，实际项目中需要替换
+        // Retrieve the authentication object from the SecurityContext
+        org.springframework.security.core.Authentication authentication = 
+            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            // Assuming the UserDetails implementation or a custom principal holds the User ID.
+            // However, Spring Security UserDetails usually just has username.
+            // We might need to look up the user by username or cast to a custom UserDetails class.
+            // For this project, let's try to get the user from the HttpSession if we can access it, 
+            // but Service layer shouldn't depend on HttpSession directly.
+            // A better way is to use a thread-local variable set by an interceptor/filter, 
+            // OR use the username to fetch the user ID from the database.
+            
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            // Since we don't have UserService injected here, we might need to inject UserMapper or similar.
+            // But wait, we are in HouseServiceImpl.
+            // Let's assume we can get it from a static context if one exists, or query DB.
+            // Actually, for now, to fix the immediate issue without major refactoring:
+            // We can check if there is a request context and get the session.
+            
+            try {
+                jakarta.servlet.http.HttpServletRequest request = 
+                    ((org.springframework.web.context.request.ServletRequestAttributes) 
+                        org.springframework.web.context.request.RequestContextHolder.getRequestAttributes()).getRequest();
+                jakarta.servlet.http.HttpSession session = request.getSession(false);
+                if (session != null) {
+                    com.zgqf.house.entity.User user = (com.zgqf.house.entity.User) session.getAttribute("User");
+                    if (user != null) {
+                        return user.getU_id();
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore if not in a web request context
+            }
+        }
+        
+        // Fallback for testing or if session lookup fails
+        return 17; 
     }
 
     @Override

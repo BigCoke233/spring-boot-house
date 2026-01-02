@@ -19,8 +19,18 @@ public class Contract {
     private Double c_down_payment;  //首付金额
     private Integer c_total_periods;    //尾款总期数
 
+    // Transient field for DTO usage
+    private Integer sellerId;
 
     // Getters and Setters
+    public Integer getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(Integer sellerId) {
+        this.sellerId = sellerId;
+    }
+
     public Integer getC_id() {
         return c_id;
     }
