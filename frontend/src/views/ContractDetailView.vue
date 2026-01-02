@@ -96,11 +96,28 @@ async function handleSign() {
 
   try {
       await showConfirm('确认签署合同？')
-      const msg = await contractStore.signContract(contract.value.contractId, role)
+      const msg = await contractStore.signContract(contract.value.contractId, role, 1)
       showSuccess(msg)
   } catch (e) {
       if (e !== 'cancel') showError('签署失败：' + (e.message || e))
   }
+}
+
+async function handleReject() {
+    if (!contract.value) return
+    const role = userStore.role
+    if (!role) {
+        showWarning('请先登录')
+        return
+    }
+
+    try {
+        await showConfirm('确定要拒绝这份合同吗？此操作不可撤销。')
+        const msg = await contractStore.signContract(contract.value.contractId, role, -1)
+        showSuccess(msg)
+    } catch (e) {
+        if (e !== 'cancel') showError('操作失败：' + (e.message || e))
+    }
 }
 
 async function handleDelivery() {
@@ -149,30 +166,50 @@ onMounted(async () => {
         </div>
         <div class="bg-neutral-300/20 p-6 rd-xl mt-8">
             <PageContainer class="my-20 space-y-8">
-                <div class="flex justify-end">
+                <!-- Profile Buttons moved to Card -->
+                <!-- <div class="flex justify-end">
                     <AppButton v-if="userStore.role === 'buyer'" variant="secondary" :to="`/seller/${contract.seller?.id}`">查看卖家资料</AppButton>
                     <AppButton v-if="userStore.role === 'seller'" variant="secondary" :to="`/buyer/${contract.buyer?.id}`">查看买家资料</AppButton>
-                </div>
+                </div> -->
                 <PurchaseContractBox :partyA="partyA" :partyB="partyB" :contract="contract" />
       <div class="mt-8 flex gap-4">
         <!-- Seller Actions -->
         <template v-if="userStore.role === 'seller'">
-             <template v-if="!contract.sellerSignature">
-                <AppButton @click="handleSign">
-                    签署合同
-                </AppButton>
+             <template v-if="Number(contract.sellerAgree) !== 1 && Number(contract.sellerAgree) !== -1">
+                <div class="flex gap-4 justify-center">
+                    <AppButton @click="handleSign">
+                        签署合同
+                    </AppButton>
+                    <AppButton variant="danger" @click="handleReject">
+                        拒绝合同
+                    </AppButton>
+                </div>
              </template>
-             <template v-if="contract.status == 3 && !contract.delivered">
-                <AppButton variant="secondary" @click="handleDelivery">
-                    确认交房
-                </AppButton>
+             <template v-if="Number(contract.buyerAgree) === 1 && Number(contract.sellerAgree) === 1 && !contract.delivered">
+                <div class="flex justify-center">
+                    <AppButton variant="secondary" @click="handleDelivery">
+                        确认交房
+                    </AppButton>
+                </div>
              </template>
         </template>
 
         <!-- Buyer Actions -->
         <template v-if="userStore.role === 'buyer'">
+             <!-- Sign Contract Logic (if not yet agreed by buyer) -->
+             <template v-if="Number(contract.buyerAgree) !== 1 && Number(contract.buyerAgree) !== -1">
+                 <div class="flex gap-4 mb-4 justify-center">
+                    <AppButton @click="handleSign">
+                        签署合同
+                    </AppButton>
+                    <AppButton variant="danger" @click="handleReject">
+                        拒绝合同
+                    </AppButton>
+                 </div>
+             </template>
+
              <!-- Payment Logic -->
-             <template v-if="contract.sellerSignature && !fullPaid">
+             <template v-if="Number(contract.buyerAgree) === 1 && Number(contract.sellerAgree) === 1 && !fullPaid">
                  <template v-if="!downPaid">
                      <AppButton @click="handlePay" :disabled="paying">
                          {{ isInstallment ? '支付首付' : '支付全款' }}
@@ -186,10 +223,12 @@ onMounted(async () => {
              </template>
 
              <!-- Cancel Option for Buyer if not yet signed by seller -->
-             <template v-if="contract.status == 1">
-                 <AppButton variant="secondary" @click="handleCancel">
-                    取消申请
-                 </AppButton>
+             <template v-if="contract.status == 1 && Number(contract.sellerAgree) !== 1 && Number(contract.buyerAgree) !== 1">
+                 <div class="flex gap-4">
+                    <AppButton variant="secondary" @click="handleCancel">
+                        取消申请
+                    </AppButton>
+                 </div>
              </template>
         </template>
       </div>

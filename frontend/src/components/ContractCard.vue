@@ -74,8 +74,11 @@ const stepStatuses = computed(() => {
   const created = true
   const bAgree = Number(props.data.buyerAgree) === 1
   const sAgree = Number(props.data.sellerAgree) === 1
+  const bReject = Number(props.data.buyerAgree) === -1
+  const sReject = Number(props.data.sellerAgree) === -1
   const anyAgree = bAgree || sAgree
   const bothAgree = bAgree && sAgree
+  const anyReject = bReject || sReject
   const total = Number(props.data.totalPeriods || 0)
   const paidCount = Number(props.data.paidCount || 0)
   const fullPaid = !!(props.data.paymentStatus || props.data.paid)
@@ -87,7 +90,8 @@ const stepStatuses = computed(() => {
   const deliveredInProgress = paidCompleted && !deliveredCompleted
   const completedCompleted = !!(props.data.completionStatus || (paidCompleted && deliveredCompleted))
 
-  function status(completed, inProgress = false) {
+  function status(completed, inProgress = false, rejected = false) {
+    if (rejected) return 'rejected'
     if (completed) return 'completed'
     if (inProgress) return 'in_progress'
     return 'not_started'
@@ -95,7 +99,7 @@ const stepStatuses = computed(() => {
 
   return [
     { key: 'created', label: '已创建', status: status(created) },
-    { key: 'agreed', label: '双方同意', status: status(bothAgree, anyAgree && !bothAgree) },
+    { key: 'agreed', label: anyReject ? '已拒绝' : '双方同意', status: status(bothAgree, anyAgree && !bothAgree, anyReject) },
     { key: 'paid', label: '买方付款', status: status(paidCompleted, paidInProgress) },
     { key: 'delivered', label: '交房', status: status(deliveredCompleted, deliveredInProgress) },
     { key: 'completed', label: '完成', status: status(completedCompleted) },
@@ -103,12 +107,14 @@ const stepStatuses = computed(() => {
 })
 
 function statusDotClass(s) {
+  if (s === 'rejected') return 'w-2 h-2 rd-full bg-red-5 inline-block'
   if (s === 'completed') return 'w-2 h-2 rd-full bg-green-5 inline-block'
   if (s === 'in_progress') return 'w-2 h-2 rd-full bg-yellow-5 inline-block'
   return 'w-2 h-2 rd-full bg-neutral-300 inline-block'
 }
 
 function statusTextClass(s) {
+  if (s === 'rejected') return 'text-red-6'
   if (s === 'completed') return 'text-green-6'
   if (s === 'in_progress') return 'text-yellow-6'
   return 'text-neutral'
@@ -156,6 +162,11 @@ async function handlePayInstallment() {
         loading.value = false
     }
 }
+function getStatusText(val) {
+    if (Number(val) === 1) return '已同意'
+    if (Number(val) === -1) return '已拒绝'
+    return '未同意'
+}
 </script>
 
 <template>
@@ -198,8 +209,8 @@ async function handlePayInstallment() {
             <!-- 双方进度跟踪 -->
             <section class="px-6 pb-6 pt-4 lg:pt-6">
                 <div class="grid grid-rows-2 gap-4">
-                    <StatusLabel title="买方" :status="Number(props.data.buyerAgree) === 1 ? '已同意' : '未同意'" />
-                    <StatusLabel title="卖方" :status="Number(props.data.sellerAgree) === 1 ? '已同意' : '未同意'" />
+                    <StatusLabel title="买方" :status="getStatusText(props.data.buyerAgree)" />
+                    <StatusLabel title="卖方" :status="getStatusText(props.data.sellerAgree)" />
                 </div>
             </section>
             <!-- 操作按钮 -->
@@ -207,7 +218,13 @@ async function handlePayInstallment() {
                 <h4 class="font-bold text-sm m-0">操作</h4>
                 <div class="flex flex-row lg:flex-col gap-2 w-full">
                     <AppButton size="full" :to="`/contract/${props.data.contractId}`">查看详情</AppButton>
-                    <template v-if="userStore.user?.role === 'buyer' && !fullPaid">
+                    <template v-if="userStore.role === 'buyer'">
+                        <AppButton size="full" variant="secondary" :to="`/seller/${props.data.seller?.id || props.data.sellerId || houseData?.sellerId || houseData?.h_seller_id}`">查看卖家资料</AppButton>
+                    </template>
+                    <template v-if="userStore.role === 'seller'">
+                        <AppButton size="full" variant="secondary" :to="`/buyer/${props.data.buyer?.id || props.data.buyerId || props.data.c_buyer_id}`">查看买家资料</AppButton>
+                    </template>
+                    <template v-if="userStore.role === 'buyer' && !fullPaid">
                         <template v-if="!downPaid">
                             <AppButton size="full" variant="secondary" @click="handlePay" :disabled="loading">
                                 {{ isInstallment ? '支付首付' : '支付全款' }}

@@ -193,111 +193,6 @@ export const useUserStore = defineStore('user', () => {
       }
   }
 
-  // Admin Management
-  async function fetchAllUsers() {
-    try {
-      const response = await fetch('http://localhost:8080/api/users', {
-        credentials: 'include'
-      })
-      if (!response.ok) throw new Error('Failed to fetch users')
-      return await response.json()
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  async function fetchUserById(id) {
-    try {
-      const response = await fetch(`http://localhost:8080/api/admin/user/${id}`, {
-        credentials: 'include'
-      })
-      if (!response.ok) throw new Error('Failed to fetch user')
-      return await response.json()
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  async function adminCreateUser(userData) {
-    try {
-      const response = await fetch('http://localhost:8080/api/admin/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-      })
-      if (!response.ok) throw new Error('Failed to create user')
-      return await response.json()
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  async function adminUpdateUser(id, userData) {
-    try {
-      const response = await fetch(`http://localhost:8080/api/admin/user/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-      })
-      if (!response.ok) throw new Error('Failed to update user')
-      return await response.json()
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  async function deleteUser(id) {
-    try {
-      const response = await fetch(`http://localhost:8080/api/admin/user/${id}`, {
-        method: 'DELETE'
-      })
-      if (!response.ok) throw new Error('Failed to delete user')
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  async function fetchBuyerById(id) {
-    try {
-      const response = await fetch(`/api/admin/user/buyers/${id}`)
-      if (!response.ok) throw new Error('Failed to fetch buyer')
-      return await response.json()
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  async function fetchSellerById(id) {
-    try {
-      const response = await fetch(`http://localhost:8080/api/admin/user/sellers/${id}`)
-      if (!response.ok) throw new Error('Failed to fetch seller')
-      return await response.json()
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  async function searchSellers(name) {
-    try {
-        const url = name
-            ? `/api/admin/user/sellers?name=${encodeURIComponent(name)}`
-            : '/api/admin/user/sellers'
-        const response = await fetch(url)
-        if (!response.ok) throw new Error('Failed to search sellers')
-        return await response.json()
-    } catch (error) {
-        console.error(error)
-        throw error
-    }
-  }
-
   return {
     isLoggedIn,
     userInfo,
@@ -310,14 +205,6 @@ export const useUserStore = defineStore('user', () => {
     fetchUserInfo,
     fetchBuyerProfile,
     updateBuyerProfile,
-    updateSellerProfile,
-    fetchAllUsers,
-    fetchUserById,
-    adminCreateUser,
-    adminUpdateUser,
-    deleteUser,
-    fetchBuyerById,
-    fetchSellerById,
-    searchSellers
+    updateSellerProfile
   }
 })

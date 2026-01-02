@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAdminStore } from '@/stores/admin'
 import PageContainer from '@/layouts/PageContainer.vue'
 import { PhoneCall, Mail, Building, Globe } from 'lucide-vue-next'
 
@@ -50,28 +51,43 @@ onMounted(async () => {
   }
 
   // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 500))
-
-  const data = MOCK_SELLERS[id]
-  if (data) {
-      profile.value = {
-        name: data.s_name,
-        phone: data.s_phone,
-        email: data.s_email,
-        website: data.s_website,
-        description: data.s_describe
-    }
-    loading.value = false
-  } else {
-    // Default fallback if ID not found in mock
-    profile.value = {
-        name: "未知开发商",
-        phone: "000-00000000",
-        email: "unknown@example.com",
-        website: "www.example.com",
-        description: "该开发商信息暂未录入。"
-    }
-    loading.value = false
+  try {
+      // Use adminStore helper to fetch seller by ID (using public admin endpoint)
+      const sellerData = await useAdminStore().fetchSellerById(id)
+      if (sellerData) {
+          profile.value = {
+            name: sellerData.s_name,
+            phone: sellerData.s_phone,
+            email: sellerData.s_email,
+            website: sellerData.s_website,
+            description: sellerData.s_describe
+          }
+      } else {
+          throw new Error('Seller not found')
+      }
+  } catch (e) {
+      console.error(e)
+      // Fallback to mock if API fails or for specific mock IDs
+      const data = MOCK_SELLERS[id]
+      if (data) {
+          profile.value = {
+            name: data.s_name,
+            phone: data.s_phone,
+            email: data.s_email,
+            website: data.s_website,
+            description: data.s_describe
+        }
+      } else {
+        profile.value = {
+            name: "未知开发商",
+            phone: "000-00000000",
+            email: "unknown@example.com",
+            website: "www.example.com",
+            description: "该开发商信息暂未录入。"
+        }
+      }
+  } finally {
+      loading.value = false
   }
 })
 </script>

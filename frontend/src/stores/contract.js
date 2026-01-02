@@ -30,6 +30,7 @@ export const useContractStore = defineStore('contract', () => {
       totalPeriods: c.c_total_periods,
       // Default missing fields
       paidCount: c.paidCount || 0,
+      sellerId: c.sellerId, // Map the sellerId from backend
       buyer: c.buyer || null,
       seller: c.seller || null,
       house: c.house || null
@@ -243,16 +244,15 @@ export const useContractStore = defineStore('contract', () => {
     }
   }
 
-  async function signContract(id, role) {
+  async function signContract(id, role, agree = 1) {
       // role: 'buyer' or 'seller'
       const endpoint = role === 'buyer' ? 'buyer-agree' : 'seller-agree'
       // API expects param 'agree' (1 for agree, -1 for reject, 0 for reset)
-      // Assuming sign means agree (1)
-      const response = await fetch(`http://localhost:8080/api/contract/${id}/${endpoint}?agree=1`, {
+      const response = await fetch(`http://localhost:8080/api/contract/${id}/${endpoint}?agree=${agree}`, {
           method: 'POST',
           credentials: 'include'
       })
-      if (!response.ok) throw new Error('Failed to sign contract')
+      if (!response.ok) throw new Error('Failed to update contract status')
 
       // Update local state
       const updated = await response.json()
@@ -261,7 +261,7 @@ export const useContractStore = defineStore('contract', () => {
           // Merge to preserve fetched relations (buyer/seller) which might not be in response
           currentContract.value = { ...currentContract.value, ...mapped }
       }
-      return '签署成功'
+      return agree === 1 ? '签署成功' : '已拒绝'
   }
 
   async function payContract(id) {

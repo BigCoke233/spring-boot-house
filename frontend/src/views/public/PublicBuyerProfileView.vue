@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAdminStore } from '@/stores/admin'
 import PageContainer from '@/layouts/PageContainer.vue'
 import { UserRound, PhoneCall, Mail, DollarSign, Home } from 'lucide-vue-next'
 
@@ -55,30 +56,47 @@ onMounted(async () => {
   }
 
   // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 500))
-
-  const data = MOCK_BUYERS[id]
-  if (data) {
-    profile.value = {
-        name: data.b_name,
-        phone: data.b_phone,
-        email: data.b_email,
-        mobileAssets: data.b_mobile_assets,
-        fixedAssets: data.b_fixed_assets,
-        annualIncome: data.b_annual_income
-    }
-    loading.value = false
-  } else {
-    // Default fallback
-    profile.value = {
-        name: "未知用户",
-        phone: "000-00000000",
-        email: "unknown@example.com",
-        mobileAssets: 0,
-        fixedAssets: 0,
-        annualIncome: 0
-    }
-    loading.value = false
+  try {
+      // Use adminStore helper to fetch buyer by ID (using public admin endpoint)
+      const buyerData = await useAdminStore().fetchBuyerById(id)
+      if (buyerData) {
+          profile.value = {
+            name: buyerData.b_name,
+            phone: buyerData.b_phone,
+            email: buyerData.b_email,
+            mobileAssets: buyerData.b_mobile_assets,
+            fixedAssets: buyerData.b_fixed_assets,
+            annualIncome: buyerData.b_annual_income
+          }
+      } else {
+          throw new Error('Buyer not found')
+      }
+  } catch (e) {
+      console.error(e)
+      // Fallback to mock if API fails
+      const data = MOCK_BUYERS[id]
+      if (data) {
+        profile.value = {
+            name: data.b_name,
+            phone: data.b_phone,
+            email: data.b_email,
+            mobileAssets: data.b_mobile_assets,
+            fixedAssets: data.b_fixed_assets,
+            annualIncome: data.b_annual_income
+        }
+      } else {
+        // Default fallback
+        profile.value = {
+            name: "未知用户",
+            phone: "000-00000000",
+            email: "unknown@example.com",
+            mobileAssets: 0,
+            fixedAssets: 0,
+            annualIncome: 0
+        }
+      }
+  } finally {
+      loading.value = false
   }
 })
 </script>
