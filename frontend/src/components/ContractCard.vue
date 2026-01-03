@@ -83,7 +83,7 @@ const stepStatuses = computed(() => {
   const paidCount = Number(props.data.paidCount || 0)
   const fullPaid = !!(props.data.paymentStatus || props.data.paid)
   const installmentCompleted = isInstallment.value && total > 0 && paidCount >= total
-  const installmentStarted = isInstallment.value && paidCount > 0
+  const installmentStarted = isInstallment.value && (paidCount > 0 || fullPaid)
   const paidCompleted = isInstallment.value ? installmentCompleted : fullPaid
   const paidInProgress = isInstallment.value ? (installmentStarted && !installmentCompleted) : false
   const deliveredCompleted = !!props.data.delivered
@@ -122,17 +122,22 @@ function statusTextClass(s) {
 
 const downPaid = computed(() => {
   const paidCount = Number(props.data.paidCount || 0)
-  return !!props.data.downPaymentPaid || paidCount > 0
+  return !!props.data.downPaymentPaid || paidCount > 0 || !!(props.data.paymentStatus || props.data.paid)
 })
 
 const paidInProgress = computed(() => {
   if (!isInstallment.value) return false
   const total = Number(props.data.totalPeriods || 0)
   const paidCount = Number(props.data.paidCount || 0)
-  return total > 0 && paidCount > 0 && paidCount < total
+  return total > 0 && paidCount < total
 })
 
 const fullPaid = computed(() => {
+  if (isInstallment.value) {
+    const total = Number(props.data.totalPeriods || 0)
+    const paidCount = Number(props.data.paidCount || 0)
+    return total > 0 && paidCount >= total
+  }
   return !!(props.data.paymentStatus || props.data.paid)
 })
 
@@ -142,6 +147,12 @@ async function handlePay() {
         loading.value = true
         const msg = await contractStore.payContract(props.data.contractId, userStore.currentUserId)
         showSuccess(msg)
+        // 刷新数据
+        if (props.data.contractId) {
+             await contractStore.fetchContractById(props.data.contractId)
+        } else {
+             await contractStore.fetchContracts(userStore.role, userStore.currentUserId)
+        }
     } catch (e) {
         if (e !== 'cancel') showError(e.message || e)
     } finally {
@@ -156,12 +167,39 @@ async function handlePayInstallment() {
         const nextPeriod = (props.data.paidCount || 0) + 1
         const msg = await contractStore.payInstallment(props.data.contractId, userStore.currentUserId, nextPeriod)
         showSuccess(msg)
+        // 刷新数据
+        if (props.data.contractId) {
+             await contractStore.fetchContractById(props.data.contractId)
+        } else {
+             await contractStore.fetchContracts(userStore.role, userStore.currentUserId)
+        }
     } catch (e) {
         if (e !== 'cancel') showError(e.message || e)
     } finally {
         loading.value = false
     }
 }
+
+async function handleSign(agree) {
+    try {
+        const actionText = agree === 1 ? '签署' : '拒绝'
+        await showConfirm(`确认${actionText}合同？`)
+        loading.value = true
+        const msg = await contractStore.signContract(props.data.contractId, userStore.role, agree)
+        showSuccess(msg)
+        // 刷新数据
+        if (props.data.contractId) {
+             await contractStore.fetchContractById(props.data.contractId)
+        } else {
+             await contractStore.fetchContracts(userStore.role, userStore.currentUserId)
+        }
+    } catch (e) {
+        if (e !== 'cancel') showError(e.message || e)
+    } finally {
+        loading.value = false
+    }
+}
+
 function getStatusText(val) {
     if (Number(val) === 1) return '已同意'
     if (Number(val) === -1) return '已拒绝'
@@ -220,9 +258,17 @@ function getStatusText(val) {
                     <AppButton size="full" :to="`/contract/${props.data.contractId}`">查看详情</AppButton>
                     <template v-if="userStore.role === 'buyer'">
                         <AppButton size="full" variant="secondary" :to="`/seller/${props.data.seller?.id || props.data.sellerId || houseData?.sellerId || houseData?.h_seller_id}`">查看卖家资料</AppButton>
+                        <template v-if="Number(props.data.buyerAgree) !== 1 && Number(props.data.buyerAgree) !== -1">
+                            <AppButton size="full" @click="handleSign(1)">签署合同</AppButton>
+                            <AppButton size="full" variant="danger" @click="handleSign(-1)">拒绝合同</AppButton>
+                        </template>
                     </template>
                     <template v-if="userStore.role === 'seller'">
                         <AppButton size="full" variant="secondary" :to="`/buyer/${props.data.buyer?.id || props.data.buyerId || props.data.c_buyer_id}`">查看买家资料</AppButton>
+                        <template v-if="Number(props.data.sellerAgree) !== 1 && Number(props.data.sellerAgree) !== -1">
+                            <AppButton size="full" @click="handleSign(1)">签署合同</AppButton>
+                            <AppButton size="full" variant="danger" @click="handleSign(-1)">拒绝合同</AppButton>
+                        </template>
                     </template>
                     <template v-if="userStore.role === 'buyer' && !fullPaid && Number(props.data.buyerAgree) === 1 && Number(props.data.sellerAgree) === 1">
                         <template v-if="!downPaid">

@@ -8,7 +8,6 @@ const props = defineProps({
   disabled: { type: Boolean, default: false },
   type: { type: String, default: 'button' },
   to: { type: [String, Object], default: null },
-  onClick: { type: Function, default: null },
 })
 
 const base = 'rd cursor-pointer b-none outline-none transition select-none text-center'
@@ -49,7 +48,6 @@ function handleClick(e) {
     e.preventDefault()
     return
   }
-  if (typeof props.onClick === 'function') props.onClick(e)
   emit('click', e)
 }
 </script>

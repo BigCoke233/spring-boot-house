@@ -21,18 +21,25 @@ const contract = computed(() => contractStore.currentContract)
 
 const isInstallment = computed(() => contract.value?.payWay === 'installment')
 
-const fullPaid = computed(() => !!(contract.value?.paymentStatus || contract.value?.paid))
+const fullPaid = computed(() => {
+  if (isInstallment.value) {
+      const total = Number(contract.value?.totalPeriods || 0)
+      const paidCount = Number(contract.value?.paidCount || 0)
+      return total > 0 && paidCount >= total
+  }
+  return !!(contract.value?.paymentStatus || contract.value?.paid)
+})
 
 const downPaid = computed(() => {
   const paidCount = Number(contract.value?.paidCount || 0)
-  return !!contract.value?.downPaymentPaid || paidCount > 0
+  return !!contract.value?.downPaymentPaid || paidCount > 0 || !!(contract.value?.paymentStatus || contract.value?.paid)
 })
 
 const paidInProgress = computed(() => {
   if (!isInstallment.value) return false
   const total = Number(contract.value?.totalPeriods || 0)
   const paidCount = Number(contract.value?.paidCount || 0)
-  return total > 0 && paidCount > 0 && paidCount < total
+  return total > 0 && paidCount < total
 })
 
 const paying = ref(false)
@@ -44,6 +51,8 @@ async function handlePay() {
         paying.value = true
         const msg = await contractStore.payContract(contract.value.contractId, userStore.currentUserId)
         showSuccess(msg)
+        // 刷新数据
+        await contractStore.fetchContractById(contract.value.contractId)
     } catch (e) {
         if (e !== 'cancel') showError(e.message || e)
     } finally {
@@ -59,6 +68,8 @@ async function handlePayInstallment() {
         const nextPeriod = (contract.value.paidCount || 0) + 1
         const msg = await contractStore.payInstallment(contract.value.contractId, userStore.currentUserId, nextPeriod)
         showSuccess(msg)
+        // 刷新数据
+        await contractStore.fetchContractById(contract.value.contractId)
     } catch (e) {
         if (e !== 'cancel') showError(e.message || e)
     } finally {
@@ -98,6 +109,8 @@ async function handleSign() {
       await showConfirm('确认签署合同？')
       const msg = await contractStore.signContract(contract.value.contractId, role, 1)
       showSuccess(msg)
+      // 刷新数据
+      await contractStore.fetchContractById(contract.value.contractId)
   } catch (e) {
       if (e !== 'cancel') showError('签署失败：' + (e.message || e))
   }
@@ -115,6 +128,8 @@ async function handleReject() {
         await showConfirm('确定要拒绝这份合同吗？此操作不可撤销。')
         const msg = await contractStore.signContract(contract.value.contractId, role, -1)
         showSuccess(msg)
+        // 刷新数据
+        await contractStore.fetchContractById(contract.value.contractId)
     } catch (e) {
         if (e !== 'cancel') showError('操作失败：' + (e.message || e))
     }
@@ -126,6 +141,8 @@ async function handleDelivery() {
         await showConfirm('确认已交房？')
         await contractStore.updateDelivery(contract.value.contractId, 1)
         showSuccess('交房确认成功')
+        // 刷新数据
+        await contractStore.fetchContractById(contract.value.contractId)
     } catch (e) {
         if (e !== 'cancel') showError('交房确认失败：' + (e.message || e))
     }
@@ -218,7 +235,7 @@ onMounted(async () => {
              </template>
 
              <!-- Cancel Option for Buyer if not yet signed by seller -->
-             <template v-if="contract.status == 1 && Number(contract.sellerAgree) !== 1 && Number(contract.buyerAgree) !== 1">
+             <template v-if="Number(contract.sellerAgree) !== 1 && Number(contract.buyerAgree) !== 1">
                  <div class="flex gap-4">
                     <AppButton variant="secondary" @click="handleCancel">
                         取消申请

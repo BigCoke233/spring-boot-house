@@ -9,6 +9,7 @@ public class ContractCreateDTO {
     private Integer houseId;
     private Double totalPrice;
     private String payWay;
+    private Integer totalPeriods;
     private Date paytimeEnding;
     private Date deliveryEnding;
 }

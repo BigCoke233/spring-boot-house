@@ -45,15 +45,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		insert into contract (c_id,c_house_id,c_pay_way,c_buyer_id,c_total_price)
 		values (null, #{c_house_id}, #{c_pay_way},#{c_buyer_id},#{c_total_price})
 	</insert>
+
 	<!-- 查找新添加的合同 -->
-	<select id="getLastInsertContract" resultType="com.zgqf.house.entity.Contract">
+	<select id="getLastInsertContract" parameterType="com.zgqf.house.entity.Contract" resultType="com.zgqf.house.entity.Contract">
 		select * from contract where c_buyer_id = #{c_buyer_id}
 		                         and c_pay_way = #{c_pay_way}
 		                         and c_house_id = #{c_house_id}
 		                       order by c_id desc
 		                       limit 1
 	</select>
-	<!-- 添加预计付款时间 -->
 	<update id="addPayTimeEnding" parameterType="com.zgqf.house.entity.Contract">
 		update contract set c_paytime_ending = #{c_paytime_ending}
 		where c_id = #{c_id}
@@ -89,7 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 条件查询合同列表 -->
     <select id="selectContractList" resultType="com.zgqf.house.entity.Contract">
-        SELECT c.*, i.i_down_payment as c_down_payment, i.i_total_periods as c_total_periods, h.h_seller_id as sellerId
+        SELECT c.*, i.i_down_payment as c_down_payment, i.i_total_periods as c_total_periods, i.i_paid_count as c_paid_count, h.h_seller_id as sellerId
         FROM contract c
         LEFT JOIN house h ON c.c_house_id = h.h_id
         LEFT JOIN installment i ON c.c_id = i.i_contract_id
@@ -110,7 +110,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 根据ID查询详情 -->
     <select id="selectContractDetailById" resultType="com.zgqf.house.entity.Contract">
-        SELECT * FROM contract WHERE c_id = #{id}
+        SELECT c.*, i.i_down_payment as c_down_payment, i.i_total_periods as c_total_periods, i.i_paid_count as c_paid_count, h.h_seller_id as sellerId
+        FROM contract c
+        LEFT JOIN house h ON c.c_house_id = h.h_id
+        LEFT JOIN installment i ON c.c_id = i.i_contract_id
+        WHERE c.c_id = #{id}
     </select>
 
     <!-- 更新合同 -->

@@ -19,6 +19,9 @@
         <result column="c_paid" property="paid"/>
         <result column="c_delivered" property="delivered"/>
         <result column="h_seller_id" property="sellerId"/>
+        <result column="i_down_payment" property="downPayment"/>
+        <result column="i_total_periods" property="totalPeriods"/>
+        <result column="i_paid_count" property="paidCount"/>
 
         <!-- 关联买方信息 -->
         <association property="buyer" javaType="com.zgqf.house.entity.Buyer">
@@ -41,10 +44,11 @@
 
     <!-- 查询合同列表 -->
     <select id="selectContractList" resultMap="ContractDetailMap">
-        SELECT c.*, b.*, h.*
+        SELECT c.*, b.*, h.*, i.i_down_payment, i.i_total_periods, i.i_paid_count
         FROM contract c
         LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
         LEFT JOIN house h ON c.c_house_id = h.h_id
+        LEFT JOIN installment i ON c.c_id = i.i_contract_id
         WHERE 1=1
         <if test="buyerId != null">
             AND c.c_buyer_id = #{buyerId}
@@ -114,10 +118,11 @@
 
     <!-- 查询合同详情 -->
     <select id="selectContractDetailById" resultMap="ContractDetailMap">
-        SELECT c.*, b.*, h.*
+        SELECT c.*, b.*, h.*, i.i_down_payment, i.i_total_periods, i.i_paid_count
         FROM contract c
                  LEFT JOIN buyer b ON c.c_buyer_id = b.b_id
                  LEFT JOIN house h ON c.c_house_id = h.h_id
+                 LEFT JOIN installment i ON c.c_id = i.i_contract_id
         WHERE c.c_id = #{id}
     </select>
 

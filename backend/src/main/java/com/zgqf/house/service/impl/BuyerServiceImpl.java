@@ -102,19 +102,42 @@ public class BuyerServiceImpl implements BuyerService {
         }
         
         // 6. 验证期数是否有效（不能超过总期数）
-        int newPaidCount = (installment.getI_paid_count() == null ? 0 : installment.getI_paid_count()) + period;
-        if (newPaidCount > installment.getI_total_periods()) {
-            throw new RuntimeException("付款期数超过剩余期数");
+        int newPaidCount = (installment.getI_paid_count() == null ? 0 : installment.getI_paid_count()) + 1; // 每次只付一期，period参数实际为"付几期"，这里假设为1或者period
+        // 前端传来的period如果是"下一期的期号"，例如第1期，则newPaidCount应该是当前paidCount+1
+        // 如果period是"本次支付多少期"，则 + period
+        
+        // 修正逻辑：前端传来的 period 是"支付多少期" (usually 1)
+        // 或者是"下一期是第几期" (period index)
+        
+        // 假设前端传的是 quantity (1)
+        int quantity = 1; 
+        // 但前端代码传的是 nextPeriod (index)
+        // const nextPeriod = (contract.value.paidCount || 0) + 1
+        // 调用的API参数是 period
+        
+        // 我们应该将其视为 quantity
+        // 如果前端传的是 index (e.g. 1, 2, 3...)
+        // 那么这里应该是 check if period == currentPaid + 1
+        
+        // 简单起见，我们假设前端传的是 1 (quantity)
+        // 但前端传的是 nextPeriod (index)
+        // 所以我们忽略前端传的具体的数字，只认为是一次付一期
+        
+        int currentPaid = installment.getI_paid_count() == null ? 0 : installment.getI_paid_count();
+        if (currentPaid >= installment.getI_total_periods()) {
+             throw new RuntimeException("已全部还清");
         }
         
-        // 7. 更新分期付款信息（累加已付款期数）
-        installment.setI_paid_count(newPaidCount);
+        int afterPaid = currentPaid + 1;
+        
+        // 7. 更新分期付款信息
+        installment.setI_paid_count(afterPaid);
         buyerMapper.updateInstallment(installment);
         
         // 8. 计算本次支付金额
-        double amount = period * installment.getI_paid_per_period();
+        double amount = installment.getI_paid_per_period();
         
         // 9. 返回成功信息
-        return "成功支付" + period + "期款项，共计:" + amount + "元";
+        return "成功支付第" + afterPaid + "期款项，金额:" + amount + "元";
     }
 }

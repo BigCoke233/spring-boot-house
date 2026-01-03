@@ -18,6 +18,7 @@ public class Contract {
     private Integer c_delivered;
     private Double c_down_payment;  //首付金额
     private Integer c_total_periods;    //尾款总期数
+    private Integer c_paid_count;       //已付期数
 
     // Transient field for DTO usage
     private Integer sellerId;
@@ -149,5 +150,38 @@ public class Contract {
 
     public void setC_total_periods(Integer c_total_periods) {
         this.c_total_periods = c_total_periods;
+    }
+
+    public Integer getC_paid_count() {
+        return c_paid_count;
+    }
+
+    public void setC_paid_count(Integer c_paid_count) {
+        this.c_paid_count = c_paid_count;
+    }
+
+    // Standard getters/setters for Mapper and JSON
+    public Integer getTotalPeriods() {
+        return c_total_periods;
+    }
+
+    public void setTotalPeriods(Integer totalPeriods) {
+        this.c_total_periods = totalPeriods;
+    }
+
+    public Integer getPaidCount() {
+        return c_paid_count;
+    }
+
+    public void setPaidCount(Integer paidCount) {
+        this.c_paid_count = paidCount;
+    }
+
+    public Double getDownPayment() {
+        return c_down_payment;
+    }
+
+    public void setDownPayment(Double downPayment) {
+        this.c_down_payment = downPayment;
     }
 }

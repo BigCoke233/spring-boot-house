@@ -22,6 +22,7 @@ public class ContractServiceImpl implements ContractService {
 
     private final ContractMapper contractMapper;
     private final com.zgqf.house.mapper.HouseMapper houseMapper;
+    private final com.zgqf.house.mapper.InstallmentMapper installmentMapper;
 
     @Override
     public Page<Contract> getContracts(ContractQueryDTO queryDTO) {
@@ -103,25 +104,52 @@ public class ContractServiceImpl implements ContractService {
             throw new RuntimeException("创建合同失败");
         }
 
-        // 获取插入后的ID，这里假设mapper.insertContract会回填ID，或者我们需要重新查询
-        // 如果mapper配置了useGeneratedKeys="true" keyProperty="c_id"，那么contract.getC_id()会有值
-        if (contract.getC_id() != null) {
-            log.info("合同创建成功, id={}", contract.getC_id());
-            return contractMapper.selectContractDetailById(contract.getC_id());
-        } else {
-             // Fallback logic if ID not returned directly (though MyBatis usually does)
-             // For now assume it works or we might need to change how we fetch the new contract
-             // Using getLastInsertContract logic from old implementation might be needed if not using generated keys
-             // But let's assume standard MyBatis behavior first.
-             // If we really need the ID and it's missing, we might need a workaround.
-             // Given the old code had `getLastInsertContract`, maybe we need that.
-             // But `insertContract` usually returns affected rows.
-             // Let's try to fetch by the object if ID is missing (risky without unique constraints other than ID)
-             // Actually, let's just log and return null or throw if ID is missing?
-             // Or better, assume `selectContractDetailById` needs an ID.
-             // Let's assume `useGeneratedKeys` is ON.
-             return contract; 
+        // 获取插入后的ID（MyBatis 会回填到 contract 对象中）
+        Integer contractId = contract.getC_id();
+        if (contractId == null) {
+             // 如果 ID 没有回填，尝试使用 getLastInsertContract 获取
+             log.warn("Contract ID not returned by insert, trying to fetch...");
+             Contract queryContract = new Contract();
+             queryContract.setC_buyer_id(createDTO.getBuyerId());
+             queryContract.setC_pay_way(createDTO.getPayWay());
+             queryContract.setC_house_id(createDTO.getHouseId());
+             Contract lastContract = contractMapper.getLastInsertContract(queryContract);
+             if (lastContract != null) {
+                 contractId = lastContract.getC_id();
+                 contract.setC_id(contractId);
+             } else {
+                 throw new RuntimeException("无法获取新创建的合同ID");
+             }
         }
+
+        // 处理分期付款逻辑
+        if ("installment".equals(createDTO.getPayWay())) {
+            if (createDTO.getTotalPeriods() == null || createDTO.getTotalPeriods() <= 0) {
+                // 如果前端没传或者传了0，默认12期
+                createDTO.setTotalPeriods(12);
+            }
+
+            // 假设首付30%
+            double downPayment = createDTO.getTotalPrice() * 0.3;
+            // 剩余款项
+            double remainPrice = createDTO.getTotalPrice() - downPayment;
+            // 每期还款
+            double paidPerPeriod = remainPrice / createDTO.getTotalPeriods();
+
+            com.zgqf.house.entity.Installment installment = new com.zgqf.house.entity.Installment();
+            installment.setI_contract_id(contractId); // 确保使用正确的ID
+            installment.setI_down_payment(downPayment);
+            installment.setI_total_periods(createDTO.getTotalPeriods());
+            installment.setI_paid_count(0);
+            installment.setI_paid_per_period(paidPerPeriod);
+
+            installmentMapper.insertInstallment(installment);
+            log.info("创建分期付款信息成功, contractId={}", contractId);
+        }
+
+        // 返回完整详情
+        log.info("合同创建成功, id={}", contractId);
+        return contractMapper.selectContractDetailById(contractId);
     }
 
     @Override

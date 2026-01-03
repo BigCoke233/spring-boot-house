@@ -5,8 +5,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.zgqf.house.mapper.InstallmentMapper">
     <!-- 插入新分期 -->
     <insert id="insertInstallment" parameterType="Installment">
-        insert into installment (i_contrast_id,i_down_payment,i_total_periods,i_paid_count,i_paid_per_period)
-        values (#{i_contrast_id}, #{i_down_payment}, #{i_total_periods}, #{i_paid_count}, #{i_paid_per_period})
+        insert into installment (i_contract_id,i_down_payment,i_total_periods,i_paid_count,i_paid_per_period)
+        values (#{i_contract_id}, #{i_down_payment}, #{i_total_periods}, #{i_paid_count}, #{i_paid_per_period})
     </insert>
 
 </mapper>

@@ -26,10 +26,9 @@ export const useContractStore = defineStore('contract', () => {
       paid: c.c_paid,
       paymentStatus: c.c_paid, // Alias
       delivered: c.c_delivered,
-      downPayment: c.c_down_payment,
-      totalPeriods: c.c_total_periods,
-      // Default missing fields
-      paidCount: c.paidCount || 0,
+      downPayment: c.downPayment || c.c_down_payment,
+      totalPeriods: c.totalPeriods || c.c_total_periods,
+      paidCount: c.paidCount || c.c_paid_count || 0,
       sellerId: c.sellerId, // Map the sellerId from backend
       buyer: c.buyer || null,
       seller: c.seller || null,
@@ -281,26 +280,21 @@ export const useContractStore = defineStore('contract', () => {
   }
 
   async function payInstallment(id, userId, period) {
-      // Backend support for installments is limited to 'paid' status currently.
-      // If backend adds support, we would call a specific endpoint.
-      // For now, if it's the final period, we mark as paid.
-      // Otherwise we just simulate success or update a tracking field if available.
-      // Since we can't change backend right now, we will mark as paid if user insists,
-      // or just return success to satisfy the frontend call.
-
-      // Check total periods from current contract
-      const total = currentContract.value?.totalPeriods || 0
-
-      if (period >= total && total > 0) {
-           return payContract(id, userId)
+      // Call backend API
+      const response = await fetch(`http://localhost:8080/api/contract/${id}/installment?buyerId=${userId}&period=${period}`, {
+          method: 'POST',
+          credentials: 'include'
+      })
+      
+      if (!response.ok) {
+          const err = await response.json()
+          throw new Error(err.message || '分期支付失败')
       }
 
-      // TODO: Implement real installment tracking when backend supports it
-      console.warn('Installment payment partial update not fully supported by backend yet.')
-
-      // Just refresh to see if anything changed (unlikely)
-      // fetchContractById(id)
-      return `第 ${period} 期支付成功 (模拟)`
+      const msg = await response.text() // API returns string
+      
+      // Refresh local state if possible, or just let the view refresh
+      return msg
   }
 
   async function updateContract(id, updateData) {

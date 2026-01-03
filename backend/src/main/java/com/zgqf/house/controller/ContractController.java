@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class ContractController {
     
     private final ContractService contractService;
+    private final com.zgqf.house.service.BuyerService buyerService;
 
     // 获取合同列表 (兼容 Admin 和 User 路径)
     @GetMapping({"/admin/contracts", "/contract"})
@@ -74,6 +75,19 @@ public class ContractController {
             @PathVariable Integer id,
             @RequestParam Integer paid) {
         return ResponseEntity.ok(contractService.updatePayment(id, paid));
+    }
+
+    // 分期付款
+    @PostMapping("/contract/{id}/installment")
+    public ResponseEntity<String> payInstallment(
+            @PathVariable Integer id,
+            @RequestParam Integer buyerId,
+            @RequestParam Integer period) {
+        // 调用 BuyerService 处理分期付款逻辑
+        // 注意：ContractService 中没有 processInstallmentPayment，这里可能需要注入 BuyerService 或者在 ContractService 中添加
+        // 为了保持一致性，我们在 ContractService 中添加接口，或者直接注入 BuyerService
+        // 简单起见，这里假设 ContractService 有相应方法，或者我们在 Controller 中注入 BuyerService
+        return ResponseEntity.ok(buyerService.processInstallmentPayment(buyerId, id, period));
     }
 
     // 更新交房状态
