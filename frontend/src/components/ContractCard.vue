@@ -224,7 +224,7 @@ function getStatusText(val) {
                     <template v-if="userStore.role === 'seller'">
                         <AppButton size="full" variant="secondary" :to="`/buyer/${props.data.buyer?.id || props.data.buyerId || props.data.c_buyer_id}`">查看买家资料</AppButton>
                     </template>
-                    <template v-if="userStore.role === 'buyer' && !fullPaid">
+                    <template v-if="userStore.role === 'buyer' && !fullPaid && Number(props.data.buyerAgree) === 1 && Number(props.data.sellerAgree) === 1">
                         <template v-if="!downPaid">
                             <AppButton size="full" variant="secondary" @click="handlePay" :disabled="loading">
                                 {{ isInstallment ? '支付首付' : '支付全款' }}
