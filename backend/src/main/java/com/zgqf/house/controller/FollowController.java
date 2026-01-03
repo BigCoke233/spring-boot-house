@@ -1,6 +1,6 @@
 package com.zgqf.house.controller;
 
-import com.zgqf.house.entity.House;
+import com.zgqf.house.dto.HouseResultDTO;
 import com.zgqf.house.service.FollowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -65,9 +65,9 @@ public class FollowController {
      * @return 房源详细信息列表
      */
     @GetMapping("/follows")
-    public ResponseEntity<List<House>> getFollowHouses(@RequestHeader("buyerId") Integer buyerId) {
+    public ResponseEntity<List<HouseResultDTO>> getFollowHouses(@RequestHeader("buyerId") Integer buyerId) {
         try {
-            List<House> houses = followService.getFollowHouses(buyerId);
+            List<HouseResultDTO> houses = followService.getFollowHouses(buyerId);
             return ResponseEntity.ok(houses);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

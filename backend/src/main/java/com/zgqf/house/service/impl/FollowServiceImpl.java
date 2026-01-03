@@ -1,19 +1,25 @@
 package com.zgqf.house.service.impl;
 
+import com.zgqf.house.dto.HouseResultDTO;
 import com.zgqf.house.entity.Follow;
 import com.zgqf.house.entity.House;
 import com.zgqf.house.mapper.FollowMapper;
 import com.zgqf.house.service.FollowService;
+import com.zgqf.house.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FollowServiceImpl implements FollowService {
 
     @Autowired
     private FollowMapper followMapper;
+    
+    @Autowired
+    private HouseService houseService;
 
     @Override
     public void followHouse(Integer buyerId, Integer houseId) {
@@ -39,7 +45,10 @@ public class FollowServiceImpl implements FollowService {
     }
     
     @Override
-    public List<House> getFollowHouses(Integer buyerId) {
-        return followMapper.getFollowHouses(buyerId);
+    public List<HouseResultDTO> getFollowHouses(Integer buyerId) {
+        List<House> houses = followMapper.getFollowHouses(buyerId);
+        return houses.stream()
+                .map(houseService::convertToResultDTO)
+                .collect(Collectors.toList());
     }
 }

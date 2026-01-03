@@ -1,7 +1,6 @@
 package com.zgqf.house.service;
 
-import com.zgqf.house.entity.House;
-import com.zgqf.house.entity.Follow;
+import com.zgqf.house.dto.HouseResultDTO;
 
 import java.util.List;
 
@@ -33,5 +32,5 @@ public interface FollowService {
      * @param buyerId 买家ID
      * @return 房源详细信息列表
      */
-    List<House> getFollowHouses(Integer buyerId);
+    List<HouseResultDTO> getFollowHouses(Integer buyerId);
 }
