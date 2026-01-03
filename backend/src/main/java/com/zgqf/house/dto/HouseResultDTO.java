@@ -19,6 +19,7 @@ public class HouseResultDTO {
     private String sellerName;
     private String sellerPhone;
     private String sellerEmail;
+    private Integer checked; // 审核状态：0-审核中, 1-已审核, 2-已下架
     private List<String> picturePaths;  // 图片路径列表
     private List<String> tagNames;      // 标签名称列表
 }

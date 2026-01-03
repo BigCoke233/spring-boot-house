@@ -278,6 +278,7 @@ public class HouseServiceImpl implements HouseService {
         dto.setLongitude(house.getH_longitude());
         dto.setLatitude(house.getH_latitude());
         dto.setSquare(house.getH_square());
+        dto.setChecked(house.getH_checked());
 
         // Calculate Total Price
         if (house.getH_price() != null && house.getH_square() != null) {

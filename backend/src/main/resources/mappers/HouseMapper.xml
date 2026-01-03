@@ -184,7 +184,7 @@
     <!-- 根据ID查询房源详情 -->
     <select id="selectHouseById" resultMap="HouseResultMap">
         <include refid="selectHouseColumns" />
-        WHERE h.h_id = #{id} AND h.h_checked = 1
+        WHERE h.h_id = #{id} AND (h.h_checked = 1 OR h.h_checked = 2)
         LIMIT 1
     </select>
 
