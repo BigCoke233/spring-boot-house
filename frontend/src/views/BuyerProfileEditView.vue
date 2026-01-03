@@ -10,6 +10,7 @@ import AppButton from '@/components/AppButton.vue';
 const router = useRouter()
 const userStore = useUserStore()
 const { showSuccess, showError } = useMessage()
+const loading = ref(false)
 
 const profile = ref({
   name: "",
@@ -37,6 +38,8 @@ onMounted(async () => {
 })
 
 const handleSave = async () => {
+  if (loading.value) return
+  loading.value = true
   try {
       // Map form to backend fields
       const updateData = {
@@ -52,6 +55,8 @@ const handleSave = async () => {
       router.push('/account/profile')
   } catch (e) {
       showError('保存失败: ' + e.message)
+  } finally {
+      loading.value = false
   }
 }
 </script>
@@ -87,8 +92,8 @@ const handleSave = async () => {
         </div>
       </div>
       <div class="mt-8 flex gap-4">
-        <AppButton @click="handleSave">保存修改</AppButton>
-        <AppButton variant="secondary" @click="router.back()">取消</AppButton>
+        <AppButton @click="handleSave" :disabled="loading">{{ loading ? '保存中...' : '保存修改' }}</AppButton>
+        <AppButton variant="secondary" @click="router.back()" :disabled="loading">取消</AppButton>
       </div>
     </PageContainer>
   </AccountLayout>

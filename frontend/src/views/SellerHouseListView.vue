@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import PageContainer from '@/layouts/PageContainer.vue'
 import { useSellerStore } from '@/stores/seller.js'
 import { useMessage } from '@/composables/useMessage'
@@ -13,6 +13,7 @@ const router = useRouter()
 const { showSuccess, showError, showConfirm } = useMessage()
 
 const myHouses = computed(() => sellerStore.houses)
+const deletingHouseId = ref(null)
 
 function getStatusLabel(status) {
   // 0, 1 - Available (Unsold), 2 - Sold/Delisted
@@ -20,19 +21,26 @@ function getStatusLabel(status) {
   if (status === 2 || status === 'sold') {
       return { text: '已售出/下架', class: 'bg-gray-200 text-gray-700' }
   }
-  
+
   return { text: '在售', class: 'bg-green-100 text-green-700' }
 }
 
 async function handleDelete(id) {
+    if (deletingHouseId.value) return
+    deletingHouseId.value = id
+
     try {
         await showConfirm('确定要删除这个房源吗？此操作无法撤销。')
         await sellerStore.deleteHouse(id)
         showSuccess('删除成功')
+        // Refresh list to ensure sync
+        await sellerStore.fetchSellerHouses()
     } catch (e) {
         if (e !== 'cancel') {
              showError('删除失败: ' + (e.message || e))
         }
+    } finally {
+        deletingHouseId.value = null
     }
 }
 
@@ -86,7 +94,14 @@ onMounted(() => {
             <div class="flex justify-end gap-3 mt-4 md:mt-0">
                 <AppButton size="sm" variant="secondary" :to="`/house/${house.id}`">查看</AppButton>
                 <AppButton size="sm" @click="router.push(`/seller/house/${house.id}/edit`)">编辑</AppButton>
-                <AppButton size="sm" variant="danger" @click="handleDelete(house.id)">删除</AppButton>
+                <AppButton
+                    size="sm"
+                    variant="danger"
+                    @click="handleDelete(house.id)"
+                    :disabled="deletingHouseId === house.id"
+                >
+                    {{ deletingHouseId === house.id ? '删除中...' : '删除' }}
+                </AppButton>
             </div>
         </div>
       </div>

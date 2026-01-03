@@ -1,6 +1,7 @@
 package com.zgqf.house.controller;
 
 public class SellerProfileRequest {
+    private Integer s_id;
     private String s_name;
     private String s_describe;
     private String s_phone;
@@ -8,6 +9,14 @@ public class SellerProfileRequest {
     private String s_website;
 
     // Getters and Setters
+    public Integer getS_id() {
+        return s_id;
+    }
+
+    public void setS_id(Integer s_id) {
+        this.s_id = s_id;
+    }
+
     public String getS_name() {
         return s_name;
     }

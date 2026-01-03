@@ -174,8 +174,21 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
+    @Transactional
     public void updateSellerProfile(SellerProfileRequest request) {
-        // Implementation pending
+        if (request.getS_id() == null) {
+            throw new IllegalArgumentException("Seller ID cannot be null");
+        }
+        
+        Seller seller = new Seller();
+        seller.setS_id(request.getS_id());
+        seller.setS_name(request.getS_name());
+        seller.setS_describe(request.getS_describe());
+        seller.setS_phone(request.getS_phone());
+        seller.setS_email(request.getS_email());
+        seller.setS_website(request.getS_website());
+        
+        sellerMapper.updateSeller(seller);
     }
 
     // 模拟获取当前卖家ID的方法，实际项目中应该从SecurityContext中获取

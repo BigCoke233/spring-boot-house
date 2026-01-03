@@ -106,9 +106,19 @@ public class AuthController {
         
         Object roleUser = null;
         if ("buyer".equalsIgnoreCase(user.getU_type())) {
-            roleUser = session.getAttribute("Buyer");
+            // Re-fetch from DB to get latest data
+            Buyer buyer = buyerMapper.getBuyerById(user.getU_id());
+            if (buyer != null) {
+                session.setAttribute("Buyer", buyer);
+                roleUser = buyer;
+            }
         } else if ("seller".equalsIgnoreCase(user.getU_type())) {
-            roleUser = session.getAttribute("Seller");
+            // Re-fetch from DB to get latest data
+            Seller seller = sellerMapper.getSellerById(user.getU_id());
+            if (seller != null) {
+                session.setAttribute("Seller", seller);
+                roleUser = seller;
+            }
         } else {
             roleUser = user;
         }
