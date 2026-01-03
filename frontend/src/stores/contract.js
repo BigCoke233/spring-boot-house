@@ -285,14 +285,14 @@ export const useContractStore = defineStore('contract', () => {
           method: 'POST',
           credentials: 'include'
       })
-      
+
       if (!response.ok) {
           const err = await response.json()
           throw new Error(err.message || '分期支付失败')
       }
 
       const msg = await response.text() // API returns string
-      
+
       // Refresh local state if possible, or just let the view refresh
       return msg
   }

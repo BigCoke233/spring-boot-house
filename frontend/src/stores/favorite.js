@@ -8,7 +8,7 @@ export const useFavoriteStore = defineStore('favorite', () => {
   const error = ref(null)
 
   const isFavorite = computed(() => (id) => {
-    return favorites.value.some(f => f.h_id === id)
+    return favorites.value.some(f => (f.id || f.h_id) === id)
   })
 
   async function fetchFavorites(buyerId) {
@@ -39,7 +39,7 @@ export const useFavoriteStore = defineStore('favorite', () => {
   async function toggleFavorite(houseId, buyerId) {
     if (!buyerId) return
 
-    const isFav = favorites.value.some(f => f.h_id === houseId)
+    const isFav = favorites.value.some(f => (f.id || f.h_id) === houseId)
     const method = isFav ? 'DELETE' : 'POST'
 
     try {
