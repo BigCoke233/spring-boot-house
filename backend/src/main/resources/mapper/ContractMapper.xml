@@ -18,6 +18,7 @@
         <result column="c_seller_agree" property="sellerAgree"/>
         <result column="c_paid" property="paid"/>
         <result column="c_delivered" property="delivered"/>
+        <result column="h_seller_id" property="sellerId"/>
 
         <!-- 关联买方信息 -->
         <association property="buyer" javaType="com.zgqf.house.entity.Buyer">

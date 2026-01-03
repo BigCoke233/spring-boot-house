@@ -16,6 +16,7 @@ public class HouseResultDTO {
     private Double latitude;
     private Double square;
     private BigDecimal totalPrice;
+    private Integer sellerId;
     private String sellerName;
     private String sellerPhone;
     private String sellerEmail;

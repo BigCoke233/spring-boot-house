@@ -332,6 +332,7 @@ public class HouseServiceImpl implements HouseService {
 
         // Fetch Seller Info
         if (house.getH_seller_id() != null) {
+            dto.setSellerId(house.getH_seller_id());
             Seller seller = sellerMapper.getSellerById(house.getH_seller_id());
             if (seller != null) {
                 dto.setSellerName(seller.getS_name());
