@@ -2,6 +2,8 @@
 
 # 以下是后端的忽略项 (Spring Boot)
 
+backend/uploads
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
