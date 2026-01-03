@@ -6,6 +6,8 @@ import { useMessage } from '@/composables/useMessage'
 import AppButton from '@/components/AppButton.vue'
 import { useRouter } from 'vue-router'
 
+import { getImageUrl } from '@/utils/imageUrl.js'
+
 const sellerStore = useSellerStore()
 const router = useRouter()
 const { showSuccess, showError, showConfirm } = useMessage()
@@ -13,19 +15,13 @@ const { showSuccess, showError, showConfirm } = useMessage()
 const myHouses = computed(() => sellerStore.houses)
 
 function getStatusLabel(status) {
-  // h_checked values: 0-Unchecked, 1-Passed, 2-Sold/Delisted
-  if (status === 2 || status === 'sold') return { text: '已售出/下架', class: 'bg-gray-200 text-gray-700' }
-  
-  switch(status) {
-    case 'approved': 
-    case 1:
-        return { text: '已审核', class: 'bg-green-100 text-green-700' }
-    case 'pending': 
-    case 0:
-        return { text: '审核中', class: 'bg-yellow-100 text-yellow-700' }
-    case 'rejected': return { text: '未通过', class: 'bg-red-100 text-red-700' }
-    default: return { text: '未知', class: 'bg-gray-100 text-gray-700' }
+  // 0, 1 - Available (Unsold), 2 - Sold/Delisted
+  // Since audit is removed, 0 and 1 are both treated as "Available"
+  if (status === 2 || status === 'sold') {
+      return { text: '已售出/下架', class: 'bg-gray-200 text-gray-700' }
   }
+  
+  return { text: '在售', class: 'bg-green-100 text-green-700' }
 }
 
 async function handleDelete(id) {
@@ -64,7 +60,11 @@ onMounted(() => {
       <div v-for="house in myHouses" :key="house.id" class="bg-white p-4 rd-lg shadow-sm border border-neutral-200 flex flex-col md:flex-row gap-6">
         <!-- Image Placeholder -->
         <div class="w-full md:w-48 h-32 bg-neutral-200 rd overflow-hidden flex-shrink-0">
-             <img v-if="house.image" :src="house.image" class="w-full h-full object-cover" />
+             <img
+                v-if="house.picturePaths && house.picturePaths.length > 0"
+                :src="getImageUrl(house.picturePaths[0])"
+                class="w-full h-full object-cover"
+             />
              <div v-else class="w-full h-full flex items-center justify-center text-neutral-400">暂无图片</div>
         </div>
 

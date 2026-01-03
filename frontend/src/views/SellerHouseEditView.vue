@@ -13,6 +13,7 @@ const houseStore = useHouseStore()
 const sellerStore = useSellerStore()
 const { showSuccess, showError } = useMessage()
 
+const formRef = ref(null)
 const initialData = ref(null)
 const isLoading = computed(() => houseStore.isLoading || sellerStore.isLoading)
 const isEditMode = computed(() => !!route.params.id)
@@ -67,7 +68,16 @@ async function handleSave(formData) {
 <template>
     <PageContainer class="my-20">
         <div class="max-w-4xl mx-auto py-8">
-            <h1 class="text-2xl font-bold mb-6">{{ pageTitle }}</h1>
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>
+                <button
+                    @click="formRef?.submit()"
+                    :disabled="isLoading"
+                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+                >
+                    {{ isLoading ? '保存中...' : '保存' }}
+                </button>
+            </div>
 
             <div v-if="initialData && initialData.h_checked === 2" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
                 <div class="flex">
@@ -86,6 +96,7 @@ async function handleSave(formData) {
 
             <div class="bg-white rounded-lg shadow p-6">
                 <HouseEditForm
+                    ref="formRef"
                     :initial-data="initialData"
                     :loading="isLoading"
                     @submit="handleSave"

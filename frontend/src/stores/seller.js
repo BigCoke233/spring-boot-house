@@ -1,11 +1,14 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useUserStore } from './user'
 
 export const useSellerStore = defineStore('seller', () => {
   const houses = ref([])
   const sellers = ref([])
   const isLoading = ref(false)
   const error = ref(null)
+  
+  const userStore = useUserStore()
 
   async function fetchSellers() {
     isLoading.value = true
@@ -35,22 +38,25 @@ export const useSellerStore = defineStore('seller', () => {
   async function fetchSellerHouses() {
     isLoading.value = true
     try {
-      const response = await fetch('http://localhost:8080/api/seller/houses', {
-        credentials: 'include'
-      })
+      const sellerId = userStore.currentUserId
+      // Use public API to get full details including images
+      // Set pageSize to 100 to get all houses (or handle pagination if needed later)
+      const response = await fetch(`http://localhost:8080/api/public/houses?sellerId=${sellerId}&pageSize=100`)
+      
       if (!response.ok) throw new Error('Failed to fetch seller houses')
       const data = await response.json()
-      // Map h_checked to auditStatus
-      houses.value = data.map(h => ({
-        ...h,
-        id: h.h_id,
-        name: h.h_name,
-        price: h.h_price,
-        square: h.h_square,
-        address: h.h_address,
-        auditStatus: h.h_checked // Pass through h_checked directly as status
+      
+      // Map HouseResultDTO to expected format for the list view
+      houses.value = data.content.map(h => ({
+        id: h.id,
+        name: h.name,
+        price: h.price,
+        square: h.square,
+        address: h.address,
+        auditStatus: h.checked,
+        picturePaths: h.picturePaths || []
       }))
-      return data
+      return houses.value
     } catch (err) {
       error.value = err.message
       throw err

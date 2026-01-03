@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { Delete, Upload } from '@element-plus/icons-vue'
+import { getImageUrl } from '@/utils/imageUrl.js'
 
 const props = defineProps({
     initialData: {
@@ -94,6 +95,10 @@ function removeImage(index) {
 function handleSubmit() {
     emit('submit', { ...formData.value })
 }
+
+defineExpose({
+    submit: handleSubmit
+})
 </script>
 
 <template>
@@ -152,13 +157,13 @@ function handleSubmit() {
             <h3 class="text-lg font-medium text-gray-900">房源图片</h3>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div v-for="(path, index) in formData.picturePaths" :key="index" class="relative group aspect-square rounded-lg overflow-hidden border border-gray-200">
-                    <img :src="path.startsWith('http') ? path : 'http://localhost:8080' + path" class="w-full h-full object-cover" />
-                    <button type="button" @click="removeImage(index)" 
+                    <img :src="getImageUrl(path)" class="w-full h-full object-cover" />
+                    <button type="button" @click="removeImage(index)"
                         class="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                         <Delete class="w-4 h-4" />
                     </button>
                 </div>
-                
+
                 <label class="flex flex-col items-center justify-center aspect-square border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
                     <div v-if="uploadLoading" class="text-sm text-gray-500">上传中...</div>
                     <div v-else class="flex flex-col items-center">

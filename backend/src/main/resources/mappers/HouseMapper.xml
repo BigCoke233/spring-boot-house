@@ -41,14 +41,11 @@
     <!-- 查询条件片段 -->
     <sql id="selectHouseWhere">
         WHERE 1=1
-        <!-- 审核状态 -->
+        <!-- 审核状态 (已移除默认过滤) -->
         <if test="checked != null">
             AND h.h_checked = #{checked}
         </if>
-        <if test="checked == null">
-            AND h.h_checked = 1  <!-- 默认只查询已审核的 -->
-        </if>
-
+        
         <!-- 房源名称模糊查询 -->
         <if test="name != null and name != ''">
             AND h.h_name LIKE CONCAT('%', #{name}, '%')
@@ -184,7 +181,7 @@
     <!-- 根据ID查询房源详情 -->
     <select id="selectHouseById" resultMap="HouseResultMap">
         <include refid="selectHouseColumns" />
-        WHERE h.h_id = #{id} AND (h.h_checked = 1 OR h.h_checked = 2)
+        WHERE h.h_id = #{id}
         LIMIT 1
     </select>
 
@@ -219,7 +216,7 @@
                  JOIN seller s ON h.h_seller_id = s.s_id
                  JOIN house_tag ht ON h.h_id = ht.ht_house_id
                  JOIN tag t ON ht.ht_tag_id = t.t_id
-        WHERE t.t_type = #{tagType} AND h.h_checked = 1
+        WHERE t.t_type = #{tagType}
         ORDER BY h.h_id DESC
     </select>
 
@@ -230,7 +227,7 @@
                  JOIN seller s ON h.h_seller_id = s.s_id
                  JOIN house_tag ht ON h.h_id = ht.ht_house_id
                  JOIN tag t ON ht.ht_tag_id = t.t_id
-        WHERE t.t_name = #{tagName} AND h.h_checked = 1
+        WHERE t.t_name = #{tagName}
         ORDER BY h.h_id DESC
     </select>
 

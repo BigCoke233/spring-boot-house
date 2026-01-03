@@ -228,9 +228,14 @@ public class HouseServiceImpl implements HouseService {
      */
     @Override
     public HouseResultDTO getHouseById(Integer id) {
-        House house = houseMapper.selectHouseById(id);
+        // Use selectHouseByIdInternal to skip checked status filtering if audit is not required
+        // Or if we want to allow viewing pending houses in some cases.
+        // Based on user request: "房屋没有审核机制，但是代码中仍有残留，如果有房屋是否审核相关的判断，请移除。"
+        // So we should use the method that doesn't filter by status, or update selectHouseById XML to not filter.
+        // Let's use selectHouseByIdInternal which is raw select by ID.
+        House house = houseMapper.selectHouseByIdInternal(id);
         if (house == null) {
-            throw new RuntimeException("房源不存在或未审核");
+            throw new RuntimeException("房源不存在");
         }
         return convertToResultDTO(house);
     }

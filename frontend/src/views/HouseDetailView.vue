@@ -6,6 +6,7 @@ import { useFavoriteStore } from '@/stores/favorite.js'
 import { useUserStore } from '@/stores/user.js'
 import { useContractStore } from '@/stores/contract.js'
 import { useMessage } from '@/composables/useMessage'
+import { getImageUrl } from '@/utils/imageUrl.js'
 import LeafletMap from '@/components/LeafletMap.vue';
 import PageContainer from '@/layouts/PageContainer.vue';
 import AppButton from '@/components/AppButton.vue';
@@ -165,7 +166,7 @@ const onImageError = (index) => {
         </section>
         <!-- 按钮组 -->
         <section class="my-4 flex gap-4">
-          <button @click="handleBuy" :disabled="detail.checked === 2" 
+          <button @click="handleBuy" :disabled="detail.checked === 2"
             :class="[
               'p-6 py-2 text-xl shadow rd text-white transition',
               detail.checked === 2 ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:opacity-90'
@@ -188,7 +189,7 @@ const onImageError = (index) => {
             class="aspect-[4/3] bg-neutral-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
           >
             <img
-              :src="url"
+              :src="getImageUrl(url)"
               :alt="`${detail.name} 图片 ${index + 1}`"
               class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               @error="onImageError(index)"

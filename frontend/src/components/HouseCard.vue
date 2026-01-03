@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { Heart } from 'lucide-vue-next'
 import { useFavoriteStore } from '@/stores/favorite.js'
 import { useUserStore } from '@/stores/user.js'
+import { getImageUrl } from '@/utils/imageUrl.js'
 
 const props = defineProps({
   data: {
@@ -52,10 +53,13 @@ const mainImage = computed(() => {
   if (props.data.picturePaths && Array.isArray(props.data.picturePaths) && props.data.picturePaths.length > 0) {
     // Try to find a valid image, currently we just return the one at current index
     if (currentImageIndex.value < props.data.picturePaths.length) {
-      return props.data.picturePaths[currentImageIndex.value]
+      const url = props.data.picturePaths[currentImageIndex.value]
+      return getImageUrl(url)
     }
   }
-  return props.data.image || ''
+  const img = props.data.image || ''
+  if (!img) return ''
+  return getImageUrl(img)
 })
 
 const isFav = computed(() => favoriteStore.isFavorite(houseId.value))
