@@ -9,4 +9,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         values (#{i_contract_id}, #{i_down_payment}, #{i_total_periods}, #{i_paid_count}, #{i_paid_per_period})
     </insert>
 
+    <!-- 根据合同ID删除分期信息 -->
+    <delete id="deleteByContractId" parameterType="int">
+        delete from installment where i_contract_id = #{contractId}
+    </delete>
+
 </mapper>

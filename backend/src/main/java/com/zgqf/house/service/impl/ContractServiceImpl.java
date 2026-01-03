@@ -208,6 +208,9 @@ public class ContractServiceImpl implements ContractService {
             throw new RuntimeException("合同不存在，ID: " + id);
         }
 
+        // 先删除关联的分期信息
+        installmentMapper.deleteByContractId(id);
+
         int rows = contractMapper.deleteContract(id);
         if (rows == 0) {
             throw new RuntimeException("删除合同失败，ID: " + id);
