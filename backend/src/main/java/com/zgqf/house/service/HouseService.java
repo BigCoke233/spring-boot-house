@@ -23,6 +23,11 @@ public interface HouseService {
     void updateSellerProfile(SellerProfileRequest request);
 
     /**
+     * 获取卖家自己的房源详情（忽略审核状态）
+     */
+    HouseResultDTO getSellerHouseById(Integer id);
+
+    /**
      * 分页查询房源 - 返回Spring Data Page
      */
     Page<HouseResultDTO> getHouses(HouseQueryDTO queryDTO);

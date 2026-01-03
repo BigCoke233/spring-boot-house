@@ -1,5 +1,6 @@
 package com.zgqf.house.controller;
 
+import com.zgqf.house.dto.HouseResultDTO;
 import com.zgqf.house.dto.HouseFormDTO;
 import com.zgqf.house.entity.House;
 import com.zgqf.house.service.HouseService;
@@ -30,6 +31,16 @@ public class SellerController {
     public ResponseEntity<List<House>> getHousesBySeller() {
         List<House> houses = houseService.getHousesBySeller();
         return ResponseEntity.ok(houses);
+    }
+
+    /**
+     * 获取卖家自己的房源详情（用于编辑）
+     * GET /api/seller/house/{id}
+     */
+    @GetMapping("/house/{id}")
+    public ResponseEntity<HouseResultDTO> getSellerHouseById(@PathVariable("id") Integer id) {
+        HouseResultDTO house = houseService.getSellerHouseById(id);
+        return ResponseEntity.ok(house);
     }
 
     /**

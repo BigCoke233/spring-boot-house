@@ -45,6 +45,11 @@ public interface HouseMapper {
     House selectHouseById(@Param("id") Integer id);
 
     /**
+     * 根据ID查询房源详情 (内部使用，不检查审核状态)
+     */
+    House selectHouseByIdInternal(@Param("id") Integer id);
+
+    /**
      * 根据房源ID查询标签列表
      */
     List<String> selectTagsByHouseId(@Param("houseId") Integer houseId);

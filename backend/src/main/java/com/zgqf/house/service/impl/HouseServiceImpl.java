@@ -9,6 +9,7 @@ import com.zgqf.house.mapper.HouseMapper;
 import com.zgqf.house.mapper.SellerMapper;
 import com.zgqf.house.service.HouseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class HouseServiceImpl implements HouseService {
 
     private final HouseMapper houseMapper;
@@ -65,19 +67,91 @@ public class HouseServiceImpl implements HouseService {
 
     @Override
     public House updateHouse(Integer id, House house) {
-        // Implementation pending or consolidated with the other updateHouse
-        return null;
+        house.setH_id(id);
+        return updateHouse(house);
     }
 
     @Override
     public House updateHouse(House house) {
-        houseMapper.update(house);
+        // Verify that the house exists and belongs to the current seller
+        Integer currentSellerId = getCurrentSellerId();
+        Integer houseId = house.getH_id();
+
+        if (houseId == null) {
+            throw new IllegalArgumentException("House ID cannot be null");
+        }
+
+        // Check if the house exists and get its current data
+        // Use internal method that doesn't filter by h_checked, since sellers
+        // need to be able to update their own houses even if not yet approved
+        House existingHouse = houseMapper.selectHouseByIdInternal(houseId);
+        if (existingHouse == null) {
+            log.error("Update house failed: House not found with ID: {}", houseId);
+            throw new RuntimeException("House not found with ID: " + houseId);
+        }
+
+        // Verify ownership - ensure the house belongs to the current seller
+        if (existingHouse.getH_seller_id() == null) {
+            log.error("Update house failed: House {} has no seller ID", houseId);
+            throw new RuntimeException("Data integrity error: House has no seller");
+        }
+        
+        if (!existingHouse.getH_seller_id().equals(currentSellerId)) {
+            log.warn("Security warning: User {} tried to update house {} belonging to seller {}", 
+                    currentSellerId, houseId, existingHouse.getH_seller_id());
+            throw new SecurityException("You can only update your own houses");
+        }
+
+        // Update the house
+        try {
+            int rowsUpdated = houseMapper.update(house);
+            if (rowsUpdated == 0) {
+                log.warn("Update house {} returned 0 rows updated", houseId);
+                throw new RuntimeException("Failed to update house - no changes made");
+            }
+        } catch (Exception e) {
+            log.error("Error updating house {}: {}", houseId, e.getMessage());
+            throw e;
+        }
+
         return house;
     }
 
     @Override
     public boolean deleteHouse(Integer houseId) {
+        // Verify ownership before deletion
+        Integer currentSellerId = getCurrentSellerId();
+
+        // Check if the house exists and belongs to the current seller
+        House existingHouse = houseMapper.selectBySellerId(currentSellerId).stream()
+            .filter(h -> h.getH_id().equals(houseId))
+            .findFirst()
+            .orElse(null);
+
+        if (existingHouse == null) {
+            throw new SecurityException("You can only delete your own houses or house not found");
+        }
+
         return houseMapper.deleteById(houseId) > 0;
+    }
+
+    @Override
+    public HouseResultDTO getSellerHouseById(Integer id) {
+        Integer currentSellerId = getCurrentSellerId();
+        
+        // Use internal method to ignore checked status
+        House house = houseMapper.selectHouseByIdInternal(id);
+        
+        if (house == null) {
+            throw new RuntimeException("房源不存在");
+        }
+        
+        // Check ownership
+        if (!house.getH_seller_id().equals(currentSellerId)) {
+            throw new SecurityException("只能查看自己的房源信息");
+        }
+        
+        return convertToResultDTO(house);
     }
 
     @Override
@@ -122,9 +196,8 @@ public class HouseServiceImpl implements HouseService {
                 // Ignore if not in a web request context
             }
         }
-        
-        // Fallback for testing or if session lookup fails
-        return 17; 
+
+        throw new RuntimeException("Seller not authenticated - cannot obtain seller ID");
     }
 
     @Override

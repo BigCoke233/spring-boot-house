@@ -131,6 +131,25 @@ export const useSellerStore = defineStore('seller', () => {
     }
   }
 
+  async function fetchSellerHouseById(id) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const response = await fetch(`http://localhost:8080/api/seller/house/${id}`, {
+        credentials: 'include'
+      })
+      if (!response.ok) throw new Error('Failed to fetch house details')
+      const data = await response.json()
+      return data
+    } catch (err) {
+      console.error(`Fetch seller house ${id} error:`, err)
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     houses,
     sellers,
@@ -140,6 +159,7 @@ export const useSellerStore = defineStore('seller', () => {
     fetchSellerHouses,
     createHouse,
     updateHouse,
-    deleteHouse
+    deleteHouse,
+    fetchSellerHouseById
   }
 })

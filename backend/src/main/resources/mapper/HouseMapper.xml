@@ -188,6 +188,13 @@
         LIMIT 1
     </select>
 
+    <!-- 根据ID查询房源详情 (内部使用，不检查审核状态) -->
+    <select id="selectHouseByIdInternal" resultMap="HouseResultMap">
+        <include refid="selectHouseColumns" />
+        WHERE h.h_id = #{id}
+        LIMIT 1
+    </select>
+
     <!-- 根据房源ID查询标签 -->
     <select id="selectTagsByHouseId" resultType="java.lang.String">
         SELECT t.t_name

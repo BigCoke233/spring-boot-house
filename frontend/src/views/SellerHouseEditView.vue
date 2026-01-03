@@ -22,7 +22,8 @@ onMounted(async () => {
     const id = route.params.id
     if (id) {
         try {
-            const house = await houseStore.fetchHouseById(id)
+            // Use seller store to fetch house details (allows viewing non-approved/delisted houses)
+            const house = await sellerStore.fetchSellerHouseById(id)
             if (house) {
                 // Map HouseResultDTO to House entity fields
                 initialData.value = {
