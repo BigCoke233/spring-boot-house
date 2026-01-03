@@ -5,6 +5,7 @@ import com.zgqf.house.dto.HouseQueryDTO;
 import com.zgqf.house.dto.HouseResultDTO;
 import com.zgqf.house.entity.House;
 import com.zgqf.house.entity.Seller;
+import com.zgqf.house.mapper.FollowMapper;
 import com.zgqf.house.mapper.HouseMapper;
 import com.zgqf.house.mapper.SellerMapper;
 import com.zgqf.house.service.HouseService;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,6 +29,7 @@ public class HouseServiceImpl implements HouseService {
 
     private final HouseMapper houseMapper;
     private final SellerMapper sellerMapper;
+    private final FollowMapper followMapper;
 
     @Override
     public List<House> getHousesBySeller() {
@@ -118,6 +121,7 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
+    @Transactional
     public boolean deleteHouse(Integer houseId) {
         // Verify ownership before deletion
         Integer currentSellerId = getCurrentSellerId();
@@ -131,8 +135,23 @@ public class HouseServiceImpl implements HouseService {
         if (existingHouse == null) {
             throw new SecurityException("You can only delete your own houses or house not found");
         }
+        
+        // 1. Delete pictures
+        houseMapper.deletePicturesByHouseId(houseId);
+        
+        // 2. Delete tags
+        houseMapper.deleteTagsByHouseId(houseId);
+        
+        // 3. Delete favorites (follows)
+        followMapper.deleteByHouseId(houseId);
 
-        return houseMapper.deleteById(houseId) > 0;
+        // 4. Delete house
+        try {
+            return houseMapper.deleteById(houseId) > 0;
+        } catch (Exception e) {
+            log.error("Failed to delete house {}", houseId, e);
+            throw new RuntimeException("删除失败，可能该房源有关联的合同或订单信息");
+        }
     }
 
     @Override
@@ -279,7 +298,13 @@ public class HouseServiceImpl implements HouseService {
         dto.setDescription(house.getH_describe());
         dto.setAddress(house.getH_address());
         dto.setDetailAddress(house.getH_detail_address());
-        dto.setPrice(BigDecimal.valueOf(house.getH_price()));
+        
+        if (house.getH_price() != null) {
+            dto.setPrice(BigDecimal.valueOf(house.getH_price()));
+        } else {
+            dto.setPrice(BigDecimal.ZERO);
+        }
+        
         dto.setLongitude(house.getH_longitude());
         dto.setLatitude(house.getH_latitude());
         dto.setSquare(house.getH_square());
@@ -288,6 +313,8 @@ public class HouseServiceImpl implements HouseService {
         // Calculate Total Price
         if (house.getH_price() != null && house.getH_square() != null) {
             dto.setTotalPrice(BigDecimal.valueOf(house.getH_price()).multiply(BigDecimal.valueOf(house.getH_square())));
+        } else {
+             dto.setTotalPrice(BigDecimal.ZERO);
         }
 
         // Fetch Seller Info

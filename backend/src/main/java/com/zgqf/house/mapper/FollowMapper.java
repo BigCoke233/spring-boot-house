@@ -37,4 +37,9 @@ public interface FollowMapper {
      * @return 收藏的房源详细信息列表
      */
     List<House> getFollowHouses(@Param("buyerId") Integer buyerId);
+
+    /**
+     * 删除指定房源的所有收藏记录
+     */
+    void deleteByHouseId(@Param("houseId") Integer houseId);
 }

@@ -78,4 +78,9 @@ public interface HouseMapper {
      * 删除房源的所有图片
      */
     int deletePicturesByHouseId(@Param("houseId") Integer houseId);
+
+    /**
+     * 删除房源的所有标签关联
+     */
+    int deleteTagsByHouseId(@Param("houseId") Integer houseId);
 }

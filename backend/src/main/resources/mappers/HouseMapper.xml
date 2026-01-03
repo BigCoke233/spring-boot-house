@@ -143,6 +143,11 @@
         DELETE FROM house_picture WHERE hp_house_id = #{houseId}
     </delete>
 
+    <!-- 删除房源的所有标签关联 -->
+    <delete id="deleteTagsByHouseId">
+        DELETE FROM house_tag WHERE ht_house_id = #{houseId}
+    </delete>
+
     <!-- 查询房源列表 -->
     <select id="selectHouseList" parameterType="com.zgqf.house.dto.HouseQueryDTO"
             resultMap="HouseResultMap">

@@ -22,4 +22,9 @@
         SELECT h.* FROM house h INNER JOIN follow f ON h.h_id = f.f_house_id WHERE f.f_buyer_id = #{buyerId}
     </select>
 
+    <!-- 删除指定房源的所有收藏记录 -->
+    <delete id="deleteByHouseId">
+        DELETE FROM follow WHERE f_house_id = #{houseId}
+    </delete>
+
 </mapper>
