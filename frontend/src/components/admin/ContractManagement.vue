@@ -205,12 +205,14 @@ const resetFilters = () => {
 }
 
 const handleView = (contract) => {
-  currentContract.value = { ...contract }
+  // Deep copy
+  currentContract.value = JSON.parse(JSON.stringify(contract))
   showViewDialog.value = true
 }
 
 const handleEdit = (contract) => {
-  currentContract.value = { ...contract }
+  // Deep copy the contract object to avoid reactive issues
+  currentContract.value = JSON.parse(JSON.stringify(contract))
   showEditDialog.value = true
 }
 

@@ -17,10 +17,10 @@ export const useContractStore = defineStore('contract', () => {
       houseId: c.c_house_id,
       totalPrice: c.c_total_price,
       payWay: c.c_pay_way,
-      paytimeEnding: c.c_paytime_ending,
-      paytimeActually: c.c_paytime_actually,
-      deliveryEnding: c.c_delivery_ending,
-      deliveryActually: c.c_delivery_actually,
+      paytimeEnding: c.c_paytime_ending ? new Date(c.c_paytime_ending).toLocaleDateString() : '—',
+      paytimeActually: c.c_paytime_actually ? new Date(c.c_paytime_actually).toLocaleDateString() : '—',
+      deliveryEnding: c.c_delivery_ending ? new Date(c.c_delivery_ending).toLocaleDateString() : '—',
+      deliveryActually: c.c_delivery_actually ? new Date(c.c_delivery_actually).toLocaleDateString() : '—',
       buyerAgree: c.c_buyer_agree,
       sellerAgree: c.c_seller_agree,
       paid: c.c_paid,
@@ -29,7 +29,7 @@ export const useContractStore = defineStore('contract', () => {
       downPayment: c.downPayment || c.c_down_payment,
       totalPeriods: c.totalPeriods || c.c_total_periods,
       paidCount: c.paidCount || c.c_paid_count || 0,
-      sellerId: c.sellerId, // Map the sellerId from backend
+      sellerId: c.c_seller_id || c.sellerId, // Map the sellerId from backend
       buyer: c.buyer || null,
       seller: c.seller || null,
       house: c.house || null

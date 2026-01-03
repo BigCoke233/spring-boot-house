@@ -14,11 +14,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ContractController {
-    
     private final ContractService contractService;
     private final com.zgqf.house.service.BuyerService buyerService;
 
-    // 获取合同列表 (兼容 Admin 和 User 路径)
+    // 获取合同列表
     @GetMapping({"/admin/contracts", "/contract"})
     public ResponseEntity<Page<Contract>> getContracts(ContractQueryDTO queryDTO) {
         return ResponseEntity.ok(contractService.getContracts(queryDTO));
@@ -27,8 +26,6 @@ public class ContractController {
     // 获取特定合同详情
     @PostMapping("/contract/{id}")
     public ResponseEntity<Contract> getContract(@PathVariable Integer id) {
-        // 注意：图片中是 POST 请求获取单个合同，这不太符合 RESTful 规范
-        // 但按照图片要求，这里改为 POST
         return ResponseEntity.ok(contractService.getContractDetail(id));
     }
 
@@ -38,7 +35,7 @@ public class ContractController {
         return ResponseEntity.ok(contractService.createContract(createDTO));
     }
 
-    // 更新合同（图片中显示是通过 POST /contract/{id} 更新）
+    // 更新合同
     @PostMapping("/contract/{id}/update")
     public ResponseEntity<Contract> updateContract(
             @PathVariable Integer id,
@@ -83,10 +80,6 @@ public class ContractController {
             @PathVariable Integer id,
             @RequestParam Integer buyerId,
             @RequestParam Integer period) {
-        // 调用 BuyerService 处理分期付款逻辑
-        // 注意：ContractService 中没有 processInstallmentPayment，这里可能需要注入 BuyerService 或者在 ContractService 中添加
-        // 为了保持一致性，我们在 ContractService 中添加接口，或者直接注入 BuyerService
-        // 简单起见，这里假设 ContractService 有相应方法，或者我们在 Controller 中注入 BuyerService
         return ResponseEntity.ok(buyerService.processInstallmentPayment(buyerId, id, period));
     }
 

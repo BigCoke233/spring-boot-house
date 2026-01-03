@@ -43,10 +43,6 @@ const paidAmount = computed(() => {
     return Math.round((total / periods) * paidCount)
 })
 
-const nextDeadline = computed(() => {
-    return props.contract.paytimeEnding || '—'
-})
-
 const lastPaymentDate = computed(() => {
     return props.contract.paytimeActually || '—'
 })
@@ -61,7 +57,7 @@ const lastPaymentDate = computed(() => {
         {{ status }}
       </span>
     </div>
-    
+
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Left Column: Basic Info -->
@@ -70,7 +66,7 @@ const lastPaymentDate = computed(() => {
             <div class="text-sm text-neutral-500 mb-1">总金额</div>
             <div class="text-2xl font-bold text-neutral-900">¥{{ Number(contract.totalPrice).toLocaleString() }}</div>
           </div>
-          
+
           <div>
             <div class="text-sm text-neutral-500 mb-1">付款方式</div>
             <div class="font-medium">{{ isInstallment ? '分期付款' : '全款支付' }}</div>
@@ -88,7 +84,7 @@ const lastPaymentDate = computed(() => {
               <span class="font-medium">{{ contract.paidCount }}/{{ contract.totalPeriods }} 期</span>
             </div>
             <div class="w-full bg-neutral-100 rounded-full h-2.5 overflow-hidden">
-              <div class="bg-green-500 h-2.5 rounded-full transition-all duration-500" 
+              <div class="bg-green-500 h-2.5 rounded-full transition-all duration-500"
                    :style="{ width: progressPercent + '%' }"></div>
             </div>
             <div class="flex justify-between text-xs text-neutral-400 mt-1">
@@ -101,10 +97,6 @@ const lastPaymentDate = computed(() => {
             <div>
               <div class="text-sm text-neutral-500 mb-1">最近付款时间</div>
               <div class="text-neutral-900">{{ lastPaymentDate }}</div>
-            </div>
-            <div v-if="status !== '已支付' && status !== '已完成'">
-              <div class="text-sm text-neutral-500 mb-1">下期截止</div>
-              <div class="text-red-600 font-medium">{{ nextDeadline }}</div>
             </div>
           </div>
         </div>

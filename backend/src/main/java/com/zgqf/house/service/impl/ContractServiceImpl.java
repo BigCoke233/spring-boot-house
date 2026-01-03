@@ -92,8 +92,23 @@ public class ContractServiceImpl implements ContractService {
         contract.setC_house_id(createDTO.getHouseId());
         contract.setC_total_price(createDTO.getTotalPrice());
         contract.setC_pay_way(createDTO.getPayWay());
-        contract.setC_paytime_ending(createDTO.getPaytimeEnding());
-        contract.setC_delivery_ending(createDTO.getDeliveryEnding());
+
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        calendar.add(java.util.Calendar.YEAR, 1);
+        Date oneYearLater = calendar.getTime();
+        
+        if (createDTO.getPaytimeEnding() != null) {
+            contract.setC_paytime_ending(createDTO.getPaytimeEnding());
+        } else {
+            contract.setC_paytime_ending(oneYearLater);
+        }
+
+        if (createDTO.getDeliveryEnding() != null) {
+            contract.setC_delivery_ending(createDTO.getDeliveryEnding());
+        } else {
+            contract.setC_delivery_ending(oneYearLater);
+        }
+        
         contract.setC_buyer_agree(0);   // 初始状态：未处理
         contract.setC_seller_agree(0);  // 初始状态：未处理
         contract.setC_paid(0);         // 初始状态：未付款
@@ -168,6 +183,24 @@ public class ContractServiceImpl implements ContractService {
         contract.setC_id(id);
 
         // 设置可更新的字段
+        if (updateDTO.getBuyerId() != null) {
+            contract.setC_buyer_id(updateDTO.getBuyerId());
+        }
+        if (updateDTO.getHouseId() != null) {
+            contract.setC_house_id(updateDTO.getHouseId());
+        }
+        if (updateDTO.getTotalPrice() != null) {
+            contract.setC_total_price(updateDTO.getTotalPrice());
+        }
+        if (updateDTO.getPayWay() != null) {
+            contract.setC_pay_way(updateDTO.getPayWay());
+        }
+        if (updateDTO.getPaytimeEnding() != null) {
+            contract.setC_paytime_ending(updateDTO.getPaytimeEnding());
+        }
+        if (updateDTO.getDeliveryEnding() != null) {
+            contract.setC_delivery_ending(updateDTO.getDeliveryEnding());
+        }
         if (updateDTO.getBuyerAgree() != null) {
             contract.setC_buyer_agree(updateDTO.getBuyerAgree());
         }
@@ -373,11 +406,12 @@ public class ContractServiceImpl implements ContractService {
                 (!"full".equals(dto.getPayWay()) && !"installment".equals(dto.getPayWay()))) {
             throw new IllegalArgumentException("付款方式必须是'full'或'installment'");
         }
-        if (dto.getPaytimeEnding() == null) {
-            throw new IllegalArgumentException("付款截止日期不能为空");
-        }
-        if (dto.getDeliveryEnding() == null) {
-            throw new IllegalArgumentException("交房截止日期不能为空");
-        }
+        // 自动生成日期，不再强制前端传递
+        // if (dto.getPaytimeEnding() == null) {
+        //    throw new IllegalArgumentException("付款截止日期不能为空");
+        // }
+        // if (dto.getDeliveryEnding() == null) {
+        //    throw new IllegalArgumentException("交房截止日期不能为空");
+        // }
     }
 }

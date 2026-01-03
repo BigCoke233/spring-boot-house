@@ -124,8 +124,11 @@ watch(() => props.contract, (newVal) => {
   if (newVal) {
     // Format dates for input[type="date"]
     const formatDateForInput = (dateStr) => {
-      if (!dateStr) return ''
-      return new Date(dateStr).toISOString().split('T')[0]
+      if (!dateStr || dateStr === '—' || dateStr === '--') return ''
+      // Try to parse non-standard formats like "2025/1/3" or handle standard Date objects
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return ''
+      return d.toISOString().split('T')[0]
     }
 
     formData.value = {
@@ -139,7 +142,17 @@ watch(() => props.contract, (newVal) => {
 }, { immediate: true })
 
 const handleSubmit = () => {
-  emit('save', formData.value)
+  // Construct a clean payload with only the fields we want to send
+  const payload = {
+    id: formData.value.id, // Ensure ID is present if editing
+    buyerId: formData.value.buyerId,
+    houseId: formData.value.houseId,
+    totalPrice: formData.value.totalPrice,
+    payWay: formData.value.payWay,
+    paytimeEnding: formData.value.paytimeEnding || null,
+    deliveryEnding: formData.value.deliveryEnding || null
+  }
+  emit('save', payload)
 }
 
 const formatNumber = (num) => {
@@ -148,8 +161,10 @@ const formatNumber = (num) => {
 }
 
 const formatDate = (dateString) => {
-  if (!dateString) return '--'
-  return new Date(dateString).toLocaleDateString('zh-CN')
+  if (!dateString || dateString === '—' || dateString === '--') return '--'
+  const d = new Date(dateString)
+  if (isNaN(d.getTime())) return dateString // Return original if invalid
+  return d.toLocaleDateString('zh-CN')
 }
 
 const formatPayWay = (way) => {
