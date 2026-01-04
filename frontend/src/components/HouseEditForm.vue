@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { Delete, Upload } from '@element-plus/icons-vue'
 import { getImageUrl } from '@/utils/imageUrl.js'
@@ -28,12 +28,26 @@ const formData = ref({
     h_square: null,
     h_longitude: null,
     h_latitude: null,
-    picturePaths: [] // Added picturePaths
+    picturePaths: [], // Added picturePaths
+    tagIds: [] // Added tagIds
 })
 
 // Initialize map coordinates
 const mapCoordinates = ref(null)
 const uploadLoading = ref(false)
+const availableTags = ref([])
+
+// Fetch tags on mount
+onMounted(async () => {
+    try {
+        const response = await fetch('http://localhost:8080/api/public/houses/tags')
+        if (response.ok) {
+            availableTags.value = await response.json()
+        }
+    } catch (e) {
+        console.error('Failed to fetch tags', e)
+    }
+})
 
 // Watch for initialData changes to populate form
 watch(() => props.initialData, (newData) => {
@@ -42,6 +56,10 @@ watch(() => props.initialData, (newData) => {
         // Ensure picturePaths is an array
         if (!formData.value.picturePaths) {
             formData.value.picturePaths = []
+        }
+        // Ensure tagIds is an array
+        if (!formData.value.tagIds) {
+            formData.value.tagIds = []
         }
 
         // Map backend fields to frontend logic if needed
@@ -173,6 +191,19 @@ defineExpose({
                     <input type="file" class="hidden" accept="image/*" @change="handleFileUpload" :disabled="uploadLoading" />
                 </label>
             </div>
+        </div>
+
+        <!-- Tags Selection -->
+        <div class="space-y-4">
+            <h3 class="text-lg font-medium text-gray-900">房源标签</h3>
+            <div class="flex flex-wrap gap-3">
+                <label v-for="tag in availableTags" :key="tag.t_id" class="inline-flex items-center space-x-2 cursor-pointer bg-gray-50 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors">
+                    <input type="checkbox" :value="tag.t_id" v-model="formData.tagIds"
+                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                    <span class="text-sm text-gray-700">{{ tag.t_name }}</span>
+                </label>
+            </div>
+            <p v-if="availableTags.length === 0" class="text-sm text-gray-500">暂无可用标签</p>
         </div>
 
         <!-- Location Map -->

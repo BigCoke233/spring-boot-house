@@ -240,4 +240,20 @@
         SELECT * FROM house WHERE h_seller_id = #{sellerId}
     </select>
 
+    <!-- 插入房源标签 -->
+    <insert id="insertHouseTag">
+        INSERT INTO house_tag (ht_house_id, ht_tag_id)
+        VALUES (#{houseId}, #{tagId})
+    </insert>
+
+    <!-- 查询所有标签 -->
+    <select id="selectAllTags" resultType="com.zgqf.house.entity.Tag">
+        SELECT * FROM tag
+    </select>
+
+    <!-- 根据房源ID查询标签ID -->
+    <select id="selectTagIdsByHouseId" resultType="java.lang.Integer">
+        SELECT ht_tag_id FROM house_tag WHERE ht_house_id = #{houseId}
+    </select>
+
 </mapper>

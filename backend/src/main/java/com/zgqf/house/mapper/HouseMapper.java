@@ -83,4 +83,19 @@ public interface HouseMapper {
      * 删除房源的所有标签关联
      */
     int deleteTagsByHouseId(@Param("houseId") Integer houseId);
+
+    /**
+     * 插入房源标签
+     */
+    int insertHouseTag(@Param("houseId") Integer houseId, @Param("tagId") Integer tagId);
+
+    /**
+     * 查询所有可用标签
+     */
+    List<com.zgqf.house.entity.Tag> selectAllTags();
+
+    /**
+     * 根据房源ID查询标签ID列表
+     */
+    List<Integer> selectTagIdsByHouseId(@Param("houseId") Integer houseId);
 }

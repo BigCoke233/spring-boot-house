@@ -61,4 +61,14 @@ public interface HouseService {
      * 保存房源图片
      */
     void savePictures(Integer houseId, List<String> picturePaths);
+
+    /**
+     * 保存房源标签
+     */
+    void saveTags(Integer houseId, List<Integer> tagIds);
+
+    /**
+     * 获取所有标签
+     */
+    List<com.zgqf.house.entity.Tag> getAllTags();
 }

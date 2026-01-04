@@ -51,6 +51,7 @@ public class SellerController {
     public ResponseEntity<House> createHouse(@RequestBody HouseFormDTO houseDto) {
         House createdHouse = houseService.createHouse(houseDto);
         houseService.savePictures(createdHouse.getH_id(), houseDto.getPicturePaths());
+        houseService.saveTags(createdHouse.getH_id(), houseDto.getTagIds());
         return ResponseEntity.ok(createdHouse);
     }
 
@@ -63,6 +64,7 @@ public class SellerController {
         houseDto.setH_id(id);
         House updatedHouse = houseService.updateHouse(houseDto);
         houseService.savePictures(id, houseDto.getPicturePaths());
+        houseService.saveTags(id, houseDto.getTagIds());
         return ResponseEntity.ok(updatedHouse);
     }
 

@@ -52,6 +52,24 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
+    public void saveTags(Integer houseId, List<Integer> tagIds) {
+        // First delete existing tags
+        houseMapper.deleteTagsByHouseId(houseId);
+
+        // Then insert new ones
+        if (tagIds != null && !tagIds.isEmpty()) {
+            for (Integer tagId : tagIds) {
+                houseMapper.insertHouseTag(houseId, tagId);
+            }
+        }
+    }
+
+    @Override
+    public List<com.zgqf.house.entity.Tag> getAllTags() {
+        return houseMapper.selectAllTags();
+    }
+
+    @Override
     public List<HouseResultDTO> getHousesByTagName(String tagName) {
         List<House> houses = houseMapper.selectHousesByTagName(tagName);
          return houses.stream()
@@ -342,8 +360,12 @@ public class HouseServiceImpl implements HouseService {
         }
 
         // 查询标签
-        List<String> tags = houseMapper.selectTagsByHouseId(house.getH_id());
-        dto.setTagNames(tags);
+        // List<String> tags = houseMapper.selectTagsByHouseId(house.getH_id());
+        // dto.setTagNames(tags);
+        // We now fetch tag names but also need tagIds if frontend needs them.
+        // For now, keep tagNames.
+        dto.setTagNames(houseMapper.selectTagsByHouseId(house.getH_id()));
+        dto.setTagIds(houseMapper.selectTagIdsByHouseId(house.getH_id()));
 
         // 查询图片
         List<String> pictures = houseMapper.selectPicturesByHouseId(house.getH_id());

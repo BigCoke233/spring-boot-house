@@ -10,4 +10,5 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class HouseFormDTO extends House {
     private List<String> picturePaths;
+    private List<Integer> tagIds;
 }

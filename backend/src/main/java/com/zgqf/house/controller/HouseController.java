@@ -74,6 +74,15 @@ public class HouseController {
     }
 
     /**
+     * GET /api/public/houses/tags
+     * 获取所有可用标签
+     */
+    @GetMapping("/tags")
+    public ResponseEntity<java.util.List<com.zgqf.house.entity.Tag>> getAllTags() {
+        return ResponseEntity.ok(houseService.getAllTags());
+    }
+
+    /**
      * GET /api/public/houses/by-tag-name
      * 根据标签名查询
      * 示例：/api/public/houses/by-tag-name?tag=精装修&pageNum=1&pageSize=10

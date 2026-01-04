@@ -40,7 +40,9 @@ onMounted(async () => {
                     h_latitude: house.latitude,
                     h_checked: house.checked, // Add checked status
                     // Map picturePaths
-                    picturePaths: house.picturePaths || []
+                    picturePaths: house.picturePaths || [],
+                    // Map tags
+                    tagIds: house.tagIds || []
                 }
             }
         } catch (e) {
